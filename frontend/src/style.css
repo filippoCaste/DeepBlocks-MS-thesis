@@ -1,0 +1,23 @@
+.sidebar {
+    width: 4rem;
+    height: 100vh;
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar-menu li {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.sidebar-menu li span {
+    margin-left: 10px;
+}

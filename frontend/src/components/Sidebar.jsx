@@ -7,9 +7,10 @@ import PlayFill from 'react-bootstrap-icons/dist/icons/play-fill'
 import ListColumns from 'react-bootstrap-icons/dist/icons/list-columns'
 
 
-const Sidebar = () => {
+const Sidebar = (props) => {
 
     const [openMenu, setOpenMenu] = useState('none');
+    const nodes = props.nodes;
 
     return (
         <>
@@ -42,7 +43,7 @@ const Sidebar = () => {
                     </li>
                 </ul>
             </div>
-            {openMenu !== 'none' && <Menu setOpenMenu={setOpenMenu} openMenu={openMenu} />}
+            {openMenu !== 'none' && <Menu setOpenMenu={setOpenMenu} openMenu={openMenu} nodes={nodes} />}
         </>
     );
 };
@@ -54,8 +55,8 @@ const Menu = (props) => {
         <Container className='left-menu'>
             <h4>{openMenu}</h4>
             <div>
-            {openMenu === 'Network Design' && <NetworkMenu />}
-            {openMenu === 'Network Details' && <NetworkDetails />}
+            {openMenu === 'Network Design' && <NetworkDesign />}
+            {openMenu === 'Network Details' && <NetworkDetails nodes={props.nodes}/>}
             {openMenu === 'Training' && <Training />}
             {openMenu === 'Options' && <Options />}
             </div>
@@ -63,21 +64,35 @@ const Menu = (props) => {
     )
 }
 
-const NetworkMenu = () => {
+const NetworkDesign = () => {
     return (
-        <></>
+        <>
+
+        </>
     );
 }
 
-const NetworkDetails = () => {
+const NetworkDetails = (props) => {
+    const nodes = props.nodes;
+
     return (
-        <></>
+        <>
+            {nodes.map((node) => {
+                return <p>{node.data.label}</p>
+            })}
+        </>
     );
+}
+
+const handleTrain = () => {
+    console.log("You successfully trained your network")
 }
 
 const Training = () => {
     return (
-        <></>
+        <>
+            <Button className='left-menu-button' onClick={() => handleTrain()}> Train </Button>
+        </>
     );
 }
 const handleSave = () => {

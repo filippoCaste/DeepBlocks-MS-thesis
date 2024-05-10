@@ -1,10 +1,13 @@
 import Button from 'react-bootstrap/Button';
 import React, { useState } from 'react';
 import Container from 'react-bootstrap/Container';
+import Table from 'react-bootstrap/Table';
 import Download from 'react-bootstrap-icons/dist/icons/download'
 import Pencil from 'react-bootstrap-icons/dist/icons/pencil'
 import PlayFill from 'react-bootstrap-icons/dist/icons/play-fill'
 import ListColumns from 'react-bootstrap-icons/dist/icons/list-columns'
+
+import Blocks from '../../public/data/blocks.json'
 
 
 const Sidebar = (props) => {
@@ -53,7 +56,7 @@ const Menu = (props) => {
 
     return (
         <Container className='left-menu'>
-            <h4>{openMenu}</h4>
+            <h4 style={{fontWeight: 'bold'}}>{openMenu}</h4>
             <div>
             {openMenu === 'Network Design' && <NetworkDesign />}
             {openMenu === 'Network Details' && <NetworkDetails nodes={props.nodes}/>}
@@ -66,8 +69,41 @@ const Menu = (props) => {
 
 const NetworkDesign = () => {
     return (
-        <>
+        <div style={{textAlign: 'left'}}>
 
+            <BlockTable blocks={Blocks.blocks['Element-wise']} category="Element-wise" />
+
+            <BlockTable blocks={Blocks.blocks.Activation} category="Activation" />
+
+            <BlockTable blocks={Blocks.blocks.Normalization} category="Normalization" />
+
+            <BlockTable blocks={Blocks.blocks.Regularization} category="Regularization" />
+
+            <BlockTable blocks={Blocks.blocks.Pooling} category="Pooling" />
+
+        </div>
+    );
+}
+
+const BlockTable = ({category, blocks}) => {
+
+    console.log(blocks)
+
+    return (
+        <>
+            <h5 style={{textAlign: 'center'}}>{category}</h5>
+            <Table striped hover size='sm' variant='dark'>
+                <tbody>
+                {blocks.map((block) => {
+                    return (
+                        <tr>
+                            <td>{block.name}</td>
+                            <td style={{textAlign: 'right'}}><Button>+</Button></td>
+                        </tr>
+                    )}
+                )}
+                </tbody>
+            </Table>
         </>
     );
 }

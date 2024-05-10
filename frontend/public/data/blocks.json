@@ -1,0 +1,140 @@
+{
+    "blocks": {
+        "Normalization": [
+            {
+                "name": "Batch Normalization",
+                "function": "torch.nn.BatchNorm1d (for 1D data), torch.nn.BatchNorm2d (for 2D convolutional data)",
+                "parameters": {
+                    "features": "Number of features",
+                    "momentum": "Momentum",
+                    "eps": "Epsilon",
+                    "affine": "Whether to use learnable affine parameters"
+                }
+            },
+            {
+                "name": "Layer Normalization",
+                "function": "torch.nn.LayerNorm",
+                "parameters": {
+                    "normalized_shape": "Input size or shape",
+                    "eps": "Epsilon",
+                    "elementwise_affine": "Whether to apply affine transformation element-wise"
+                }
+            }
+        ],
+        "Element-wise": [
+            {
+                "name": "Element-wise Addition",
+                "function": "torch.add",
+                "parameters": {
+                    "tensor1": "First tensor",
+                    "tensor2": "Second tensor"
+                }
+            },
+            {
+                "name": "Element-wise Subtraction",
+                "function": "torch.sub",
+                "parameters": {
+                    "tensor1": "First tensor",
+                    "tensor2": "Second tensor"
+                }
+            },
+            {
+                "name": "Element-wise Multiplication",
+                "function": "torch.mul",
+                "parameters": {
+                    "tensor1": "First tensor",
+                    "tensor2": "Second tensor"
+                }
+            },
+            {
+                "name": "Element-wise Division",
+                "function": "torch.div",
+                "parameters": {
+                    "tensor1": "First tensor",
+                    "tensor2": "Second tensor"
+                }
+            }
+        ],
+        "Regularization": [
+            {
+                "name": "Dropout",
+                "function": "torch.nn.Dropout",
+                "parameters": {
+                    "p": "Dropout probability"
+                }
+            }
+        ],
+        "Activation": [
+            {
+                "name": "Sigmoid",
+                "function": "torch.sigmoid",
+                "parameters": {
+                    "input_tensor": "Input tensor"
+                }
+            },
+            {
+                "name": "Tanh",
+                "function": "torch.tanh",
+                "parameters": {
+                    "input_tensor": "Input tensor"
+                }
+            },
+            {
+                "name": "ReLU",
+                "function": "torch.relu",
+                "parameters": {
+                    "input_tensor": "Input tensor"
+                }
+            },
+            {
+                "name": "Leaky ReLU",
+                "function": "torch.nn.functional.leaky_relu",
+                "parameters": {
+                    "input_tensor": "Input tensor",
+                    "negative_slope": "Negative slope"
+                }
+            },
+            {
+                "name": "Softmax",
+                "function": "torch.nn.functional.softmax",
+                "parameters": {
+                    "input_tensor": "Input tensor",
+                    "dim": "Dimension along which softmax will be computed"
+                }
+            },
+            {
+                "name": "Multihead Attention",
+                "function": "torch.nn.MultiheadAttention",
+                "parameters":{
+                    "dim": "total dimension of model input",
+                    "parallel attention heads": "number of parallel attention heads",
+                    "dropout probability": "dropout probability",
+                    "add bias to the key and value sequences": "whether to add bias to the key and value sequences",
+                    "check for others": "Add more and check this attention"
+                }
+            }
+        ],
+        "Pooling": [
+            {
+                "name": "Max Pooling",
+                "function": "torch.nn.functional.max_pool2d (for 2D pooling)",
+                "parameters": {
+                    "input_tensor": "Input tensor",
+                    "kernel_size": "Kernel size",
+                    "stride": "Stride",
+                    "padding": "Padding"
+                }
+            },
+            {
+                "name": "Average Pooling",
+                "function": "torch.nn.functional.avg_pool2d (for 2D pooling)",
+                "parameters": {
+                    "input_tensor": "Input tensor",
+                    "kernel_size": "Kernel size",
+                    "stride": "Stride",
+                    "padding": "Padding"
+                }
+            }
+        ]
+    }
+}

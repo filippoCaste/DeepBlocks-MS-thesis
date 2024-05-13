@@ -9,12 +9,22 @@ import ListColumns from 'react-bootstrap-icons/dist/icons/list-columns'
 
 import Blocks from '../../public/data/blocks.json'
 import { Dropdown, DropdownButton, Form } from 'react-bootstrap';
+import AlertComponent from './AlertComponent';
 
 
 const Sidebar = (props) => {
 
     const [openMenu, setOpenMenu] = useState('none');
     const nodes = props.nodes;
+
+    // training parameters
+    const [learningRate, setLearningRate] = useState(0);
+    const [epochs, setEpochs] = useState(0);
+    const [batchSize, setBatchSize] = useState(0);
+    const [loss, setLoss] = useState('');
+    const [optimizer, setOptimizer] = useState('');
+    // --------------------------------------------------
+
 
     return (
         <>
@@ -47,7 +57,11 @@ const Sidebar = (props) => {
                     </li>
                 </ul>
             </div>
-            {openMenu !== 'none' && <Menu openMenu={openMenu} nodes={nodes} />}
+            {openMenu !== 'none' && <Menu openMenu={openMenu} nodes={nodes} 
+                                        learningRate={learningRate} epochs={epochs} batchSize={batchSize} loss={loss} optimizer={optimizer}
+                                        setLearningRate={setLearningRate} setEpochs={setEpochs} setBatchSize={setBatchSize} setLoss={setLoss} setOptimizer={setOptimizer}
+
+                                        />}
         </>
     );
 };
@@ -61,7 +75,11 @@ const Menu = (props) => {
             <div>
             {openMenu === 'Network Design' && <NetworkDesign />}
             {openMenu === 'Network Details' && <NetworkDetails nodes={props.nodes}/>}
-            {openMenu === 'Training' && <Training />}
+            {openMenu === 'Training' && <Training 
+                                            learningRate={props.learningRate} epochs={props.epochs} batchSize={props.batchSize} loss={props.loss} optimizer={props.optimizer}
+                                            setLearningRate={props.setLearningRate} setEpochs={props.setEpochs} setBatchSize={props.setBatchSize} setLoss={props.setLoss} setOptimizer={props.setOptimizer}
+
+                                            />}
             {openMenu === 'Options' && <Options />}
             </div>
         </Container>
@@ -112,26 +130,46 @@ const NetworkDetails = (props) => {
 
     return (
         <>
-            {nodes.map((node) => {
-                return <p>{node.data.label}</p>
+            {nodes.map((node, index) => {
+                return <p id={node+","+index}>{node.data.label}</p>
             })}
         </>
     );
 }
 
-const handleTrain = (params) => {
-    console.log("You successfully trained your network with this parameters: ", params)
+const handleTrain = (params, { setErr, setErrMsg }) => {
+    // controls parameters are all set and of the right type
+    if(params.learningRate !== 0 && params.epochs !== 0 && params.batchSize !== 0 && params.loss !== '' && params.optimizer !== '') {
+        if(isNaN(params.epochs) || isNaN(params.batchSize) || isNaN(params.learningRate)) {
+            let errMsg = `Error in the parameters:
+                ${isNaN(params.learningRate) ? 'Learning rate' : ''}
+                ${isNaN(params.epochs) ? ', Epochs' : ''}
+                ${isNaN(params.batchSize) ? ', Batch size' : ''}
+                must be numeric.`
+            ;
+            setErrMsg(errMsg)
+            setErr(true)
+        } else {
+            console.log("You successfully trained your network with this parameters: ", params)
+        }
+    } else {
+        setErrMsg("Please fill all the parameters")
+        setErr(true)
+    }
 }
 
-const Training = () => {
+const handleReset = ({ setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer }) => {
+    setEpochs(0);
+    setLearningRate(0);
+    setBatchSize(0);
+    setLoss('');
+    setOptimizer('');
+}
 
-    // training parameters
-    const [learningRate, setLearningRate] = useState(0);
-    const [epochs, setEpochs] = useState(0);
-    const [batchSize, setBatchSize] = useState(0);
-    const [loss, setLoss] = useState('');
-    const [optimizer, setOptimizer] = useState('');
-    // --------------------------------------------------
+const Training = ({ epochs, learningRate, batchSize, loss, optimizer, setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer }) => {
+
+    const [err, setErr] = useState(false);
+    const [errMsg, setErrMsg] = useState('');
 
     return (
         <>
@@ -139,32 +177,32 @@ const Training = () => {
                 <Table striped variant={'dark'}>
                     <tbody>
                         <tr>
-                            <td style={{ textAlign: 'left' }}>Epoch</td>
+                            <td style={{ textAlign: 'left', width: '40%' }}>Epoch</td>
                             <td style={{ textAlign: 'right' }}>
                                 <Form.Group controlId="trainForm.Epoch" style={{ border: 'none' }} onChange={ev => setEpochs(ev.target.value)}>
-                                    <Form.Control type='number' style={{ width: '50%', float: 'right' }} />
+                                    <Form.Control value={epochs || ''} type='text' style={{ width: '50%', float: 'right' }} />
                                 </Form.Group>
                             </td>
                         </tr>
                         <tr>
-                            <td style={{ textAlign: 'left' }}>Learning Rate</td>
+                            <td style={{ textAlign: 'left', width: '40%' }}>Learning Rate</td>
                             <td style={{ textAlign: 'right' }}>
                                 <Form.Group controlId="trainForm.Loss" style={{ border: 'none' }} onChange={ev => setLearningRate(ev.target.value)} >
-                                    <Form.Control type='number' style={{ width: '50%', float: 'right' }} />
+                                    <Form.Control value={learningRate || ''} type='text' style={{ width: '50%', float: 'right' }} />
                                 </Form.Group>
                             </td>
                         </tr>
                         <tr>
-                            <td style={{ textAlign: 'left' }}>Batch Size</td>
+                            <td style={{ textAlign: 'left', width: '40%' }}>Batch Size</td>
                             <td style={{ textAlign: 'right' }}>
                                 <Form.Group controlId="trainForm.BatchSize" style={{ border: 'none' }} onChange={ev => setBatchSize(ev.target.value)} >
-                                    <Form.Control type='number' style={{ width: '50%', float: 'right' }} />
+                                    <Form.Control value={batchSize || ''} type='text' style={{ width: '50%', float: 'right' }} />
                                 </Form.Group>
                             </td>
                         </tr>
 
                         <tr>
-                            <td style={{ textAlign: 'left' }}>Loss Function</td>
+                            <td style={{ textAlign: 'left', width: '40%' }}>Loss Function</td>
                             <td style={{ textAlign: 'right' }}>
                                 <DropdownButton
                                     variant="outline-secondary"
@@ -179,17 +217,17 @@ const Training = () => {
                         </tr>
 
                         <tr>
-                            <td style={{ textAlign: 'left' }}>Optimizer</td>
+                            <td style={{ textAlign: 'left', width: '40%' }}>Optimizer</td>
                             <td style={{ textAlign: 'right' }}>
-                                    <DropdownButton
-                                        variant="outline-secondary"
-                                        title={optimizer || "Select"}
-                                        id="trainForm.Optimizer"
-                                        onSelect={sel => {setOptimizer(sel)}}
-                                    >
-                                        <Dropdown.Item eventKey="SGD">SGD</Dropdown.Item>
-                                        <Dropdown.Item eventKey="Adam">Adam</Dropdown.Item>
-                                    </DropdownButton>
+                                <DropdownButton
+                                    variant="outline-secondary"
+                                    title={optimizer || "Select"}
+                                    id="trainForm.Optimizer"
+                                    onSelect={sel => {setOptimizer(sel)}}
+                                >
+                                    <Dropdown.Item eventKey="SGD">SGD</Dropdown.Item>
+                                    <Dropdown.Item eventKey="Adam">Adam</Dropdown.Item>
+                                </DropdownButton>
                             </td>
                         </tr>
 
@@ -197,7 +235,10 @@ const Training = () => {
                 </Table>
             </Form >
 
-            <Button className='left-menu-button' onClick={() => handleTrain({ epochs, learningRate, batchSize, loss, optimizer })}> Train </Button>
+            <Button className='left-menu-button' onClick={() => handleTrain({ epochs, learningRate, batchSize, loss, optimizer }, { setErr, setErrMsg })}> Train </Button>
+            <Button className='left-menu-button' onClick={() => handleReset({ setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer })}> Reset </Button>
+
+            {err && <AlertComponent variant="danger" message={errMsg} setErr={setErr} />}
         </>
     );
 }

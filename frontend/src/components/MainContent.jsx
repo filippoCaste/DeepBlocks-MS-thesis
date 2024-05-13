@@ -1,23 +1,10 @@
 'use strict';
-import ReactFlow, { Controls, Background, useNodesState, useEdgesState } from 'reactflow';
+import ReactFlow, { Controls, Background } from 'reactflow';
 
 import 'reactflow/dist/style.css';
-import CustomNode from './CustomNode';
 import { useCallback } from 'react';
 
-
-const initialNodes = [
-    { id: '1', type: 'customNode', position: { x: 10, y: 0 }, data: { label: '1' } },
-    { id: '2', type: 'customNode', position: { x: 10, y: 100 }, data: { label: '2' } },
-];
-const initialEdges = [{ id: 'e1-2', source: '1', target: '2' }];
-const nodeTypes = { customNode: CustomNode };
-
-
-export default function MainContent() {
-
-    const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-    const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+export default function MainContent({nodes, edges, setEdges, setNodes, onNodesChange, onEdgesChange, nodeTypes}) {
 
     const onConnect = useCallback(
         (params) => setEdges((eds) => addEdge(params, eds)),
@@ -33,7 +20,7 @@ export default function MainContent() {
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
-                fitView                
+                fitView        
             >
                 <Controls position='bottom-right' />
                 <Background />

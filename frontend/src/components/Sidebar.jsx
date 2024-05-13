@@ -10,12 +10,14 @@ import ListColumns from 'react-bootstrap-icons/dist/icons/list-columns'
 import Blocks from '../../public/data/blocks.json'
 import { Dropdown, DropdownButton, Form } from 'react-bootstrap';
 import AlertComponent from './AlertComponent';
+import Block from '../models/Block';
 
 
 const Sidebar = (props) => {
 
     const [openMenu, setOpenMenu] = useState('none');
     const nodes = props.nodes;
+    const handleAddNode = props.handleAddNode;
 
     // training parameters
     const [learningRate, setLearningRate] = useState(0);
@@ -57,7 +59,7 @@ const Sidebar = (props) => {
                     </li>
                 </ul>
             </div>
-            {openMenu !== 'none' && <Menu openMenu={openMenu} nodes={nodes} 
+            {openMenu !== 'none' && <Menu openMenu={openMenu} nodes={nodes} handleAddNode={handleAddNode}
                                         learningRate={learningRate} epochs={epochs} batchSize={batchSize} loss={loss} optimizer={optimizer}
                                         setLearningRate={setLearningRate} setEpochs={setEpochs} setBatchSize={setBatchSize} setLoss={setLoss} setOptimizer={setOptimizer}
 
@@ -73,8 +75,8 @@ const Menu = (props) => {
         <Container className='left-menu'>
             <h4 style={{fontWeight: 'bold'}}>{openMenu}</h4>
             <div>
-            {openMenu === 'Network Design' && <NetworkDesign />}
-            {openMenu === 'Network Details' && <NetworkDetails nodes={props.nodes}/>}
+            {openMenu === 'Network Design' && <NetworkDesign handleAddNode={props.handleAddNode} />}
+            {openMenu === 'Network Details' && <NetworkDetails nodes={props.nodes} />}
             {openMenu === 'Training' && <Training 
                                             learningRate={props.learningRate} epochs={props.epochs} batchSize={props.batchSize} loss={props.loss} optimizer={props.optimizer}
                                             setLearningRate={props.setLearningRate} setEpochs={props.setEpochs} setBatchSize={props.setBatchSize} setLoss={props.setLoss} setOptimizer={props.setOptimizer}
@@ -86,25 +88,36 @@ const Menu = (props) => {
     )
 }
 
-const NetworkDesign = () => {
+const handleAddBlock = ({block, handleAddNode}) => {
+    let b = new Block('customNode', { x: 10, y: 50 }, { label: block.name });
+    handleAddNode(b)
+}
+
+const NetworkDesign = ({handleAddNode}) => {
+
     return (
         <div style={{textAlign: 'left'}}>
 
-            <BlockTable blocks={Blocks.blocks['Element-wise']} category="Element-wise" />
+            <BlockTable key="tableElementWise" blocks={Blocks.blocks['Element-wise']} category="Element-wise" 
+                handleAddNode={handleAddNode} />
 
-            <BlockTable blocks={Blocks.blocks.Activation} category="Activation" />
+            <BlockTable key="tableActivation" blocks={Blocks.blocks.Activation} category="Activation" 
+                handleAddNode={handleAddNode}/>
 
-            <BlockTable blocks={Blocks.blocks.Normalization} category="Normalization" />
+            <BlockTable key="tableNormalization" blocks={Blocks.blocks.Normalization} category="Normalization" 
+                handleAddNode={handleAddNode}/>
 
-            <BlockTable blocks={Blocks.blocks.Regularization} category="Regularization" />
+            <BlockTable key="tableRegularization" blocks={Blocks.blocks.Regularization} category="Regularization" 
+                handleAddNode={handleAddNode}/>
 
-            <BlockTable blocks={Blocks.blocks.Pooling} category="Pooling" />
+            <BlockTable key="tablePooling" blocks={Blocks.blocks.Pooling} category="Pooling" 
+                handleAddNode={handleAddNode}/>
 
         </div>
     );
 }
 
-const BlockTable = ({category, blocks}) => {
+const BlockTable = ({category, blocks, handleAddNode}) => {
 
     return (
         <>
@@ -113,9 +126,9 @@ const BlockTable = ({category, blocks}) => {
                 <tbody>
                 {blocks.map((block) => {
                     return (
-                        <tr>
+                        <tr key={block.id}>
                             <td>{block.name}</td>
-                            <td style={{textAlign: 'right'}}><Button>+</Button></td>
+                            <td style={{ textAlign: 'right' }}><Button onClick={() => {handleAddBlock({block, handleAddNode})}}>+</Button></td>
                         </tr>
                     )}
                 )}
@@ -131,7 +144,7 @@ const NetworkDetails = (props) => {
     return (
         <>
             {nodes.map((node, index) => {
-                return <p id={node+","+index}>{node.data.label}</p>
+                return <p key={node+"-"+index}>{node.data.label}</p>
             })}
         </>
     );
@@ -176,7 +189,7 @@ const Training = ({ epochs, learningRate, batchSize, loss, optimizer, setEpochs,
             <Form className='mt-3'>
                 <Table striped variant={'dark'}>
                     <tbody>
-                        <tr>
+                        <tr key="trainEpoch">
                             <td style={{ textAlign: 'left', width: '40%' }}>Epoch</td>
                             <td style={{ textAlign: 'right' }}>
                                 <Form.Group controlId="trainForm.Epoch" style={{ border: 'none' }} onChange={ev => setEpochs(ev.target.value)}>
@@ -184,7 +197,7 @@ const Training = ({ epochs, learningRate, batchSize, loss, optimizer, setEpochs,
                                 </Form.Group>
                             </td>
                         </tr>
-                        <tr>
+                        <tr key="trainLearningRate">
                             <td style={{ textAlign: 'left', width: '40%' }}>Learning Rate</td>
                             <td style={{ textAlign: 'right' }}>
                                 <Form.Group controlId="trainForm.Loss" style={{ border: 'none' }} onChange={ev => setLearningRate(ev.target.value)} >
@@ -192,7 +205,7 @@ const Training = ({ epochs, learningRate, batchSize, loss, optimizer, setEpochs,
                                 </Form.Group>
                             </td>
                         </tr>
-                        <tr>
+                        <tr key="trainBatchSize">
                             <td style={{ textAlign: 'left', width: '40%' }}>Batch Size</td>
                             <td style={{ textAlign: 'right' }}>
                                 <Form.Group controlId="trainForm.BatchSize" style={{ border: 'none' }} onChange={ev => setBatchSize(ev.target.value)} >
@@ -201,7 +214,7 @@ const Training = ({ epochs, learningRate, batchSize, loss, optimizer, setEpochs,
                             </td>
                         </tr>
 
-                        <tr>
+                        <tr key="trainLoss">
                             <td style={{ textAlign: 'left', width: '40%' }}>Loss Function</td>
                             <td style={{ textAlign: 'right' }}>
                                 <DropdownButton
@@ -216,7 +229,7 @@ const Training = ({ epochs, learningRate, batchSize, loss, optimizer, setEpochs,
                             </td>
                         </tr>
 
-                        <tr>
+                        <tr key="trainOptimizer">
                             <td style={{ textAlign: 'left', width: '40%' }}>Optimizer</td>
                             <td style={{ textAlign: 'right' }}>
                                 <DropdownButton

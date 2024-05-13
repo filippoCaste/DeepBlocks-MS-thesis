@@ -6,6 +6,7 @@ import MainContent from './components/MainContent';
 import CustomNode from './components/CustomNode';
 import { BrowserRouter, Link, Navigate, Outlet, Route, Routes, useNavigate } from 'react-router-dom';
 import NotFoundPage from './pages/NotFoundPage';
+import { useNodesState, useEdgesState } from 'reactflow';
 
 
 const initialNodes = [
@@ -17,16 +18,25 @@ const nodeTypes = { customNode: CustomNode };
 
 
 export default function App() {
-  const [nodes, setNodes] = useState(initialNodes);
+
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  const handleAddNode = (node) => {
+    setNodes((prevNodes) => [...prevNodes, node]);
+  }
 
   return (
     <BrowserRouter>
       <div className='app-container' style={{ display: 'flex' }}>
-        <Sidebar nodes={nodes} />
+        <Sidebar nodes={nodes} setNodes={setNodes} handleAddNode={handleAddNode} />
         <Routes>
-          <Route index element={<MainContent style={{ flex: 1 }} initialNodes={initialNodes} initialEdges={initialEdges} nodeTypes={nodeTypes} nodes={nodes} setNodes={setNodes} />} />
+          <Route index element={<MainContent style={{ flex: 1 }} edges={edges} setNodes={setNodes} setEdges={setEdges}
+                                      nodeTypes={nodeTypes} nodes={nodes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange}
+                                      />} 
+            />
           <Route path='*' element={<NotFoundPage />} />
-        
+
         </Routes>
       </div>
     </BrowserRouter>

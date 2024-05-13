@@ -4,7 +4,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './style.css';
 import MainContent from './components/MainContent';
 import CustomNode from './components/CustomNode';
-
+import { BrowserRouter, Link, Navigate, Outlet, Route, Routes, useNavigate } from 'react-router-dom';
+import NotFoundPage from './pages/NotFoundPage';
 
 
 const initialNodes = [
@@ -19,9 +20,15 @@ export default function App() {
   const [nodes, setNodes] = useState(initialNodes);
 
   return (
-    <div className='app-container' style={{ display: 'flex' }}>
-      <Sidebar nodes={nodes}/>
-      <MainContent style={{ flex:1 }} initialNodes={initialNodes} initialEdges={initialEdges} nodeTypes={nodeTypes} nodes={nodes} setNodes={setNodes}/>
-    </div>
+    <BrowserRouter>
+      <div className='app-container' style={{ display: 'flex' }}>
+        <Sidebar nodes={nodes} />
+        <Routes>
+          <Route index element={<MainContent style={{ flex: 1 }} initialNodes={initialNodes} initialEdges={initialEdges} nodeTypes={nodeTypes} nodes={nodes} setNodes={setNodes} />} />
+          <Route path='*' element={<NotFoundPage />} />
+        
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }

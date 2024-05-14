@@ -105,3 +105,13 @@
 .selection-box Button{
     margin-left: 5px;
 }
+
+response-message-container{
+    top: 1em;
+    right: 1em;
+    position: fixed;
+    z-index: 9999;
+    text-align: center;
+    border-radius: 0.5em;
+    padding: 10px;
+}

@@ -3,11 +3,14 @@
 import { Button, Container } from "react-bootstrap";
 import { useReactFlow } from "reactflow";
 
-export default function SelectionBox({selectedNodes, createSuperblock}) {
+export default function SelectionBox({selectedNodes, createSuperblock, setVariant, setMessage, setShowMessage}) {
 
     const handleCreateSuperblock = () => {
         createSuperblock(selectedNodes)
         // message --> superblock succesfully created
+        setVariant('success')
+        setMessage('Superblock succesfully created')
+        setShowMessage(true)
     }
 
     // const handleDeleteNodes = () => {
@@ -19,8 +22,8 @@ export default function SelectionBox({selectedNodes, createSuperblock}) {
     return (
         <Container>
             <div className="selection-box">
-                <p>The number of selected nodes is: {selectedNodes.length} </p> {'  '}
-                <Button variant="primary" size="sm" onClick={() => handleCreateSuperblock()}>Group</Button> {'  '}
+                <p>The number of selected nodes is: {selectedNodes.length} </p>
+                <Button variant="primary" size="sm" onClick={() => handleCreateSuperblock()}>Group</Button>
                 {/* <Button variant="danger" size="sm" onClick={() => handleDeleteNodes()}>Delete</Button> */}
             </div>
         </Container>

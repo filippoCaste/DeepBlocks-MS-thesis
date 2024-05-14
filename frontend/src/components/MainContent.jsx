@@ -5,6 +5,7 @@ import 'reactflow/dist/style.css';
 import { useCallback, useEffect, useState } from 'react';
 import Superblock from '../models/SuperBlock';
 import SelectionBox from './SelectionBox';
+import ResponseMessage from './ResponseMessage';
 
 export default function MainContent({nodes, edges, setEdges, setNodes, onNodesChange, onEdgesChange, nodeTypes}) {
 
@@ -19,7 +20,11 @@ export default function MainContent({nodes, edges, setEdges, setNodes, onNodesCh
        setNodes(nodes.map(e => children.includes(e.id) ? {...e, data: {...e.data, isSelected: false}, hidden: true} : e).concat(superblock));
     }
 
-    const [selectedNodes, setSelectedNodes] = useState([])
+    const [selectedNodes, setSelectedNodes] = useState([]);
+    const [message, setMessage] = useState('');
+    const [variant, setVariant] = useState('');
+    const [showMessage, setShowMessage] = useState(false);
+
     useEffect(() => {
         setSelectedNodes(nodes.filter(node => node.data.isSelected === true))
     }, [nodes])
@@ -38,7 +43,8 @@ export default function MainContent({nodes, edges, setEdges, setNodes, onNodesCh
                 <Controls position='bottom-right' />
                 <Background />
 
-                {selectedNodes.length !==0 &&  <SelectionBox selectedNodes={selectedNodes} createSuperblock={createSuperblock} /> }
+                {selectedNodes.length !==0 &&  <SelectionBox selectedNodes={selectedNodes} createSuperblock={createSuperblock} setMessage={setMessage} setVariant={setVariant} setShowMessage={setShowMessage} /> }
+                {showMessage && <ResponseMessage message={message} variant={variant} setShowMesssage={setShowMessage} /> }
 
             </ReactFlow>
         </div>

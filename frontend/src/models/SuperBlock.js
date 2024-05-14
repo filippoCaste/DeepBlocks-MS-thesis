@@ -13,7 +13,7 @@ class Superblock{
      */
     constructor(type, position, data, children) {
         this.id = (Superblock.idCounter++).toString() + 's';
-        this.type = 'superBlock';
+        this.type = type;
         this.position = position;
         this.data = data;
         this.children = children;

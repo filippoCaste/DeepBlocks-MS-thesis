@@ -79,3 +79,29 @@
     cursor: auto;
     border-radius: 0.5em;
 }
+
+.selection-box{
+    background-color: #333;
+    color: white;
+    border-radius: 0.5em;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    position: fixed;
+    align-items: center;
+    bottom: 1em;
+    left: 50%;
+    width: fit-content;
+    padding: 10px;
+    z-index: 1000;
+}
+
+.selection-box p{
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.selection-box Button{
+    margin-left: 5px;
+}

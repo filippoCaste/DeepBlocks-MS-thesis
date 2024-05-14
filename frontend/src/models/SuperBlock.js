@@ -28,3 +28,5 @@ class Superblock{
         this.children.push(child);
     }
 }
+
+export default Superblock;

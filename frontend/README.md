@@ -1,3 +1,3 @@
 - blocks is a collection frontend side:
   - because it is not meant to be changed frequently
-  - because it allows user to continue working even in case of unstable networks avoiding many calls to the server.
+  - because it allows user to continue working even in case of unstable network connection avoiding many calls to the server.

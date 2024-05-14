@@ -1,5 +1,5 @@
 'use strict';
-import ReactFlow, { Controls, Background } from 'reactflow';
+import ReactFlow, { Controls, Background, addEdge } from 'reactflow';
 
 import 'reactflow/dist/style.css';
 import { useCallback } from 'react';

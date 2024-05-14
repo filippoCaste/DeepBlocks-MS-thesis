@@ -1,9 +1,9 @@
 import { Handle, Position } from 'reactflow';
 import { useState } from 'react';
 import NodeOptions from './ContextMenu';
-import { Form, InputGroup } from 'react-bootstrap';
+import { Button, Form, InputGroup, NavItem } from 'react-bootstrap';
 
-export default function CustomNode(props) {
+export default function SuperBlockNode(props) {
 
     const data = props.data
     const id = props.id
@@ -16,13 +16,13 @@ export default function CustomNode(props) {
         data.label = inputValue;
         setRename(false)
     }
-    
+
     return (
         <> {openOptions && <NodeOptions setOpenOptions={setOpenOptions} setRename={setRename} setSelected={setSelected} nodeId={id} />}
-            <div onContextMenu={(e) => {e.preventDefault(); setOpenOptions(true)}}>
+            <div onContextMenu={(e) => { e.preventDefault(); setOpenOptions(true)}}>
                 <Handle type="target" position={Position.Left} />
-                <div className="node">
-                    {rename ?
+                <div className="node" style={{ backgroundImage: 'linear-gradient(red,yellow,green)' }}>
+                    {rename ? 
                         <InputGroup>
                             <Form.Control
                                 aria-label="Recipient's username"
@@ -34,10 +34,11 @@ export default function CustomNode(props) {
                                 Confirm
                             </Button>
                         </InputGroup>
-                        : <p>{data.label || "block"}</p>}
+                        : <p>{data.label || "sb"}</p>}
                 </div>
                 <Handle type="source" position={Position.Right} id="a" />
             </div>
         </>
     );
 }
+

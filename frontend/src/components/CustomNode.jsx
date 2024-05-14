@@ -1,7 +1,7 @@
-import { Handle, Position } from 'reactflow';
+import { Handle, Position, useReactFlow } from 'reactflow';
 import { useState } from 'react';
 import NodeOptions from './ContextMenu';
-import { Form, InputGroup } from 'react-bootstrap';
+import { Button, Form, InputGroup } from 'react-bootstrap';
 
 export default function CustomNode(props) {
 
@@ -9,8 +9,9 @@ export default function CustomNode(props) {
     const id = props.id
     const [openOptions, setOpenOptions] = useState(false);
     const [selected, setSelected] = useState(false);
-    const [rename, setRename] = useState(false)
-    const [inputValue, setInputValue] = useState(data.label)
+    const [rename, setRename] = useState(false);
+    const [inputValue, setInputValue] = useState(data.label);
+    const [hovering, setHovering] = useState(false);
 
     const handleRename = () => {
         data.label = inputValue;
@@ -18,10 +19,10 @@ export default function CustomNode(props) {
     }
     
     return (
-        <> {openOptions && <NodeOptions setOpenOptions={setOpenOptions} setRename={setRename} setSelected={setSelected} nodeId={id} />}
-            <div onContextMenu={(e) => {e.preventDefault(); setOpenOptions(true)}}>
+        <> {openOptions && <NodeOptions setOpenOptions={setOpenOptions} setRename={setRename} setSelected={setSelected} nodeInfo={props} />}
+            <div className={`node ${data.isSelected ? "selected" : ""}`} onMouseOver={() => setHovering(true)} onMouseLeave={() => setHovering(false)} onContextMenu={(e) => {e.preventDefault(); setOpenOptions(true)}}>
                 <Handle type="target" position={Position.Left} />
-                <div className="node">
+                <div>
                     {rename ?
                         <InputGroup>
                             <Form.Control
@@ -37,6 +38,8 @@ export default function CustomNode(props) {
                         : <p>{data.label || "block"}</p>}
                 </div>
                 <Handle type="source" position={Position.Right} id="a" />
+                {(hovering || selected) && <input style={{flex: 1, marginLeft: 10}} type="checkbox" onChange={() => {setSelected(!selected); data.isSelected=!selected;}} />}
+
             </div>
         </>
     );

@@ -1,6 +1,7 @@
 'use strict';
 
-import { Container } from "react-bootstrap";
+import { useState } from "react";
+import Container from "react-bootstrap/Container";
 import { useReactFlow } from "reactflow";
 
 export default function SheetsComponent(props) {
@@ -9,8 +10,9 @@ export default function SheetsComponent(props) {
     const superNodes = props.nodes.filter(e=> e.type==='superBlockNode');
     const edges = props.edges;
     const reactflow = useReactFlow();
+    const [selectedSheet, setSelectedSheet] = useState('main');
 
-    const openSheet = (label, node) => {
+    const handleOpenSheet = (label, node) => {
         // hide all the other nodes, show just the children of the supernodes
         let childIds = []
         if(label === 'main') {
@@ -36,24 +38,24 @@ export default function SheetsComponent(props) {
                 nodes.find(e => e.id === childId).hidden = false;
             }
         }
-
+        setSelectedSheet(label)
         reactflow.setNodes(nodes);
     }
 
     return (
         <div className='sheets'>
-            <Sheet key='main' label='main' openSheet={openSheet} />
-            {superNodes.map(e => <Sheet key={e.id} node={e} label={e.data.label} openSheet={openSheet} />)}
+            <Sheet key='main' label='main' handleOpenSheet={handleOpenSheet} selectedSheet={selectedSheet} />
+            {superNodes.map(e => <Sheet key={e.id} node={e} label={e.data.label} handleOpenSheet={handleOpenSheet} selectedSheet={selectedSheet} />)}
         </div>
     );
 }
 
 function Sheet(props) {
 
-    const openSheet = props.openSheet;
+    const handleOpenSheet = props.handleOpenSheet;
 
     return (
-        <Container className="sheet" onClick={() => openSheet(props.label, props.node)}>
+        <Container className={`sheet ${props.label === props.selectedSheet ? 'selectedSheet' : ''}`} onClick={() => handleOpenSheet(props.label, props.node)}>
             <p>{props.label}</p>
         </Container>
     )

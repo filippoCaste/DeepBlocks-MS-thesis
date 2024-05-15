@@ -135,6 +135,11 @@ response-message-container{
     margin-bottom: auto;
 }
 
+.sheet.selectedSheet{
+    background-color: #555;
+    border-radius: 0.5em;
+}
+
 .sheet:hover {
     background-color: #555;
     border-radius: 0.5em;

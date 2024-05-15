@@ -15,7 +15,7 @@ class Superblock{
         this.id = (Superblock.idCounter++).toString() + 's';
         this.type = type;
         this.position = position;
-        this.data = data;
+        this.data = { ...data, openInfo: false, isSelected: false };
         this.children = children;
     }
 

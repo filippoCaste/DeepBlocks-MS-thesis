@@ -1,12 +1,12 @@
 'use strict';
 
 import { Button, Container } from "react-bootstrap";
-import { useReactFlow } from "reactflow";
 
 export default function SelectionBox({selectedNodes, createSuperblock, setVariant, setMessage, setShowMessage}) {
 
     const handleCreateSuperblock = () => {
         createSuperblock(selectedNodes)
+        
         // message --> superblock succesfully created
         setVariant('success')
         setMessage('Superblock succesfully created')

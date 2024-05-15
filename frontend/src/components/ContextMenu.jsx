@@ -17,8 +17,6 @@ export default function NodeOptions({ setOpenOptions, setRename, setSelected, no
         } else if (type === 'delete') {
             let nodes = reactflow.getNodes().filter(node => node.id !== nodeId);
             reactflow.setNodes(nodes);
-        } else if(type === 'show') {
-            
         }
         setOpenOptions(false)
     }

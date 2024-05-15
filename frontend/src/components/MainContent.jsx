@@ -17,7 +17,7 @@ export default function MainContent({nodes, edges, setEdges, setNodes, onNodesCh
 
     const createSuperblock = (listOfNodes) => {
         const children = listOfNodes.map(e => e.id)
-        const superblock = new Superblock('superBlockNode', { x: 10, y: 10 }, { label: 'sb1', isSelected: false }, children)
+        const superblock = new Superblock('superBlockNode', { x: 10, y: 10 }, { label: 'new superblock', isSelected: false }, children)
        setNodes(nodes.map(e => children.includes(e.id) ? {...e, data: {...e.data, isSelected: false}, hidden: true} : e).concat(superblock));
     }
 

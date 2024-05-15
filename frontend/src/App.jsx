@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Sidebar from './components/Sidebar';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './style.css';
 import MainContent from './components/MainContent';
 import CustomNode from './components/CustomNode';
-import { BrowserRouter, Link, Navigate, Outlet, Route, Routes, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import NotFoundPage from './pages/NotFoundPage';
 import { useNodesState, useEdgesState } from 'reactflow';
 import SuperBlockNode from './components/SuperBlockNode';
@@ -13,7 +13,7 @@ import SuperBlockNode from './components/SuperBlockNode';
 const initialNodes = [
   { id: '1', type: 'customNode', position: { x: 10, y: 0 }, data: { label: 'ReLU', isSelected: false } },
   { id: '2', type: 'customNode', position: { x: 10, y: 100 }, data: { label: 'Softmax', isSelected: false} },
-  { id: '1s', type: 'superBlockNode', position: { x: 10, y: 200 }, data: { label: 'sb1', isSelected: false }, children : ['1', '2']},
+  { id: '0s', type: 'superBlockNode', position: { x: 10, y: 200 }, data: { label: 'sb1', isSelected: false }, children : ['1', '2']},
 ];
 const initialEdges = [{ id: 'e1-2', source: '1', target: '2' }];
 const nodeTypes = { customNode: CustomNode, superBlockNode: SuperBlockNode };

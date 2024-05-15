@@ -1,7 +1,7 @@
 "use strict";
 
 class Superblock{
-    static idCounter = 0;
+    static idCounter = 1;
 
     /**
      * Constructor function for creating a Superblock instance.

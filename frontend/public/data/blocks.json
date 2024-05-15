@@ -23,7 +23,7 @@
         ],
         "Element-wise": [
             {
-                "name": "Element-wise Addition",
+                "name": "Addition",
                 "function": "torch.add",
                 "parameters": {
                     "tensor1": "First tensor",
@@ -31,7 +31,7 @@
                 }
             },
             {
-                "name": "Element-wise Subtraction",
+                "name": "Subtraction",
                 "function": "torch.sub",
                 "parameters": {
                     "tensor1": "First tensor",
@@ -39,7 +39,7 @@
                 }
             },
             {
-                "name": "Element-wise Multiplication",
+                "name": "Multiplication",
                 "function": "torch.mul",
                 "parameters": {
                     "tensor1": "First tensor",
@@ -47,7 +47,7 @@
                 }
             },
             {
-                "name": "Element-wise Division",
+                "name": "Division",
                 "function": "torch.div",
                 "parameters": {
                     "tensor1": "First tensor",

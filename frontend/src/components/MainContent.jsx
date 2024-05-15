@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Superblock from '../models/SuperBlock';
 import SelectionBox from './SelectionBox';
 import ResponseMessage from './ResponseMessage';
+import SheetsComponent from './SheetsComponent';
 
 export default function MainContent({nodes, edges, setEdges, setNodes, onNodesChange, onEdgesChange, nodeTypes}) {
 
@@ -45,6 +46,7 @@ export default function MainContent({nodes, edges, setEdges, setNodes, onNodesCh
 
                 {selectedNodes.length !==0 &&  <SelectionBox selectedNodes={selectedNodes} createSuperblock={createSuperblock} setMessage={setMessage} setVariant={setVariant} setShowMessage={setShowMessage} /> }
                 {showMessage && <ResponseMessage message={message} variant={variant} setShowMesssage={setShowMessage} /> }
+                <SheetsComponent nodes={nodes} edges={edges} />
 
             </ReactFlow>
         </div>

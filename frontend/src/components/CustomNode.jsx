@@ -1,4 +1,4 @@
-import { Handle, Position, useReactFlow } from 'reactflow';
+import { Handle, Position } from 'reactflow';
 import { useState } from 'react';
 import NodeOptions from './ContextMenu';
 import { Button, Form, InputGroup } from 'react-bootstrap';
@@ -17,29 +17,40 @@ export default function CustomNode(props) {
         data.label = inputValue;
         setRename(false)
     }
+
+    const handleOpenInfo = () => {
+        data.openInfo = true;
+    }
     
     return (
-        <> {openOptions && <NodeOptions setOpenOptions={setOpenOptions} setRename={setRename} setSelected={setSelected} nodeInfo={props} />}
-            <div className={`node ${data.isSelected ? "selected" : ""}`} onMouseOver={() => setHovering(true)} onMouseLeave={() => setHovering(false)} onContextMenu={(e) => {e.preventDefault(); setOpenOptions(true)}}>
-                <Handle type="target" position={Position.Left} />
-                <div>
-                    {rename ?
-                        <InputGroup>
-                            <Form.Control
-                                aria-label="Recipient's username"
-                                aria-describedby="basic-addon2"
-                                value={inputValue}
-                                onChange={(ev) => setInputValue(ev.target.value)}
-                            />
-                            <Button variant="secondary" id="button-addon2" onClick={() => handleRename()}>
-                                Confirm
-                            </Button>
-                        </InputGroup>
-                        : <p>{data.label || "block"}</p>}
-                </div>
-                <Handle type="source" position={Position.Right} id="a" />
-                {(hovering || selected) && <input style={{flex: 1, marginLeft: 10}} type="checkbox" onChange={() => {setSelected(!selected); data.isSelected=!selected;}} />}
-
+        <> 
+            {openOptions && <NodeOptions setOpenOptions={setOpenOptions} setRename={setRename} setSelected={setSelected} nodeInfo={props} />}
+            
+            <div style={{ display: 'flex' }} onMouseOver={() => setHovering(true)}
+                onMouseLeave={() => setHovering(false)}
+>
+                <div className={`node ${data.isSelected ? "selected" : ""}`} 
+                    onContextMenu={(e) => {e.preventDefault(); setOpenOptions(true)}}
+                    onClick={() => handleOpenInfo()}
+                    >
+                    <Handle type="target" position={Position.Left} />
+                    <div>
+                        {rename ?
+                            <InputGroup>
+                                <Form.Control
+                                    aria-describedby="basic-addon2"
+                                    value={inputValue}
+                                    onChange={(ev) => setInputValue(ev.target.value)}
+                                />
+                                <Button variant="secondary" id="button-addon2" onClick={() => handleRename()}>
+                                    Confirm
+                                </Button>
+                            </InputGroup>
+                            : <p>{data.label || "block"}</p>}
+                    </div>
+                    <Handle type="source" position={Position.Right} id="a" />
+                    </div>
+                {(hovering || selected) && <input style={{ flex: 1, marginLeft: 10 }} type="checkbox" onChange={() => { setSelected(!selected); data.isSelected = !selected; }} />}
             </div>
         </>
     );

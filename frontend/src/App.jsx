@@ -11,9 +11,9 @@ import SuperBlockNode from './components/SuperBlockNode';
 
 
 const initialNodes = [
-  { id: '1', type: 'customNode', position: { x: 10, y: 0 }, data: { label: 'ReLU', isSelected: false } },
-  { id: '2', type: 'customNode', position: { x: 10, y: 100 }, data: { label: 'Softmax', isSelected: false} },
-  { id: '0s', type: 'superBlockNode', position: { x: 10, y: 200 }, data: { label: 'sb1', isSelected: false }, children : ['1', '2']},
+  { id: '1', type: 'customNode', position: { x: 10, y: 0 }, data: { label: 'ReLU', isSelected: false, openInfo: false } },
+  { id: '2', type: 'customNode', position: { x: 10, y: 100 }, data: { label: 'Softmax', isSelected: false, openInfo: false } },
+  { id: '0s', type: 'superBlockNode', position: { x: 10, y: 200 }, data: { label: 'sb1', isSelected: false, openInfo: false }, children : ['1', '2']},
 ];
 const initialEdges = [{ id: 'e1-2', source: '1', target: '2' }];
 const nodeTypes = { customNode: CustomNode, superBlockNode: SuperBlockNode };

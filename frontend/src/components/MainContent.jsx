@@ -7,6 +7,7 @@ import Superblock from '../models/SuperBlock';
 import SelectionBox from './SelectionBox';
 import ResponseMessage from './ResponseMessage';
 import SheetsComponent from './SheetsComponent';
+import NodeInfoBar from './NodeInfoBar';
 
 export default function MainContent({nodes, edges, setEdges, setNodes, onNodesChange, onEdgesChange, nodeTypes}) {
 
@@ -32,7 +33,19 @@ export default function MainContent({nodes, edges, setEdges, setNodes, onNodesCh
 
     useEffect(() => {
         setSelectedNodes(nodes.filter(node => node.data.isSelected === true))
+        const tmp = nodes.filter(node => node.data.openInfo === true)
+        if(tmp.length > 0) {
+            setOpenNodeInfo(true)
+            setNodeInfo(tmp[0])
+        }
+
     }, [nodes])
+
+    const handleCloseNodeInfo = () => {
+        setOpenNodeInfo(false);
+        nodeInfo.data.openInfo = false;
+        setNodeInfo(null);
+    }
 
     return(
         <div style={{ height: '100vh', width: '105.5rem'}}>
@@ -43,7 +56,7 @@ export default function MainContent({nodes, edges, setEdges, setNodes, onNodesCh
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
-                fitView        
+                fitView
             >
                 <Controls position='bottom-right' />
                 <Background />
@@ -52,7 +65,9 @@ export default function MainContent({nodes, edges, setEdges, setNodes, onNodesCh
 
                 {selectedNodes.length !==0 &&  <SelectionBox selectedNodes={selectedNodes} createSuperblock={createSuperblock} setMessage={setMessage} setVariant={setVariant} setShowMessage={setShowMessage} /> }
                 {showMessage && <ResponseMessage message={message} variant={variant} setShowMesssage={setShowMessage} /> }
-                <SheetsComponent nodes={nodes} edges={edges} />
+                {openNodeInfo && <NodeInfoBar nodeInfo={nodeInfo} handleCloseNodeInfo={handleCloseNodeInfo} /> }
+
+                <SheetsComponent nodes={nodes} edges={edges} selectedSheet={selectedSheet} setSelectedSheet={setSelectedSheet} />
 
             </ReactFlow>
         </div>

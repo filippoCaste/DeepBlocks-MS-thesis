@@ -20,10 +20,19 @@ export default function SuperBlockNode(props) {
         setRename(false)
     }
 
+    const handleOpenInfo = () => {
+        data.openInfo = true;
+    }
+
     return (
         <> {openOptions && <NodeOptions setOpenOptions={setOpenOptions} setRename={setRename} setSelected={setSelected} nodeInfo={props} />}
-            <div className={`node ${data.isSelected ? "selected" : ""}`} onMouseOver={() => setHovering(true)} onMouseLeave={() => setHovering(false)} onContextMenu={(e) => { e.preventDefault(); setOpenOptions(true)}}
-                style={{ backgroundImage: 'linear-gradient(red,yellow,green)', color: 'black' }}>
+            <div className={`node ${data.isSelected ? "selected" : ""}`} 
+                onMouseOver={() => setHovering(true)} 
+                onMouseLeave={() => setHovering(false)} 
+                onContextMenu={(e) => { e.preventDefault(); setOpenOptions(true)}}
+                onClick={() => handleOpenInfo()}
+                style={{ backgroundImage: 'linear-gradient(red,yellow,green)', color: 'black' }}
+                >
                 <Handle type="target" position={Position.Left} />
                 <div>
                     {rename ? 

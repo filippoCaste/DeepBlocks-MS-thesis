@@ -1,15 +1,15 @@
 "use strict";
 
 class Superblock{
-    static idCounter = 1;
+    static idCounter = 0;
 
     /**
      * Constructor function for creating a Superblock instance.
      *
-     * @param {type} type - The type of the superblock.
-     * @param {type} position - The position of the superblock.
-     * @param {type} data - The data associated with the superblock.
-     * @param {[Block]} children - The children of the superblock.
+     * @param {String} type - The type of the superblock.
+     * @param {Object} position - The position of the superblock.
+     * @param {Object} data - The data associated with the superblock.
+     * @param {[String]} children - The list of the children ids.
      */
     constructor(type, position, data, children) {
         this.id = (Superblock.idCounter++).toString() + 's';

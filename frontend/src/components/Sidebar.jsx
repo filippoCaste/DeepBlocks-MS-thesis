@@ -6,6 +6,7 @@ import Download from 'react-bootstrap-icons/dist/icons/download'
 import Pencil from 'react-bootstrap-icons/dist/icons/pencil'
 import PlayFill from 'react-bootstrap-icons/dist/icons/play-fill'
 import ListColumns from 'react-bootstrap-icons/dist/icons/list-columns'
+import BarChartFill from 'react-bootstrap-icons/dist/icons/bar-chart-fill';
 
 import Blocks from '../../public/data/blocks.json'
 import { Dropdown, DropdownButton, Form } from 'react-bootstrap';
@@ -35,27 +36,29 @@ const Sidebar = (props) => {
                     <li style={openMenu === 'Network Design' ? { backgroundColor: '#555' } : {}}>
                         <span onClick={() => {
                             openMenu === "Network Design" ? setOpenMenu('none') : setOpenMenu('Network Design')
-                        }}> <Pencil style={{ height: '1.5rem', width: 'auto' }} /> </span>
+                        }}> <Pencil className='sidebar-icon' /> </span>
                     </li>
                     <li style={openMenu === 'Network Details' ? { backgroundColor: '#555' } : {}}>
                         <span onClick={() => {
                             openMenu === "Network Details" ? setOpenMenu('none') : setOpenMenu('Network Details')
-                        }}> <ListColumns style={{ height: '1.5rem', width: 'auto' }} /> </span>
+                        }}> <ListColumns className='sidebar-icon' /> </span>
                     </li>
                     <li style={openMenu === 'Training' ? { backgroundColor: '#555' } : {}}>
                         <span onClick={() => {
                             openMenu === "Training" ? setOpenMenu('none') : setOpenMenu('Training')
-                        }}> <PlayFill style={{ height: '1.5rem', width: 'auto' }} /> </span>
+                        }}> <PlayFill className='sidebar-icon' /> </span>
                     </li>
                     <li style={openMenu === 'Options' ? { backgroundColor: '#555' } : {}}>
                         <span onClick={() => {
                             openMenu === "Options" ? setOpenMenu('none') : setOpenMenu('Options')
-                        }}> <Download style={{ height: '1.5rem', width: 'auto' }} /> </span>
+                        }}> <Download className='sidebar-icon' /> </span>
                     </li>
                 </ul>
-                <ul className="sidebar-menu" style={{ position: 'absolute', bottom: 0 }}>
-                    <li>
-                        <span>A</span>
+                <ul className="sidebar-menu" style={{ position: 'absolute', bottom:'0' }}>
+                    <li style={openMenu === 'Analysis' ? { backgroundColor: '#555' } : {}}>
+                        <span onClick={() => {
+                            openMenu === "Analysis" ? setOpenMenu('none') : setOpenMenu('Analysis')
+                        }}> <BarChartFill className='sidebar-icon' /> </span>
                     </li>
                 </ul>
             </div>

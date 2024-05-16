@@ -8,14 +8,20 @@
 
 .sidebar-menu {
     list-style: none;
+    text-align: center;
     padding: 0;
 }
 
 .sidebar-menu li {
-    margin-bottom: 10px;
+    padding-bottom: 5px;
+    padding-top: 5px;
     display: flex;
     cursor: pointer;
     padding-left: 13px;
+}
+
+.sidebar-menu li:hover {
+    background-color: #555;
 }
 
 .sidebar-menu li span {
@@ -23,6 +29,11 @@
     margin-top: 1rem;
     margin-bottom: 1rem;
     margin-left: 0.38rem;
+}
+
+.sidebar-icon {
+    height: 1.5rem;
+    width: auto;
 }
 
 .node{

@@ -4,136 +4,136 @@
             {
                 "name": "Batch Normalization",
                 "function": "torch.nn.BatchNorm1d (for 1D data), torch.nn.BatchNorm2d (for 2D convolutional data)",
-                "parameters": {
-                    "features": "Number of features",
-                    "momentum": "Momentum",
-                    "eps": "Epsilon",
-                    "affine": "Whether to use learnable affine parameters"
-                }
+                "parameters": [
+                    { "name": "features", "description": "Number of features", "value": null },
+                    { "name": "momentum", "description": "Momentum", "value": null },
+                    { "name": "eps", "description": "Epsilon", "value": null },
+                    { "name": "affine", "description": "Whether to use learnable affine parameters", "value": null }
+                ]
             },
             {
                 "name": "Layer Normalization",
                 "function": "torch.nn.LayerNorm",
-                "parameters": {
-                    "normalized_shape": "Input size or shape",
-                    "eps": "Epsilon",
-                    "elementwise_affine": "Whether to apply affine transformation element-wise"
-                }
+                "parameters": [
+                    { "name": "normalized_shape", "description": "Input size or shape", "value": null },
+                    { "name": "eps", "description": "Epsilon", "value": null },
+                    { "name": "elementwise_affine", "description": "Whether to apply affine transformation element-wise", "value": null }
+                ]
             }
         ],
         "Element-wise": [
             {
                 "name": "Addition",
                 "function": "torch.add",
-                "parameters": {
-                    "tensor1": "First tensor",
-                    "tensor2": "Second tensor"
-                }
+                "parameters": [
+                    { "name": "tensor1", "description": "First tensor", "value": null },
+                    { "name": "tensor2", "description": "Second tensor", "value": null }
+                ]
             },
             {
                 "name": "Subtraction",
                 "function": "torch.sub",
-                "parameters": {
-                    "tensor1": "First tensor",
-                    "tensor2": "Second tensor"
-                }
+                "parameters": [
+                    { "name": "tensor1", "description": "First tensor", "value": null },
+                    { "name": "tensor2", "description": "Second tensor", "value": null }
+                ]
             },
             {
                 "name": "Multiplication",
                 "function": "torch.mul",
-                "parameters": {
-                    "tensor1": "First tensor",
-                    "tensor2": "Second tensor"
-                }
+                "parameters": [
+                    { "name": "tensor1", "description": "First tensor", "value": null },
+                    { "name": "tensor2", "description": "Second tensor", "value": null }
+                ]
             },
             {
                 "name": "Division",
                 "function": "torch.div",
-                "parameters": {
-                    "tensor1": "First tensor",
-                    "tensor2": "Second tensor"
-                }
+                "parameters": [
+                    { "name": "tensor1", "description": "First tensor", "value": null },
+                    { "name": "tensor2", "description": "Second tensor", "value": null }
+                ]
             }
         ],
         "Regularization": [
             {
                 "name": "Dropout",
                 "function": "torch.nn.Dropout",
-                "parameters": {
-                    "p": "Dropout probability"
-                }
+                "parameters": [
+                    { "name": "probability", "description": "Dropout probability", "value": null }
+                ]
             }
         ],
         "Activation": [
             {
                 "name": "Sigmoid",
                 "function": "torch.sigmoid",
-                "parameters": {
-                    "input_tensor": "Input tensor"
-                }
+                "parameters": [
+                    { "name": "input_tensor", "description": "Input tensor", "value": null }
+                ]
             },
             {
                 "name": "Tanh",
                 "function": "torch.tanh",
-                "parameters": {
-                    "input_tensor": "Input tensor"
-                }
+                "parameters": [
+                    { "name": "input_tensor", "description": "Input tensor", "value": null }
+                ]
             },
             {
                 "name": "ReLU",
                 "function": "torch.relu",
-                "parameters": {
-                    "input_tensor": "Input tensor"
-                }
+                "parameters": [
+                    { "name": "input_tensor", "description": "Input tensor", "value": null }
+                ]
             },
             {
                 "name": "Leaky ReLU",
                 "function": "torch.nn.functional.leaky_relu",
-                "parameters": {
-                    "input_tensor": "Input tensor",
-                    "negative_slope": "Negative slope"
-                }
+                "parameters": [
+                    { "name": "input_tensor", "description": "Input tensor", "value": null },
+                    { "name": "negative_slope", "description": "Negative slope", "value": null }
+                ]
             },
             {
                 "name": "Softmax",
                 "function": "torch.nn.functional.softmax",
-                "parameters": {
-                    "input_tensor": "Input tensor",
-                    "dim": "Dimension along which softmax will be computed"
-                }
+                "parameters": [
+                    { "name": "input_tensor", "description": "Input tensor", "value": null },
+                    { "name": "dim", "description": "Dimension along which softmax will be computed", "value": null }
+                ]
             },
             {
                 "name": "Multihead Attention",
                 "function": "torch.nn.MultiheadAttention",
-                "parameters":{
-                    "dim": "total dimension of model input",
-                    "parallel attention heads": "number of parallel attention heads",
-                    "dropout probability": "dropout probability",
-                    "add bias to the key and value sequences": "whether to add bias to the key and value sequences",
-                    "check for others": "Add more and check this attention"
-                }
+                "parameters": [
+                    { "name": "dim", "description": "Total dimension of model input", "value": null },
+                    { "name": "parallel_attention_heads", "description": "Number of parallel attention heads", "value": null },
+                    { "name": "dropout_probability", "description": "Dropout probability", "value": null },
+                    { "name": "add_bias_to_key_value_sequences", "description": "Whether to add bias to the key and value sequences", "value": null },
+                    { "name": "check_for_others", "description": "Add more and check this attention", "value": null }
+                ]
             }
         ],
         "Pooling": [
             {
                 "name": "Max Pooling",
                 "function": "torch.nn.functional.max_pool2d (for 2D pooling)",
-                "parameters": {
-                    "input_tensor": "Input tensor",
-                    "kernel_size": "Kernel size",
-                    "stride": "Stride",
-                    "padding": "Padding"
-                }
+                "parameters": [
+                    { "name": "input_tensor", "description": "Input tensor", "value": null },
+                    { "name": "kernel_size", "description": "Kernel size", "value": null },
+                    { "name": "stride", "description": "Stride", "value": null },
+                    { "name": "padding", "description": "Padding", "value": null }
+                ]
             },
             {
                 "name": "Average Pooling",
                 "function": "torch.nn.functional.avg_pool2d (for 2D pooling)",
-                "parameters": {
-                    "input_tensor": "Input tensor",
-                    "kernel_size": "Kernel size",
-                    "stride": "Stride",
-                    "padding": "Padding"
-                }
+                "parameters": [
+                    { "name": "input_tensor", "description": "Input tensor", "value": null },
+                    { "name": "kernel_size", "description": "Kernel size", "value": null },
+                    { "name": "stride", "description": "Stride", "value": null },
+                    { "name": "padding", "description": "Padding", "value": null }
+                ]
             }
         ]
     }

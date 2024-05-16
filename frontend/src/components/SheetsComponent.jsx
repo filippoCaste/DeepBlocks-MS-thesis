@@ -10,7 +10,8 @@ export default function SheetsComponent(props) {
     const superNodes = props.nodes.filter(e=> e.type==='superBlockNode');
     const edges = props.edges;
     const reactflow = useReactFlow();
-    const [selectedSheet, setSelectedSheet] = useState('main');
+    const selectedSheet = props.selectedSheet;
+    const setSelectedSheet = props.setSelectedSheet;
 
     const handleOpenSheet = (label, node) => {
         // hide all the other nodes, show just the children of the supernodes

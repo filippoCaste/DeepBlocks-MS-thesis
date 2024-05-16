@@ -25,6 +25,10 @@ export default function MainContent({nodes, edges, setEdges, setNodes, onNodesCh
     const [message, setMessage] = useState('');
     const [variant, setVariant] = useState('');
     const [showMessage, setShowMessage] = useState(false);
+    const [openNodeInfo, setOpenNodeInfo] = useState(false);
+    const [nodeInfo, setNodeInfo] = useState(null);
+    const [selectedSheet, setSelectedSheet] = useState('main');
+
 
     useEffect(() => {
         setSelectedNodes(nodes.filter(node => node.data.isSelected === true))
@@ -43,6 +47,8 @@ export default function MainContent({nodes, edges, setEdges, setNodes, onNodesCh
             >
                 <Controls position='bottom-right' />
                 <Background />
+
+                <div className={`${selectedSheet !== 'main' ? 'border sheet-border' : ''}`}></div>
 
                 {selectedNodes.length !==0 &&  <SelectionBox selectedNodes={selectedNodes} createSuperblock={createSuperblock} setMessage={setMessage} setVariant={setVariant} setShowMessage={setShowMessage} /> }
                 {showMessage && <ResponseMessage message={message} variant={variant} setShowMesssage={setShowMessage} /> }

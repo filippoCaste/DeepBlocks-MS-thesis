@@ -26,8 +26,9 @@ export default function CustomNode(props) {
         <> 
             {openOptions && <NodeOptions setOpenOptions={setOpenOptions} setRename={setRename} setSelected={setSelected} nodeInfo={props} />}
             
-            <div style={{ display: 'flex' }} onMouseOver={() => setHovering(true)}
-                onMouseLeave={() => setHovering(false)}
+            <div style={{ display: 'flex' }} 
+                // onMouseOver={() => setHovering(true)}
+                // onMouseLeave={() => setHovering(false)}
 >
                 <div className={`node ${data.isSelected ? "selected" : ""}`} 
                     onContextMenu={(e) => {e.preventDefault(); setOpenOptions(true)}}

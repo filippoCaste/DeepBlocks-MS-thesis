@@ -1,3 +1,4 @@
+'use strict';
 import React from 'react';
 import Sidebar from './components/Sidebar';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -9,13 +10,25 @@ import NotFoundPage from './pages/NotFoundPage';
 import { useNodesState, useEdgesState } from 'reactflow';
 import SuperBlockNode from './components/SuperBlockNode';
 
+// just for temporary use
+import Block from './models/Block';
+import Superblock from './models/SuperBlock';
 
-const initialNodes = [
-  { id: '1', type: 'customNode', position: { x: 10, y: 0 }, data: { label: 'ReLU', isSelected: false, openInfo: false } },
-  { id: '2', type: 'customNode', position: { x: 10, y: 100 }, data: { label: 'Softmax', isSelected: false, openInfo: false } },
-  { id: '0s', type: 'superBlockNode', position: { x: 10, y: 200 }, data: { label: 'sb1', isSelected: false, openInfo: false }, children : ['1', '2']},
-];
-const initialEdges = [{ id: 'e1-2', source: '1', target: '2' }];
+const node1 = new Block('customNode', { x: 10, y: 0 }, { label: 'Leaky ReLU' }, [
+  { name: "input_tensor", description: "Input tensor", value: 'null' }, 
+  { name: "negative_slope", description: "Negative slope", value: 'null' } ]);
+
+const node2 = new Block('customNode', { x: 10, y: 100 }, { label: 'ReLU' }, [
+    { name: "input_tensor", description: "Input tensor", value: null }
+]);
+
+const superNode1 = new Superblock('superBlockNode', { x: 10, y: 200 }, { label: 'sb1', isSelected: false }, [node1.id, node2.id]);
+
+
+const initialNodes = [node1, node2, superNode1]
+const initialEdges = [{ id: 'e1-2', source: '0', target: '1' }];
+// -----------------------------------------------------------------------------------------------------
+
 const nodeTypes = { customNode: CustomNode, superBlockNode: SuperBlockNode };
 
 
@@ -35,7 +48,7 @@ export default function App() {
         <Routes>
           <Route index element={<MainContent style={{ flex: 1 }} edges={edges} setNodes={setNodes} setEdges={setEdges}
                                       nodeTypes={nodeTypes} nodes={nodes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange}
-                                      />} 
+                                  />} 
             />
           <Route path='*' element={<NotFoundPage />} />
 

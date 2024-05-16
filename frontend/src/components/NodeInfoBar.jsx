@@ -9,8 +9,6 @@ import Row from "react-bootstrap/Row";
 export default function NodeInfoBar(props) {
 
     const [selectedTab, setSelectedTab] = useState('Parameters');
-    const [inputDimension, setInputDimension] = useState(0);
-    const [outputDimension, setOutputDimension] = useState(0);
 
     const node = props.nodeInfo;
 
@@ -26,6 +24,10 @@ export default function NodeInfoBar(props) {
         }
     }
 
+    const setParameterValue = (name, value) => {
+        node.parameters.filter(e => e.name === name)[0].value = value
+    }
+
     return (
         <div className="nodeInfo-bar">
             <div className="top-bar">
@@ -39,50 +41,50 @@ export default function NodeInfoBar(props) {
                 }}>X</p>
             </div>
             <div>
-                {selectedTab === 'Parameters' && <ParametersTab inputDimension={inputDimension} outputDimension={outputDimension}
-                                                     setInputDimension={setInputDimension} setOutputDimension={setOutputDimension} />}
-                {selectedTab === 'Info' && <InfoTab inputDimension={inputDimension} outputDimension={outputDimension}
-                                                     setInputDimension={setInputDimension} setOutputDimension={setOutputDimension}
-                                                     node={node} />}
+                {selectedTab === 'Parameters' && <ParametersTab node={node} setParameterValue={setParameterValue} />}
+                {selectedTab === 'Info' && <InfoTab node={node} />}
             </div>
         </div>
     )
 }
 
 function ParametersTab(props) {
-    const { inputDimension, setInputDimension, outputDimension, setOutputDimension } = props
+    const { node } = props;
+
     return (
         <Container>
 
-            <Row className="mb-3">
-                <Col md={3}>
-                    <Form.Label>Input dimension</Form.Label>
-                </Col>
-                <Col md={1}>
-                    <Form.Control
-                        value={inputDimension || ''}
-                        type="text"
-                        onChange={(ev) => setInputDimension(ev.target.value)}
-                        style={{ width: '100%' }}
-                    />
-                </Col>
-            </Row>
-            <Row className="mb-3">
-                <Col md={3}>
-                    <Form.Label>Output dimension</Form.Label>
-                </Col>
-                <Col md={1}>
-                    <Form.Control
-                        value={outputDimension || ''}
-                        type="text"
-                        onChange={(ev) => setOutputDimension(ev.target.value)}
-                        style={{ width: '100%' }}
-                    />
-                </Col>
-            </Row>
+            {node.parameters.map(e => {
+                return <FormInput key={"node-"+node.id+"-"+e.name} name={e.name} value={e.value} description={e.description} setParameterValue={props.setParameterValue}/>
+            })}
 
         </Container>
     )
+}
+
+function FormInput(props) {
+
+    const { name, value, description, setParameterValue } = props;
+
+
+
+    return (
+        <Row className="mb-3">
+            <Col md={3}>
+                <Form.Label>{name}</Form.Label>
+            </Col>
+            <Col md={1}>
+                <Form.Group >
+                    <Form.Control
+                        defaultValue={value!='null' ? value : ''}
+                        type="text"
+                        onChange={(ev) => setParameterValue(name, ev.target.value)}
+                        style={{ width: '100%' }}
+                    />
+                </Form.Group>
+            </Col>
+        </Row>
+    );
 }
 
 function InfoTab(props) {

@@ -38,6 +38,11 @@ export default function App() {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
   const handleAddNode = (node) => {
+    // check if there is a supernode which is opened in a sheet
+    const superBlockOpened = nodes.find(e => e.data.isOpenInSheet === true);
+    if(superBlockOpened) {
+      superBlockOpened.children.push(node.id);
+    }
     setNodes((prevNodes) => [...prevNodes, node]);
   }
 

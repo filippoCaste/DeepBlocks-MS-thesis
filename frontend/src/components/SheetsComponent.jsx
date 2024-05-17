@@ -1,6 +1,5 @@
 'use strict';
 
-import { useState } from "react";
 import Container from "react-bootstrap/Container";
 import { useReactFlow } from "reactflow";
 
@@ -15,12 +14,14 @@ export default function SheetsComponent(props) {
 
     const handleOpenSheet = (label, node) => {
         // hide all the other nodes, show just the children of the supernodes
-        let childIds = []
+        
         if(label === 'main') {
+            let childIds = [];
             for(let node of nodes) {
                 node.hidden = false;
                 if(node.type === 'superBlockNode') {
                     childIds = [...childIds, ...node.children]
+                    node.data.isOpenInSheet = false;
                 }
             }
 
@@ -39,6 +40,7 @@ export default function SheetsComponent(props) {
                 nodes.find(e => e.id === childId).hidden = false;
             }
         }
+        if(label!=='main') node.data.isOpenInSheet = true;
         setSelectedSheet(label)
         reactflow.setNodes(nodes);
     }

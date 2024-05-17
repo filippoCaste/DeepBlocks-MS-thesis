@@ -46,10 +46,33 @@ export default function App() {
     setNodes((prevNodes) => [...prevNodes, node]);
   }
 
+  const handleDeleteNode = (node) => {
+    let updatedNodes=[];
+    if(node.type === 'superBlockNode') {
+      const nodeChildren = nodes.find(e => e.id === node.id).children;
+      // delete the children
+      nodes.filter(n => !nodeChildren.includes(n.id));
+      // delete the supernode
+      updatedNodes = nodes.filter(n => n.id != node.id);
+
+    } else {
+      updatedNodes = nodes.filter(n => n.id != node.id);
+    }
+
+    setNodes(() => updatedNodes);
+  }
+
+  const handleRenameNode = (node, newName) => {
+    const nodeToRename = nodes.find(e => e.id === node.id);
+    nodeToRename.data.label = newName;
+    const updatedNodes = nodes.map(n => n.id === node.id ? nodeToRename : n)
+    setNodes(() => updatedNodes)
+  }
+
   return (
     <BrowserRouter>
       <div className='app-container' style={{ display: 'flex' }}>
-        <Sidebar nodes={nodes} setNodes={setNodes} handleAddNode={handleAddNode} />
+        <Sidebar nodes={nodes} setNodes={setNodes} handleAddNode={handleAddNode} handleDeleteNode={handleDeleteNode} handleRenameNode={handleRenameNode} />
         <Routes>
           <Route index element={<MainContent style={{ flex: 1 }} edges={edges} setNodes={setNodes} setEdges={setEdges}
                                       nodeTypes={nodeTypes} nodes={nodes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange}

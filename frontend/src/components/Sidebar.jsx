@@ -17,8 +17,7 @@ import Block from '../models/Block';
 const Sidebar = (props) => {
 
     const [openMenu, setOpenMenu] = useState('none');
-    const nodes = props.nodes;
-    const handleAddNode = props.handleAddNode;
+    const {nodes, handleAddNode, handleDeleteNode, handleRenameNode } = props;
 
     // training parameters
     const [learningRate, setLearningRate] = useState(0);
@@ -65,7 +64,7 @@ const Sidebar = (props) => {
             {openMenu !== 'none' && <Menu openMenu={openMenu} nodes={nodes} handleAddNode={handleAddNode}
                                         learningRate={learningRate} epochs={epochs} batchSize={batchSize} loss={loss} optimizer={optimizer}
                                         setLearningRate={setLearningRate} setEpochs={setEpochs} setBatchSize={setBatchSize} setLoss={setLoss} setOptimizer={setOptimizer}
-
+                                        handleDeleteNode={handleDeleteNode} handleRenameNode={handleRenameNode}
                                         />}
         </>
     );
@@ -79,7 +78,7 @@ const Menu = (props) => {
             <h4 style={{fontWeight: 'bold'}}>{openMenu}</h4>
             <div>
             {openMenu === 'Network Design' && <NetworkDesign handleAddNode={props.handleAddNode} />}
-            {openMenu === 'Network Details' && <NetworkDetails nodes={props.nodes} />}
+            {openMenu === 'Network Details' && <NetworkDetails nodes={props.nodes} handleDeleteNode={props.handleDeleteNode} handleRenameNode={props.handleRenameNode}/>}
             {openMenu === 'Training' && <Training 
                                             learningRate={props.learningRate} epochs={props.epochs} batchSize={props.batchSize} loss={props.loss} optimizer={props.optimizer}
                                             setLearningRate={props.setLearningRate} setEpochs={props.setEpochs} setBatchSize={props.setBatchSize} setLoss={props.setLoss} setOptimizer={props.setOptimizer}
@@ -125,7 +124,7 @@ const BlockTable = ({category, blocks, handleAddNode}) => {
     return (
         <>
             <h5 style={{textAlign: 'center'}}>{category}</h5>
-            <Table striped hover size='sm' variant='dark'>
+            <Table key={"table-"+category} striped hover size='sm' variant='dark'>
                 <tbody>
                 {blocks.map((block) => {
                     return (
@@ -142,15 +141,45 @@ const BlockTable = ({category, blocks, handleAddNode}) => {
 }
 
 const NetworkDetails = (props) => {
-    const nodes = props.nodes;
+    const { nodes, handleDeleteNode, handleRenameNode } = props;
 
     return (
-        <>
-            {nodes.map((node, index) => {
-                return <p key={node+"-"+index}>{node.data.label}</p>
-            })}
-        </>
+        <Table striped variant='dark'>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th style={{ textAlign: 'right' }}>Actions</th>
+                </tr>
+            </thead>
+            <tbody style={{ textAlign: 'left' }}>
+                {nodes.map((node, index) => {
+                    return <BlockDetailsAndActions key={node+"-"+index} node={node} index={index} handleDeleteNode={handleDeleteNode} handleRenameNode={handleRenameNode}/>
+                })}
+            </tbody>
+        </Table>
     );
+}
+
+const BlockDetailsAndActions = (props)  => {
+
+    const handleDelete = () => {
+        props.handleDeleteNode(props.node);
+    }
+
+    const handleRename = (newName) => {
+        props.handleRenameNode(props.node, newName);
+    }
+
+    return (
+        <tr>
+            <td>{props.node.data.label}</td>
+            <td style={{ textAlign: 'right' }}>
+                <Button onClick={() => handleRename("not implemented")}>r</Button>
+                <Button variant='danger' onClick={() => handleDelete()}>d</Button>
+            </td>
+        </tr>
+    );
+
 }
 
 const handleTrain = (params, { setErr, setErrMsg }) => {

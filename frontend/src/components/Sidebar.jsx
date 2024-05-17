@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import Container from 'react-bootstrap/Container';
 import Table from 'react-bootstrap/Table';
 import Download from 'react-bootstrap-icons/dist/icons/download'
-import Pencil from 'react-bootstrap-icons/dist/icons/pencil'
+import PencilFill from 'react-bootstrap-icons/dist/icons/pencil-fill'
 import PlayFill from 'react-bootstrap-icons/dist/icons/play-fill'
 import ListColumns from 'react-bootstrap-icons/dist/icons/list-columns'
 import BarChartFill from 'react-bootstrap-icons/dist/icons/bar-chart-fill';
@@ -32,32 +32,32 @@ const Sidebar = (props) => {
         <>
             <div className="sidebar">
                 <ul className="sidebar-menu">
-                    <li style={openMenu === 'Network Design' ? { backgroundColor: '#555' } : {}}>
-                        <span onClick={() => {
+                    <li onClick={() => {
                             openMenu === "Network Design" ? setOpenMenu('none') : setOpenMenu('Network Design')
-                        }}> <Pencil className='sidebar-icon' /> </span>
+                        }} style={openMenu === 'Network Design' ? { backgroundColor: '#555' } : {}}>
+                        <span> <PencilFill className='sidebar-icon' /> </span>
                     </li>
-                    <li style={openMenu === 'Network Details' ? { backgroundColor: '#555' } : {}}>
-                        <span onClick={() => {
+                    <li onClick={() => {
                             openMenu === "Network Details" ? setOpenMenu('none') : setOpenMenu('Network Details')
-                        }}> <ListColumns className='sidebar-icon' /> </span>
+                        }} style={openMenu === 'Network Details' ? { backgroundColor: '#555' } : {}}>
+                        <span> <ListColumns className='sidebar-icon' /> </span>
                     </li>
-                    <li style={openMenu === 'Training' ? { backgroundColor: '#555' } : {}}>
-                        <span onClick={() => {
+                    <li onClick={() => {
                             openMenu === "Training" ? setOpenMenu('none') : setOpenMenu('Training')
-                        }}> <PlayFill className='sidebar-icon' /> </span>
+                        }} style={openMenu === 'Training' ? { backgroundColor: '#555' } : {}}>
+                        <span> <PlayFill className='sidebar-icon' /> </span>
                     </li>
-                    <li style={openMenu === 'Options' ? { backgroundColor: '#555' } : {}}>
-                        <span onClick={() => {
+                    <li onClick={() => {
                             openMenu === "Options" ? setOpenMenu('none') : setOpenMenu('Options')
-                        }}> <Download className='sidebar-icon' /> </span>
+                        }} style={openMenu === 'Options' ? { backgroundColor: '#555' } : {}}>
+                        <span> <Download className='sidebar-icon' /> </span>
                     </li>     
                 </ul>
                 <ul className="sidebar-menu" style={{ position: 'absolute', bottom:'0' }}>
-                    <li style={openMenu === 'Analysis' ? { backgroundColor: '#555' } : {}}>
-                        <span onClick={() => {
+                    <li onClick={() => {
                             openMenu === "Analysis" ? setOpenMenu('none') : setOpenMenu('Analysis')
-                        }}> <BarChartFill className='sidebar-icon' /> </span>
+                        }} style={openMenu === 'Analysis' ? { backgroundColor: '#555' } : {}}>
+                        <span> <BarChartFill className='sidebar-icon' /> </span>
                     </li>
                 </ul>
             </div>

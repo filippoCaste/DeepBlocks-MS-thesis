@@ -27,8 +27,8 @@ export default function SuperBlockNode(props) {
     return (
         <> {openOptions && <NodeOptions setOpenOptions={setOpenOptions} setRename={setRename} setSelected={setSelected} nodeInfo={props} />}
             <div className={`node ${data.isSelected ? "selected" : ""}`} 
-                onMouseOver={() => setHovering(true)} 
-                onMouseLeave={() => setHovering(false)} 
+                // onMouseOver={() => setHovering(true)} 
+                // onMouseLeave={() => setHovering(false)} 
                 onContextMenu={(e) => { e.preventDefault(); setOpenOptions(true)}}
                 onClick={() => handleOpenInfo()}
                 style={{ backgroundImage: 'linear-gradient(red,yellow,green)', color: 'black' }}

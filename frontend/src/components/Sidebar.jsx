@@ -52,7 +52,7 @@ const Sidebar = (props) => {
                         <span onClick={() => {
                             openMenu === "Options" ? setOpenMenu('none') : setOpenMenu('Options')
                         }}> <Download className='sidebar-icon' /> </span>
-                    </li>
+                    </li>     
                 </ul>
                 <ul className="sidebar-menu" style={{ position: 'absolute', bottom:'0' }}>
                     <li style={openMenu === 'Analysis' ? { backgroundColor: '#555' } : {}}>

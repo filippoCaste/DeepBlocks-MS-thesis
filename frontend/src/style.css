@@ -119,33 +119,34 @@
     margin-left: 5px;
 }
 
-response-message-container{
-    top: 1em;
-    right: 1em;
-    position: fixed;
+/* response-message-container{
+    top: 0;
+    right: 0;
+    position: relative;
     z-index: 1000;
     text-align: center;
     border-radius: 0.5em;
     padding: 10px;
-}
+} */
 
 .sheets{
     display: flex;
-    width: fit-content;
-    position: fixed;
+    /* width: fit-content;  /* uncomment this to not have the sheets extended to the whole viewport */
+    position: relative;
     background-color: #333;
     color: #fff;
-    top: 1em;
-    right: 1em;
+    top: 0em;
+    left: 0em;
     z-index: 1000;
-    border-radius: 0.5em;
+    border-top-right-radius: 0.5em;
+    border-bottom-right-radius: 0.5em;
+    cursor: pointer;
 }
 
 .sheet{
     flex: 1;
     border-right: solid 2px #fff;
-    margin-top: auto;
-    margin-bottom: auto;
+    width: auto;
 }
 
 .sheet.selectedSheet{

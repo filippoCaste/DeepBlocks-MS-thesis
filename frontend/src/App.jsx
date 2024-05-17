@@ -9,11 +9,10 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import NotFoundPage from './pages/NotFoundPage';
 import { useNodesState, useEdgesState } from 'reactflow';
 import SuperBlockNode from './components/SuperBlockNode';
-
-// just for temporary use
 import Block from './models/Block';
 import Superblock from './models/SuperBlock';
 
+// just for temporary use
 const node1 = new Block('customNode', { x: 10, y: 0 }, { label: 'Leaky ReLU' }, [
   { name: "input_tensor", description: "Input tensor", value: 'null' }, 
   { name: "negative_slope", description: "Negative slope", value: 'null' } ]);
@@ -69,10 +68,21 @@ export default function App() {
     setNodes(() => updatedNodes)
   }
 
+  const handleDuplicateNode = (node) => {
+    let copy = {};
+    if (node.type === 'superBlockNode') {
+      copy = new Superblock(node.type, { ...node.position, y: node.position.y - 10 }, { ...node.data, label: node.data.label + " copy" }, []);
+    } else {
+      copy = new Block(node.type, {...node.position, y: node.position.y-10}, {...node.data, label: node.data.label+" copy"}, node.parameters);
+    }
+    setNodes((prevNodes) => [...prevNodes, copy])
+  }
   return (
     <BrowserRouter>
       <div className='app-container' style={{ display: 'flex' }}>
-        <Sidebar nodes={nodes} setNodes={setNodes} handleAddNode={handleAddNode} handleDeleteNode={handleDeleteNode} handleRenameNode={handleRenameNode} />
+        <Sidebar nodes={nodes} setNodes={setNodes} handleAddNode={handleAddNode} 
+            handleDeleteNode={handleDeleteNode} handleRenameNode={handleRenameNode} handleDuplicateNode={handleDuplicateNode}
+          />
         <Routes>
           <Route index element={<MainContent style={{ flex: 1 }} edges={edges} setNodes={setNodes} setEdges={setEdges}
                                       nodeTypes={nodeTypes} nodes={nodes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange}

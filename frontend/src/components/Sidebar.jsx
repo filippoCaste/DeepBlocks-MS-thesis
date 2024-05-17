@@ -17,7 +17,7 @@ import Block from '../models/Block';
 const Sidebar = (props) => {
 
     const [openMenu, setOpenMenu] = useState('none');
-    const {nodes, handleAddNode, handleDeleteNode, handleRenameNode } = props;
+    const { nodes, handleAddNode, handleDeleteNode, handleRenameNode, handleDuplicateNode } = props;
 
     // training parameters
     const [learningRate, setLearningRate] = useState(0);
@@ -64,7 +64,7 @@ const Sidebar = (props) => {
             {openMenu !== 'none' && <Menu openMenu={openMenu} nodes={nodes} handleAddNode={handleAddNode}
                                         learningRate={learningRate} epochs={epochs} batchSize={batchSize} loss={loss} optimizer={optimizer}
                                         setLearningRate={setLearningRate} setEpochs={setEpochs} setBatchSize={setBatchSize} setLoss={setLoss} setOptimizer={setOptimizer}
-                                        handleDeleteNode={handleDeleteNode} handleRenameNode={handleRenameNode}
+                                        handleDeleteNode={handleDeleteNode} handleRenameNode={handleRenameNode} handleDuplicateNode={handleDuplicateNode}
                                         />}
         </>
     );
@@ -78,7 +78,9 @@ const Menu = (props) => {
             <h4 style={{fontWeight: 'bold'}}>{openMenu}</h4>
             <div>
             {openMenu === 'Network Design' && <NetworkDesign handleAddNode={props.handleAddNode} />}
-            {openMenu === 'Network Details' && <NetworkDetails nodes={props.nodes} handleDeleteNode={props.handleDeleteNode} handleRenameNode={props.handleRenameNode}/>}
+            {openMenu === 'Network Details' && <NetworkDetails nodes={props.nodes} handleDeleteNode={props.handleDeleteNode} handleRenameNode={props.handleRenameNode}
+                                                    handleDuplicateNode={props.handleDuplicateNode}
+                                                    />}
             {openMenu === 'Training' && <Training 
                                             learningRate={props.learningRate} epochs={props.epochs} batchSize={props.batchSize} loss={props.loss} optimizer={props.optimizer}
                                             setLearningRate={props.setLearningRate} setEpochs={props.setEpochs} setBatchSize={props.setBatchSize} setLoss={props.setLoss} setOptimizer={props.setOptimizer}
@@ -141,7 +143,7 @@ const BlockTable = ({category, blocks, handleAddNode}) => {
 }
 
 const NetworkDetails = (props) => {
-    const { nodes, handleDeleteNode, handleRenameNode } = props;
+    const { nodes, handleDeleteNode, handleRenameNode, handleDuplicateNode } = props;
 
     return (
         <Table striped variant='dark'>
@@ -153,7 +155,9 @@ const NetworkDetails = (props) => {
             </thead>
             <tbody style={{ textAlign: 'left' }}>
                 {nodes.map((node, index) => {
-                    return <BlockDetailsAndActions key={node+"-"+index} node={node} index={index} handleDeleteNode={handleDeleteNode} handleRenameNode={handleRenameNode}/>
+                    return <BlockDetailsAndActions key={node+"-"+index} node={node} index={index} 
+                                handleDeleteNode={handleDeleteNode} handleRenameNode={handleRenameNode} handleDuplicateNode={handleDuplicateNode}
+                            />
                 })}
             </tbody>
         </Table>
@@ -170,10 +174,15 @@ const BlockDetailsAndActions = (props)  => {
         props.handleRenameNode(props.node, newName);
     }
 
+    const handleDuplicateNode = () => {
+        props.handleDuplicateNode(props.node)
+    }
+
     return (
         <tr>
             <td>{props.node.data.label}</td>
             <td style={{ textAlign: 'right' }}>
+                <Button onClick={() => handleDuplicateNode()}>c</Button>
                 <Button onClick={() => handleRename("not implemented")}>r</Button>
                 <Button variant='danger' onClick={() => handleDelete()}>d</Button>
             </td>

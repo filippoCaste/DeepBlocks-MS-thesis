@@ -53,19 +53,36 @@ export default function App() {
     setNodes((prevNodes) => [...prevNodes, node]);
   }
 
-  const handleDeleteNode = (node) => {
-    let updatedNodes=[];
-    if(node.type === 'superBlockNode') {
-      const nodeChildren = nodes.find(e => e.id === node.id).children;
-      // delete the children
-      nodes.filter(n => !nodeChildren.includes(n.id));
-      // delete the supernode
-      updatedNodes = nodes.filter(n => n.id != node.id);
+  // const handleDeleteNode = (node) => {
+  //   let updatedNodes=[];
+  //   if(node.type === 'superBlockNode') {
+  //     const nodeChildren = nodes.find(e => e.id === node.id).children;
+  //     // delete the children
+  //     nodes.filter(n => !nodeChildren.includes(n.id));
+  //     // delete the supernode
+  //     updatedNodes = nodes.filter(n => n.id != node.id);
 
-    } else {
-      updatedNodes = nodes.filter(n => n.id != node.id);
+  //   } else {
+  //     updatedNodes = nodes.filter(n => n.id != node.id);
+  //   }
+
+  //   setNodes(() => updatedNodes);
+  // }
+
+  const handleDeleteNodes = (toDeleteNodes) => {
+    let updatedNodes = [...nodes];
+    for(let node of toDeleteNodes) {
+      if (node.type === 'superBlockNode') {
+        const nodeChildren = updatedNodes.find(e => e.id === node.id).children;
+        // delete the children
+        updatedNodes = [...updatedNodes.filter(n => !nodeChildren.includes(n.id))]
+        // delete the supernode
+        updatedNodes = [...updatedNodes.filter(n => n.id != node.id)];
+
+      } else {
+        updatedNodes = [...updatedNodes.filter(n => n.id != node.id)]
+      }
     }
-
     setNodes(() => updatedNodes);
   }
 
@@ -108,7 +125,7 @@ export default function App() {
     <BrowserRouter>
       <div className='app-container' style={{ display: 'flex' }}>
         <Sidebar nodes={nodes} setNodes={setNodes} handleAddNode={handleAddNode} 
-            handleDeleteNode={handleDeleteNode} handleRenameNode={handleRenameNode} handleDuplicateNode={handleDuplicateNode}
+            handleDeleteNodes={handleDeleteNodes} handleRenameNode={handleRenameNode} handleDuplicateNode={handleDuplicateNode}
             handleSave={handleSave}
 
           />
@@ -118,7 +135,7 @@ export default function App() {
         <Routes>
           <Route index element={<MainContent style={{ flex: 1 }} edges={edges} setNodes={setNodes} setEdges={setEdges}
                                       nodeTypes={nodeTypes} nodes={nodes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange}
-                                      appName={appName} setAppName={setAppName}
+                                      appName={appName} setAppName={setAppName} handleDeleteNodes={handleDeleteNodes}
                                       
                                   />} 
             />

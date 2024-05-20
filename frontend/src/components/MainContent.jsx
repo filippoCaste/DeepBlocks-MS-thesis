@@ -10,7 +10,7 @@ import SheetsComponent from './SheetsComponent';
 import NodeInfoBar from './NodeInfoBar';
 import AppNameBar from './AppNameBar';
 
-export default function MainContent({nodes, edges, setEdges, setNodes, onNodesChange, onEdgesChange, nodeTypes, appName, setAppName}) {
+export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesChange, onEdgesChange, nodeTypes, appName, setAppName, handleDeleteNodes }) {
 
     const onConnect = useCallback(
         (params) => setEdges((eds) => addEdge(params, eds)),
@@ -48,6 +48,10 @@ export default function MainContent({nodes, edges, setEdges, setNodes, onNodesCh
         setNodeInfo(null);
     }
 
+    const handleDelete = (toDeleteNodes) => {
+        handleDeleteNodes(toDeleteNodes)
+    }
+
     return(
         <div style={{ height: '100vh', width: '105.5rem'}}>
             <ReactFlow 
@@ -64,7 +68,10 @@ export default function MainContent({nodes, edges, setEdges, setNodes, onNodesCh
 
                 <div className={`${selectedSheet !== 'main' ? 'sheet-border' : ''}`}></div>
 
-                {selectedNodes.length !==0 &&  <SelectionBox selectedNodes={selectedNodes} createSuperblock={createSuperblock} setMessage={setMessage} setVariant={setVariant} setShowMessage={setShowMessage} /> }
+                {selectedNodes.length !==0 &&  <SelectionBox selectedNodes={selectedNodes} createSuperblock={createSuperblock} 
+                                                    setMessage={setMessage} setVariant={setVariant} setShowMessage={setShowMessage} 
+                                                    handleDeleteNodes={handleDelete}    
+                                                /> }
                 {showMessage && <ResponseMessage message={message} variant={variant} setShowMesssage={setShowMessage} /> }
                 {openNodeInfo && <NodeInfoBar nodeInfo={nodeInfo} handleCloseNodeInfo={handleCloseNodeInfo} /> }
 

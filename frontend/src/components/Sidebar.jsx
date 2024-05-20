@@ -17,7 +17,7 @@ import Block from '../models/Block';
 const Sidebar = (props) => {
 
     const [openMenu, setOpenMenu] = useState('none');
-    const { nodes, handleAddNode, handleDeleteNode, handleRenameNode, handleDuplicateNode, handleSave } = props;
+    const { nodes, handleAddNode, handleDeleteNodes, handleRenameNode, handleDuplicateNode, handleSave } = props;
 
     // training parameters
     const [learningRate, setLearningRate] = useState(0);
@@ -64,7 +64,7 @@ const Sidebar = (props) => {
             {openMenu !== 'none' && <Menu openMenu={openMenu} nodes={nodes} handleAddNode={handleAddNode}
                                         learningRate={learningRate} epochs={epochs} batchSize={batchSize} loss={loss} optimizer={optimizer}
                                         setLearningRate={setLearningRate} setEpochs={setEpochs} setBatchSize={setBatchSize} setLoss={setLoss} setOptimizer={setOptimizer}
-                                        handleDeleteNode={handleDeleteNode} handleRenameNode={handleRenameNode} handleDuplicateNode={handleDuplicateNode}
+                                        handleDeleteNodes={handleDeleteNodes} handleRenameNode={handleRenameNode} handleDuplicateNode={handleDuplicateNode}
                                         handleSave={handleSave}
                                         />}
         </>
@@ -79,7 +79,7 @@ const Menu = (props) => {
             <h4 style={{fontWeight: 'bold'}}>{openMenu}</h4>
             <div>
             {openMenu === 'Network Design' && <NetworkDesign handleAddNode={props.handleAddNode} />}
-            {openMenu === 'Network Details' && <NetworkDetails nodes={props.nodes} handleDeleteNode={props.handleDeleteNode} handleRenameNode={props.handleRenameNode}
+            {openMenu === 'Network Details' && <NetworkDetails nodes={props.nodes} handleDeleteNodes={props.handleDeleteNodes} handleRenameNode={props.handleRenameNode}
                                                     handleDuplicateNode={props.handleDuplicateNode}
                                                     />}
             {openMenu === 'Training' && <Training 
@@ -144,7 +144,7 @@ const BlockTable = ({category, blocks, handleAddNode}) => {
 }
 
 const NetworkDetails = (props) => {
-    const { nodes, handleDeleteNode, handleRenameNode, handleDuplicateNode } = props;
+    const { nodes, handleDeleteNodes, handleRenameNode, handleDuplicateNode } = props;
 
     return (
         <Table striped variant='dark' hover>
@@ -157,7 +157,7 @@ const NetworkDetails = (props) => {
             <tbody style={{ textAlign: 'left' }}>
                 {nodes.map((node, index) => {
                     return <BlockDetailsAndActions key={node+"-"+index} node={node} index={index} 
-                                handleDeleteNode={handleDeleteNode} handleRenameNode={handleRenameNode} handleDuplicateNode={handleDuplicateNode}
+                                handleDeleteNodes={handleDeleteNodes} handleRenameNode={handleRenameNode} handleDuplicateNode={handleDuplicateNode}
                             />
                 })}
             </tbody>
@@ -168,7 +168,7 @@ const NetworkDetails = (props) => {
 const BlockDetailsAndActions = (props)  => {
 
     const handleDelete = () => {
-        props.handleDeleteNode(props.node);
+        props.handleDeleteNodes([props.node]);
     }
 
     const handleRename = () => {

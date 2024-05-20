@@ -105,6 +105,7 @@
     align-items: center;
     bottom: 1em;
     left: 50%;
+    transform: translate(-50%, -50%);
     width: fit-content;
     padding: 10px;
     z-index: 1000;
@@ -229,4 +230,22 @@
 
 .app-name-bar Button {
     margin-left: 1em;
+}
+
+.confirmation-alert {
+    display: block;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 30%;
+    height: fit-content;
+    background-color: white;
+    z-index: 1001;
+}
+
+.confirmation-alert Button {
+    margin-left: 0.5em;
 }

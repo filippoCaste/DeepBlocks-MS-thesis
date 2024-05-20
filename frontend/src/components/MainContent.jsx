@@ -1,5 +1,5 @@
 'use strict';
-import ReactFlow, { Controls, Background, addEdge, useReactFlow } from 'reactflow';
+import ReactFlow, { Controls, Background, addEdge } from 'reactflow';
 
 import 'reactflow/dist/style.css';
 import { useCallback, useEffect, useState } from 'react';
@@ -8,8 +8,9 @@ import SelectionBox from './SelectionBox';
 import ResponseMessage from './ResponseMessage';
 import SheetsComponent from './SheetsComponent';
 import NodeInfoBar from './NodeInfoBar';
+import AppNameBar from './AppNameBar';
 
-export default function MainContent({nodes, edges, setEdges, setNodes, onNodesChange, onEdgesChange, nodeTypes}) {
+export default function MainContent({nodes, edges, setEdges, setNodes, onNodesChange, onEdgesChange, nodeTypes, appName, setAppName}) {
 
     const onConnect = useCallback(
         (params) => setEdges((eds) => addEdge(params, eds)),
@@ -61,12 +62,13 @@ export default function MainContent({nodes, edges, setEdges, setNodes, onNodesCh
                 <Controls position='bottom-right' />
                 <Background />
 
-                <div className={`${selectedSheet !== 'main' ? 'border sheet-border' : ''}`}></div>
+                <div className={`${selectedSheet !== 'main' ? 'sheet-border' : ''}`}></div>
 
                 {selectedNodes.length !==0 &&  <SelectionBox selectedNodes={selectedNodes} createSuperblock={createSuperblock} setMessage={setMessage} setVariant={setVariant} setShowMessage={setShowMessage} /> }
                 {showMessage && <ResponseMessage message={message} variant={variant} setShowMesssage={setShowMessage} /> }
                 {openNodeInfo && <NodeInfoBar nodeInfo={nodeInfo} handleCloseNodeInfo={handleCloseNodeInfo} /> }
 
+                <AppNameBar appName={appName} setAppName={setAppName} />
                 <SheetsComponent nodes={nodes} edges={edges} selectedSheet={selectedSheet} setSelectedSheet={setSelectedSheet} />
 
             </ReactFlow>

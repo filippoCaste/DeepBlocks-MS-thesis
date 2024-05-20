@@ -17,7 +17,7 @@ import Block from '../models/Block';
 const Sidebar = (props) => {
 
     const [openMenu, setOpenMenu] = useState('none');
-    const { nodes, handleAddNode, handleDeleteNode, handleRenameNode, handleDuplicateNode } = props;
+    const { nodes, handleAddNode, handleDeleteNode, handleRenameNode, handleDuplicateNode, handleSave } = props;
 
     // training parameters
     const [learningRate, setLearningRate] = useState(0);
@@ -65,6 +65,7 @@ const Sidebar = (props) => {
                                         learningRate={learningRate} epochs={epochs} batchSize={batchSize} loss={loss} optimizer={optimizer}
                                         setLearningRate={setLearningRate} setEpochs={setEpochs} setBatchSize={setBatchSize} setLoss={setLoss} setOptimizer={setOptimizer}
                                         handleDeleteNode={handleDeleteNode} handleRenameNode={handleRenameNode} handleDuplicateNode={handleDuplicateNode}
+                                        handleSave={handleSave}
                                         />}
         </>
     );
@@ -86,7 +87,7 @@ const Menu = (props) => {
                                             setLearningRate={props.setLearningRate} setEpochs={props.setEpochs} setBatchSize={props.setBatchSize} setLoss={props.setLoss} setOptimizer={props.setOptimizer}
 
                                             />}
-            {openMenu === 'Options' && <Options />}
+            {openMenu === 'Options' && <Options handleSave={props.handleSave} />}
             </div>
         </Container>
     )
@@ -146,11 +147,11 @@ const NetworkDetails = (props) => {
     const { nodes, handleDeleteNode, handleRenameNode, handleDuplicateNode } = props;
 
     return (
-        <Table striped variant='dark'>
+        <Table striped variant='dark' hover>
             <thead>
                 <tr>
                     <th>Name</th>
-                    <th style={{ textAlign: 'right' }}>Actions</th>
+                    <th style={{ textAlign: 'center' }}>Actions</th>
                 </tr>
             </thead>
             <tbody style={{ textAlign: 'left' }}>
@@ -170,21 +171,35 @@ const BlockDetailsAndActions = (props)  => {
         props.handleDeleteNode(props.node);
     }
 
-    const handleRename = (newName) => {
+    const handleRename = () => {
         props.handleRenameNode(props.node, newName);
     }
 
     const handleDuplicateNode = () => {
+        setIsRename(false)
         props.handleDuplicateNode(props.node)
     }
 
+    const [isRename, setIsRename] = useState(false);
+    const [newName, setNewName] = useState(props.node.data.label);
+
     return (
         <tr>
-            <td>{props.node.data.label}</td>
+            <td>
+                {isRename ?  
+                    <Form.Control style={{  }} type='text' value={newName} onChange={(ev) => { setNewName(ev.target.value) }} />
+                : props.node.data.label}
+                
+            </td>
             <td style={{ textAlign: 'right' }}>
-                <Button onClick={() => handleDuplicateNode()}>c</Button>
-                <Button onClick={() => handleRename("not implemented")}>r</Button>
-                <Button variant='danger' onClick={() => handleDelete()}>d</Button>
+                { isRename ?
+                    <Button onClick={() => handleRename()}> OK </Button>
+                : <>
+                    <Button onClick={() => handleDuplicateNode()}>c</Button>
+                    <Button onClick={() => setIsRename(true)}>r</Button>
+                    <Button variant='danger' onClick={() => handleDelete()}>d</Button>
+                  </>
+                }
             </td>
         </tr>
     );
@@ -296,19 +311,21 @@ const Training = ({ epochs, learningRate, batchSize, loss, optimizer, setEpochs,
         </>
     );
 }
-const handleSave = () => {
-    console.log("You successfully saved smth")
-}
 
-const handleLoad = () => {
-    console.log("You successfully loaded smth")
-}
+const Options = (props) => {
 
-const handleExport = () => {
-    console.log("You successfully exported smth")
-}
+    const handleSave = () => {
+        props.handleSave();
+    }
 
-const Options = () => {
+    const handleLoad = () => {
+        console.log("You successfully loaded smth")
+    }
+
+    const handleExport = () => {
+        console.log("You successfully exported smth")
+    }
+
     return (
         <>
             <Button className='left-menu-button mt-3' onClick={() => handleSave()}> Save </Button> <br />

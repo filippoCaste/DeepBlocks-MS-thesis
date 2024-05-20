@@ -132,10 +132,11 @@
 .sheets{
     display: flex;
     /* width: fit-content;  /* uncomment this to not have the sheets extended to the whole viewport */
-    position: relative;
+    width: 100%;
+    position: absolute;
     background-color: #333;
     color: #fff;
-    top: 0em;
+    top: 3em;
     left: 0em;
     z-index: 1000;
     border-top-right-radius: 0.5em;
@@ -156,15 +157,16 @@
 
 .sheet-border {
     position: absolute;
-    top: 50%;
+    top: 55%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 80vw;
-    height: 90vh;
+    height: 80vh;
     display: flex;
     justify-content: center;
     align-items: center;
     border-radius: 0.5em;
+    border: solid 4px black;
 }
 
 .sheet:hover {
@@ -205,4 +207,26 @@
 
 .tab-content:hover {
     background-color: #555;
+}
+
+.app-name-bar {
+    background-color: #333;
+    height: 3em;
+    display: inline-flex;
+    position: relative;
+    top: 0;
+    color: white;
+    width: 100%;
+    z-index: 1000;
+    margin-bottom: 0;
+    justify-content: center;
+    align-items: center;
+}
+
+.app-name-bar h3 {
+    text-align: center;
+}
+
+.app-name-bar Button {
+    margin-left: 1em;
 }

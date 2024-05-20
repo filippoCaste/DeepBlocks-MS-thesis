@@ -1,5 +1,5 @@
 'use strict';
-import React from 'react';
+import React, { useState } from 'react';
 import Sidebar from './components/Sidebar';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './style.css';
@@ -11,6 +11,7 @@ import { useNodesState, useEdgesState } from 'reactflow';
 import SuperBlockNode from './components/SuperBlockNode';
 import Block from './models/Block';
 import Superblock from './models/SuperBlock';
+import AlertConfirmation from './components/AlertConfirmation';
 
 // just for temporary use
 const node1 = new Block('customNode', { x: 10, y: 0 }, { label: 'Leaky ReLU' }, [
@@ -35,6 +36,13 @@ export default function App() {
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  const [title, setTitle] = useState('');
+  const [message, setMessage] = useState('');
+  const [variant, setVariant] = useState('');
+  const [showConfirmation, setShowConfirmation] = useState(false);
+
+  const [appName, setAppName] = useState("My DeepBlock's network")
 
   const handleAddNode = (node) => {
     // check if there is a supernode which is opened in a sheet
@@ -77,15 +85,41 @@ export default function App() {
     }
     setNodes((prevNodes) => [...prevNodes, copy])
   }
+
+  const handleSave = () => {
+    // convert collection to json
+    const nodesJson = JSON.stringify(nodes);
+    const edgesJson = JSON.stringify(edges);
+
+    const blob = new Blob([nodesJson, edgesJson], { type: 'application/json;charset=utf-8' })
+
+    const dataUrl = window.URL.createObjectURL(blob);
+    const downloadLink = document.createElement('a');
+    downloadLink.href = dataUrl;
+    downloadLink.setAttribute('download', appName);
+
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    window.URL.revokeObjectURL(dataUrl);
+    document.body.removeChild(downloadLink);
+  }
+
   return (
     <BrowserRouter>
       <div className='app-container' style={{ display: 'flex' }}>
         <Sidebar nodes={nodes} setNodes={setNodes} handleAddNode={handleAddNode} 
             handleDeleteNode={handleDeleteNode} handleRenameNode={handleRenameNode} handleDuplicateNode={handleDuplicateNode}
+            handleSave={handleSave}
+
           />
+
+
+        {showConfirmation && <AlertConfirmation message={message} title={title} handleCancel={handleCancel} handleConfirm={handleConfirm} variant={variant} />}
         <Routes>
           <Route index element={<MainContent style={{ flex: 1 }} edges={edges} setNodes={setNodes} setEdges={setEdges}
                                       nodeTypes={nodeTypes} nodes={nodes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange}
+                                      appName={appName} setAppName={setAppName}
+                                      
                                   />} 
             />
           <Route path='*' element={<NotFoundPage />} />

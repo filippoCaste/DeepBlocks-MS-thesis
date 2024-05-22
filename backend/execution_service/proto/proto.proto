@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+service Trainer {
+  // Train the network
+  rpc TrainNetwork (Network) returns (NetworkResult) {}
+}
+
+message Parameters {
+  string key = 1;
+  string value = 2;
+}
+
+message Node {
+  string id = 1;
+  string label = 2;
+  repeated Parameters parameters = 3;
+}
+
+message Edge {
+  string source = 1;
+  string target = 2;
+}
+
+message Network {
+    repeated Node nodes = 1;
+    repeated Edge edges = 2;
+    repeated Parameters parameters = 3;
+}
+
+message NetworkResult {
+  string status = 1;
+  string message = 2;
+  repeated Parameters parameters = 3;
+}

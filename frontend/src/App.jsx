@@ -87,9 +87,7 @@ export default function App() {
   }
 
   const handleRenameNode = (node, newName) => {
-    const nodeToRename = nodes.find(e => e.id === node.id);
-    nodeToRename.data.label = newName;
-    const updatedNodes = nodes.map(n => n.id === node.id ? nodeToRename : n)
+    const updatedNodes = nodes.map(n => n.id === node.id ? {...n, data: {...n.data, label: newName}} : n)
     setNodes(() => updatedNodes)
   }
 

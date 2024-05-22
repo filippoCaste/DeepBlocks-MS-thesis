@@ -167,21 +167,22 @@ const NetworkDetails = (props) => {
 
 const BlockDetailsAndActions = (props)  => {
 
+    const [isRename, setIsRename] = useState(false);
+    const [newName, setNewName] = useState(props.node.data.label);
+
     const handleDelete = () => {
         props.handleDeleteNodes([props.node]);
     }
 
     const handleRename = () => {
         props.handleRenameNode(props.node, newName);
+        setIsRename(false);
     }
 
     const handleDuplicateNode = () => {
         setIsRename(false)
         props.handleDuplicateNode(props.node)
     }
-
-    const [isRename, setIsRename] = useState(false);
-    const [newName, setNewName] = useState(props.node.data.label);
 
     return (
         <tr>

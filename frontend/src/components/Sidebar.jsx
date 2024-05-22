@@ -12,12 +12,13 @@ import Blocks from '../../public/data/blocks.json'
 import { Dropdown, DropdownButton, Form } from 'react-bootstrap';
 import AlertComponent from './AlertComponent';
 import Block from '../models/Block';
+import { BLOCKS_API } from '../API/blocks';
 
 
 const Sidebar = (props) => {
 
     const [openMenu, setOpenMenu] = useState('none');
-    const { nodes, handleAddNode, handleDeleteNodes, handleRenameNode, handleDuplicateNode, handleSave } = props;
+    const { nodes, edges, handleAddNode, handleDeleteNodes, handleRenameNode, handleDuplicateNode, handleSave } = props;
 
     // training parameters
     const [learningRate, setLearningRate] = useState(0);
@@ -61,7 +62,7 @@ const Sidebar = (props) => {
                     </li>
                 </ul>
             </div>
-            {openMenu !== 'none' && <Menu openMenu={openMenu} nodes={nodes} handleAddNode={handleAddNode}
+            {openMenu !== 'none' && <Menu openMenu={openMenu} nodes={nodes} edges={edges} handleAddNode={handleAddNode}
                                         learningRate={learningRate} epochs={epochs} batchSize={batchSize} loss={loss} optimizer={optimizer}
                                         setLearningRate={setLearningRate} setEpochs={setEpochs} setBatchSize={setBatchSize} setLoss={setLoss} setOptimizer={setOptimizer}
                                         handleDeleteNodes={handleDeleteNodes} handleRenameNode={handleRenameNode} handleDuplicateNode={handleDuplicateNode}
@@ -85,7 +86,7 @@ const Menu = (props) => {
             {openMenu === 'Training' && <Training 
                                             learningRate={props.learningRate} epochs={props.epochs} batchSize={props.batchSize} loss={props.loss} optimizer={props.optimizer}
                                             setLearningRate={props.setLearningRate} setEpochs={props.setEpochs} setBatchSize={props.setBatchSize} setLoss={props.setLoss} setOptimizer={props.setOptimizer}
-
+                                            nodes={props.nodes} edges={props.edges}
                                             />}
             {openMenu === 'Options' && <Options handleSave={props.handleSave} />}
             </div>
@@ -207,39 +208,43 @@ const BlockDetailsAndActions = (props)  => {
 
 }
 
-const handleTrain = (params, { setErr, setErrMsg }) => {
-    // controls parameters are all set and of the right type
-    if(params.learningRate !== 0 && params.epochs !== 0 && params.batchSize !== 0 && params.loss !== '' && params.optimizer !== '') {
-        if(isNaN(params.epochs) || isNaN(params.batchSize) || isNaN(params.learningRate)) {
-            let errMsg = `Error in the parameters:
+const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimizer, setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer }) => {
+
+    const [err, setErr] = useState(false);
+    const [errMsg, setErrMsg] = useState('');
+
+    const handleTrain = (params, { setErr, setErrMsg }) => {
+        // controls parameters are all set and of the right type
+        if (params.learningRate !== 0 && params.epochs !== 0 && params.batchSize !== 0 && params.loss !== '' && params.optimizer !== '') {
+            if (isNaN(params.epochs) || isNaN(params.batchSize) || isNaN(params.learningRate)) {
+                let errMsg = `Error in the parameters:
                 ${isNaN(params.learningRate) ? 'Learning rate' : ''}
                 ${isNaN(params.epochs) ? ', Epochs' : ''}
                 ${isNaN(params.batchSize) ? ', Batch size' : ''}
                 must be numeric.`
-            ;
-            setErrMsg(errMsg)
-            setErr(true)
+                    ;
+                setErrMsg(errMsg)
+                setErr(true)
+            } else {
+                console.log("You successfully trained your network with this parameters: ", params)
+                BLOCKS_API.postNetwork(nodes, edges, params).then((data) => {
+                    
+                })
+            }
         } else {
-            console.log("You successfully trained your network with this parameters: ", params)
+            setErrMsg("Please fill all the parameters")
+            setErr(true)
         }
-    } else {
-        setErrMsg("Please fill all the parameters")
-        setErr(true)
     }
-}
 
-const handleReset = ({ setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer }) => {
-    setEpochs(0);
-    setLearningRate(0);
-    setBatchSize(0);
-    setLoss('');
-    setOptimizer('');
-}
+    const handleReset = ({ setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer }) => {
+        setEpochs(0);
+        setLearningRate(0);
+        setBatchSize(0);
+        setLoss('');
+        setOptimizer('');
+    }
 
-const Training = ({ epochs, learningRate, batchSize, loss, optimizer, setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer }) => {
-
-    const [err, setErr] = useState(false);
-    const [errMsg, setErrMsg] = useState('');
 
     return (
         <>

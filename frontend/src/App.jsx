@@ -122,7 +122,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <div className='app-container' style={{ display: 'flex' }}>
-        <Sidebar nodes={nodes} setNodes={setNodes} handleAddNode={handleAddNode} 
+        <Sidebar nodes={nodes} edges={edges} setNodes={setNodes} handleAddNode={handleAddNode} 
             handleDeleteNodes={handleDeleteNodes} handleRenameNode={handleRenameNode} handleDuplicateNode={handleDuplicateNode}
             handleSave={handleSave}
 

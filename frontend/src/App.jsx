@@ -12,6 +12,7 @@ import SuperBlockNode from './components/SuperBlockNode';
 import Block from './models/Block';
 import Superblock from './models/SuperBlock';
 import AlertConfirmation from './components/AlertConfirmation';
+import { BLOCKS_API } from './API/blocks';
 
 // just for temporary use
 const node1 = new Block('customNode', { x: 10, y: 0 }, { label: 'Leaky ReLU' }, [
@@ -101,12 +102,13 @@ export default function App() {
     setNodes((prevNodes) => [...prevNodes, copy])
   }
 
-  const handleSave = () => {
+  const handleSave = (networkParameters) => {
     // convert collection to json
     const nodesJson = JSON.stringify(nodes);
     const edgesJson = JSON.stringify(edges);
+    const paramsJson = JSON.stringify(networkParameters);
 
-    const blob = new Blob([nodesJson, edgesJson], { type: 'application/json;charset=utf-8' })
+    const blob = new Blob([nodesJson, edgesJson, paramsJson], { type: 'application/json;charset=utf-8' })
 
     const dataUrl = window.URL.createObjectURL(blob);
     const downloadLink = document.createElement('a');
@@ -117,6 +119,16 @@ export default function App() {
     downloadLink.click();
     window.URL.revokeObjectURL(dataUrl);
     document.body.removeChild(downloadLink);
+  }
+
+  const handleLoad = () => {
+   console.log("not implemented")
+  }
+
+  const handleExport = () => {
+    BLOCKS_API.exportNetwork().then(() => {
+      console.log("Something has been received")
+    })
   }
 
   return (

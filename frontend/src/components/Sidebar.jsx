@@ -7,9 +7,12 @@ import PencilFill from 'react-bootstrap-icons/dist/icons/pencil-fill'
 import PlayFill from 'react-bootstrap-icons/dist/icons/play-fill'
 import ListColumns from 'react-bootstrap-icons/dist/icons/list-columns'
 import BarChartFill from 'react-bootstrap-icons/dist/icons/bar-chart-fill';
-
+import TrashFill from 'react-bootstrap-icons/dist/icons/trash-fill';
+import Copy from 'react-bootstrap-icons/dist/icons/copy'
 import Blocks from '../../public/data/blocks.json'
-import { Dropdown, DropdownButton, Form } from 'react-bootstrap';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownButton from 'react-bootstrap/DropdownButton';
+import Form from 'react-bootstrap/Form';
 import AlertComponent from './AlertComponent';
 import Block from '../models/Block';
 import { BLOCKS_API } from '../API/blocks';
@@ -88,7 +91,9 @@ const Menu = (props) => {
                                             setLearningRate={props.setLearningRate} setEpochs={props.setEpochs} setBatchSize={props.setBatchSize} setLoss={props.setLoss} setOptimizer={props.setOptimizer}
                                             nodes={props.nodes} edges={props.edges}
                                             />}
-            {openMenu === 'Options' && <Options handleSave={props.handleSave} />}
+            {openMenu === 'Options' && <Options 
+                                            learningRate={props.learningRate} epochs={props.epochs} batchSize={props.batchSize} loss={props.loss} optimizer={props.optimizer}
+                                            handleSave={props.handleSave} />}
             </div>
         </Container>
     )
@@ -189,7 +194,7 @@ const BlockDetailsAndActions = (props)  => {
         <tr>
             <td>
                 {isRename ?  
-                    <Form.Control style={{  }} type='text' value={newName} onChange={(ev) => { setNewName(ev.target.value) }} />
+                    <Form.Control type='text' value={newName} onChange={(ev) => { setNewName(ev.target.value) }} />
                 : props.node.data.label}
                 
             </td>
@@ -197,9 +202,9 @@ const BlockDetailsAndActions = (props)  => {
                 { isRename ?
                     <Button onClick={() => handleRename()}> OK </Button>
                 : <>
-                    <Button onClick={() => handleDuplicateNode()}>c</Button>
-                    <Button onClick={() => setIsRename(true)}>r</Button>
-                    <Button variant='danger' onClick={() => handleDelete()}>d</Button>
+                    <Button onClick={() => handleDuplicateNode()}> <Copy /> </Button> {' '}
+                    <Button onClick={() => setIsRename(true)}> <PencilFill /> </Button> {' '}
+                    <Button variant='danger' onClick={() => handleDelete()}> <TrashFill /> </Button>
                   </>
                 }
             </td>
@@ -319,9 +324,11 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
 }
 
 const Options = (props) => {
+    const {learningRate, epochs, batchSize, loss, optimizer} = props
 
     const handleSave = () => {
-        props.handleSave();
+        const parameters = {learningRate, epochs, batchSize, loss, optimizer}
+        props.handleSave(parameters);
     }
 
     const handleLoad = () => {

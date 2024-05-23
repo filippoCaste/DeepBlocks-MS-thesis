@@ -20,7 +20,6 @@ export default function NodeInfoBar(props) {
 
         } else if(e === 'Info') {
             setSelectedTab('Info');
-
         }
     }
 

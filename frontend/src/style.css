@@ -185,6 +185,7 @@
     color: #fff;
     display: flex;
     flex-direction: column;
+    height: 15em;
 }
 
 .top-bar {

@@ -103,6 +103,8 @@ const NetworkDesign = ({handleAddNode}) => {
     return (
         <div style={{textAlign: 'left'}}>
 
+            <BlockTable key="tableInput" blocks={Blocks.blocks.Input} category="Input" handleAddNode={handleAddNode} />
+
             <BlockTable key="tableElementWise" blocks={Blocks.blocks['Element-wise']} category="Element-wise" 
                 handleAddNode={handleAddNode} />
 
@@ -232,6 +234,11 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
                 setErrMsg(errMsg)
                 setErr(true)
             } else {
+                // prepare for sending the input file(s)
+                let fileList = nodes.filter(n=> n.type==='customNode' && n.parameters[0].name === 'input_file').map(n => {
+                    return n.parameters[0].value;
+                })
+
                 const paramObj = [
                     {"key": "learningRate", "value": params.learningRate},
                     {"key": "epochs", "value": params.epochs},
@@ -240,10 +247,12 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
                     {"key": "optimizer", "value": params.optimizer}
                 ]
                 console.log("You successfully trained your network with this parameters: ", paramObj)
-                BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
-                    
+                BLOCKS_API.postInputFiles(fileList).then((data) => {
+                    BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
+
+                    })
                 }).catch((err) => {
-                    console.err(err)
+                    console.log(err)
                 })
             }
         } else {
@@ -402,7 +411,7 @@ const Options = (props) => {
             <Button className='left-menu-button mt-3' onClick={() => handleDownload()}> Download </Button> <br />
             <hr />
             <h5>Import from existing file</h5>
-            <input type='file' id='file-json' accept=".json" onChange={(e) => setLoadFile(e.target.files[0])} />
+            <Form.Control type='file' id='file-json' accept=".json" onChange={(e) => setLoadFile(e.target.files[0])} />
             <Button className='left-menu-button mt-2' onClick={() => handleUpload()}> Upload </Button>
 
             {error && <AlertComponent variant="danger" message={errMsg} setErr={setErr} />}

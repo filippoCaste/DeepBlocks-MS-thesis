@@ -1,5 +1,14 @@
 {
     "blocks": {
+        "Input": [
+            {
+                "name": "Input",
+                "function": null,
+                "parameters": [
+                    {"name": "input_file", "description": "Input file", "value": null}
+                ]
+            }
+        ],
         "Normalization": [
             {
                 "name": "Batch Normalization",

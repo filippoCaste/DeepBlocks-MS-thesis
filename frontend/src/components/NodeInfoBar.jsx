@@ -69,15 +69,15 @@ function FormInput(props) {
 
     return (
         <Row className="mb-3">
-            <Col md={3}>
+            <Col md={1}>
                 <Form.Label>{name}</Form.Label>
             </Col>
-            <Col md={1}>
+            <Col md={`${name==='input_file' ? 4 : 3}`}>
                 <Form.Group >
                     <Form.Control
                         defaultValue={value!='null' ? value : ''}
-                        type="text"
-                        onChange={(ev) => setParameterValue(name, ev.target.value)}
+                        type={`${name==='input_file' ? 'file' : 'text'}`}
+                        onChange={name==='input_file' ? (ev) => setParameterValue(name, ev.target.files[0]) : (ev) => setParameterValue(name, ev.target.value)}
                         style={{ width: '100%' }}
                     />
                 </Form.Group>

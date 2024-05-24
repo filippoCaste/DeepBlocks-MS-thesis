@@ -18,6 +18,23 @@ const postNetwork = async (blocks, edges, params) => {
     }
 };
 
+const postInputFiles = async (files) => {
+    const data = new FormData();
+    for (let i = 0; i < files.length; i++) {
+        data.append(`files`, files[i]);
+    }
+    try {
+        const response = await fetch(URL + "/api/blocks/input", {
+            method: "POST",
+            body: data
+        });
+        const resData = await response.json();
+        return resData;
+    } catch(error) {
+        return error;
+    }
+}   
+
 const exportNetwork = async (type) => {
     // check type
     if(type !== 'onnx' || type !== 'pytorch') {
@@ -37,5 +54,6 @@ const exportNetwork = async (type) => {
 
 export const BLOCKS_API = {
     postNetwork,
+    postInputFiles,
     exportNetwork,
 }

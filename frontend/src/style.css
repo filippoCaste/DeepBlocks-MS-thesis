@@ -188,12 +188,12 @@
     height: 15em;
 }
 
-.top-bar {
+.top-bar-nodeInfo {
     display: flex;
     padding-bottom: 10px;
 }
 
-.top-bar p {
+.top-bar-nodeInfo p {
     cursor: pointer;
 }
 

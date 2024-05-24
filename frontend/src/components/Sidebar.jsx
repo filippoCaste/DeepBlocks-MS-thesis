@@ -189,9 +189,11 @@ const BlockDetailsAndActions = (props)  => {
                 maxWidth: '9.5em', 
                 width: 'fit-content',
                 overflow: 'hidden',
-                whiteSpace: 'nowrap' }}
+                whiteSpace: 'nowrap',
+                height: '3.3em'
+                }}
                 >
-                <div style={{overflowX: 'auto', whiteSpace: 'nowrap', maxWidth: '100%'}}>
+                <div style={{overflowX: 'auto', whiteSpace: 'nowrap', maxWidth: '100%', height:'100%'}}>
                     {isRename ?  
                         <Form.Control type='text' value={newName} onChange={(ev) => { setNewName(ev.target.value) }} />
                     : props.node.data.label}

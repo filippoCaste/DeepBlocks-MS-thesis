@@ -162,11 +162,20 @@ export default function App() {
 
           setNodes(nodes);
           setEdges(edges);
-          setLearningRate(params.learningRate);
-          setEpochs(params.epochs);
-          setBatchSize(params.batchSize);
-          setLoss(params.loss);
-          setOptimizer(params.optimizer);
+
+          for(let param of params) {
+            if(param.key === 'learningRate') {
+              setLearningRate(param.value);
+            } else if(param.key === 'epochs') {
+              setEpochs(param.value);
+            } else if(param.key === 'batchSize') {
+              setBatchSize(param.value);
+            } else if(param.key === 'loss') {
+              setLoss(param.value);
+            } else if(param.key === 'optimizer') {
+              setOptimizer(param.value);
+            }
+          }
 
         } catch (error) {
           setShowMessage(true);

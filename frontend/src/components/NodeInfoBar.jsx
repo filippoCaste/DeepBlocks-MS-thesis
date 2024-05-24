@@ -29,7 +29,7 @@ export default function NodeInfoBar(props) {
 
     return (
         <div className="nodeInfo-bar">
-            <div className="top-bar">
+            <div className="top-bar-nodeInfo">
                 {topBarOptions.map(e => <p className={`${selectedTab === e ? 'tab-content selected' : 'tab-content'}`} key={e} onClick={() => handleTopBarClick(e)}>{e}</p>)}
                 <p className="tab-content" onClick={() => props.handleCloseNodeInfo()} style={{
                     position: 'absolute',
@@ -39,7 +39,7 @@ export default function NodeInfoBar(props) {
                     fontWeight: 'bold',
                 }}>X</p>
             </div>
-            <div>
+            <div style={{ overflowY: 'auto' }}>
                 {selectedTab === 'Parameters' && <ParametersTab node={node} setParameterValue={setParameterValue} />}
                 {selectedTab === 'Info' && <InfoTab node={node} />}
             </div>

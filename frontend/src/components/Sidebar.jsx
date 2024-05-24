@@ -129,9 +129,9 @@ const BlockTable = ({category, blocks, handleAddNode}) => {
             <h5 style={{textAlign: 'center'}}>{category}</h5>
             <Table key={"table-"+category} striped hover size='sm' variant='dark'>
                 <tbody>
-                {blocks.map((block) => {
+                {blocks.map((block, index) => {
                     return (
-                        <tr key={block.id}>
+                        <tr key={block.id + "-" + index}>
                             <td>{block.name}</td>
                             <td style={{ textAlign: 'right' }}><Button onClick={() => {handleAddBlock({block, handleAddNode})}}>+</Button></td>
                         </tr>
@@ -258,25 +258,19 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
                         <tr key="trainEpoch">
                             <td style={{ textAlign: 'left', width: '40%' }}>Epoch</td>
                             <td style={{ textAlign: 'right' }}>
-                                <Form.Group controlId="trainForm.Epoch" style={{ border: 'none' }} onChange={ev => setEpochs(ev.target.value)}>
-                                    <Form.Control value={epochs || ''} type='text' style={{ width: '50%', float: 'right' }} />
-                                </Form.Group>
+                                <Form.Control value={epochs || ''} type='text' style={{ width: '50%', float: 'right' }} onChange={ev => setEpochs(ev.target.value)} />
                             </td>
                         </tr>
                         <tr key="trainLearningRate">
                             <td style={{ textAlign: 'left', width: '40%' }}>Learning Rate</td>
                             <td style={{ textAlign: 'right' }}>
-                                <Form.Group controlId="trainForm.Loss" style={{ border: 'none' }} onChange={ev => setLearningRate(ev.target.value)} >
-                                    <Form.Control value={learningRate || ''} type='text' style={{ width: '50%', float: 'right' }} />
-                                </Form.Group>
+                                <Form.Control value={learningRate || ''} type='text' style={{ width: '50%', float: 'right' }} onChange={ev => setLearningRate(ev.target.value)} />
                             </td>
                         </tr>
                         <tr key="trainBatchSize">
                             <td style={{ textAlign: 'left', width: '40%' }}>Batch Size</td>
                             <td style={{ textAlign: 'right' }}>
-                                <Form.Group controlId="trainForm.BatchSize" style={{ border: 'none' }} onChange={ev => setBatchSize(ev.target.value)} >
-                                    <Form.Control value={batchSize || ''} type='text' style={{ width: '50%', float: 'right' }} />
-                                </Form.Group>
+                                <Form.Control value={batchSize || ''} type='text' style={{ width: '50%', float: 'right' }} onChange={ev => setBatchSize(ev.target.value)} />
                             </td>
                         </tr>
 

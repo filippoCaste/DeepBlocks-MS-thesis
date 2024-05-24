@@ -21,16 +21,9 @@ import { BLOCKS_API } from '../API/blocks';
 const Sidebar = (props) => {
 
     const [openMenu, setOpenMenu] = useState('none');
-    const { nodes, edges, handleAddNode, handleDeleteNodes, handleRenameNode, handleDuplicateNode, handleSave } = props;
-
-    // training parameters
-    const [learningRate, setLearningRate] = useState(0);
-    const [epochs, setEpochs] = useState(0);
-    const [batchSize, setBatchSize] = useState(0);
-    const [loss, setLoss] = useState('');
-    const [optimizer, setOptimizer] = useState('');
-    // --------------------------------------------------
-
+    const { nodes, edges, handleAddNode, handleDeleteNodes, handleRenameNode, handleDuplicateNode, 
+            handleDownload, handleUpload, learningRate, epochs, batchSize, loss, optimizer,
+            setLearningRate, setEpochs, setBatchSize, setLoss, setOptimizer } = props;
 
     return (
         <>
@@ -69,7 +62,7 @@ const Sidebar = (props) => {
                                         learningRate={learningRate} epochs={epochs} batchSize={batchSize} loss={loss} optimizer={optimizer}
                                         setLearningRate={setLearningRate} setEpochs={setEpochs} setBatchSize={setBatchSize} setLoss={setLoss} setOptimizer={setOptimizer}
                                         handleDeleteNodes={handleDeleteNodes} handleRenameNode={handleRenameNode} handleDuplicateNode={handleDuplicateNode}
-                                        handleSave={handleSave}
+                                        handleDownload={handleDownload} handleUpload={handleUpload}
                                         />}
         </>
     );
@@ -93,7 +86,8 @@ const Menu = (props) => {
                                             />}
             {openMenu === 'Options' && <Options 
                                             learningRate={props.learningRate} epochs={props.epochs} batchSize={props.batchSize} loss={props.loss} optimizer={props.optimizer}
-                                            handleSave={props.handleSave} />}
+                                            handleDownload={props.handleDownload} handleUpload={props.handleUpload}
+                                            />}
             </div>
         </Container>
     )
@@ -330,26 +324,79 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
 
 const Options = (props) => {
     const {learningRate, epochs, batchSize, loss, optimizer} = props
+    const [loadFile, setLoadFile] = useState(null);
+    const [error, setErr] = useState(false);
+    const [errMsg, setErrMsg] = useState(""); 
+    const [selectedFileType, setSelectedFileType] = useState('');
 
-    const handleSave = () => {
+    const handleRadioChange = (event) => {
+        setSelectedFileType(event.target.value);
+    };
+
+    const handleDownload = () => {
         const parameters = {learningRate, epochs, batchSize, loss, optimizer}
-        props.handleSave(parameters);
+        props.handleDownload(parameters, selectedFileType);
     }
 
-    const handleLoad = () => {
-        console.log("You successfully loaded smth")
-    }
+    const handleUpload = () => {
 
-    const handleExport = () => {
-        console.log("You successfully exported smth")
+        if(loadFile===null || loadFile.type !== 'application/json') {
+            setErr(true);
+            setErrMsg("Please select a .json file");
+        } else {
+            props.handleUpload(loadFile);
+        }
     }
 
     return (
-        <>
-            <Button className='left-menu-button mt-3' onClick={() => handleSave()}> Save </Button> <br />
-            <Button className='left-menu-button' onClick={() => handleLoad()}> Load </Button> <br />
-            <Button className='left-menu-button' onClick={() => handleExport()}> Export </Button>
-        </>
+        <div>
+            <h5>Download as</h5>
+
+            <p>
+                <input
+                    type="radio"
+                    id="json"
+                    name="fileType"
+                    value="json"
+                    checked={selectedFileType === 'json'}
+                    onChange={handleRadioChange}
+                /> {' '}
+                JSON
+            </p>
+
+            <p>
+                <input
+                    type="radio"
+                    id="onnx"
+                    name="fileType"
+                    value="onnx"
+                    checked={selectedFileType === 'onnx'}
+                    onChange={handleRadioChange}
+                /> {' '}
+                ONNX
+            </p>
+
+            <p>
+                <input
+                    type="radio"
+                    id="pth"
+                    name="fileType"
+                    value="pth"
+                    checked={selectedFileType === 'pth'}
+                    onChange={handleRadioChange}
+                /> {' '}
+                PyTorch
+            </p>
+
+            <Button className='left-menu-button mt-3' onClick={() => handleDownload()}> Download </Button> <br />
+            <hr />
+            <h5>Import from existing file</h5>
+            <input type='file' id='file-json' accept=".json" onChange={(e) => setLoadFile(e.target.files[0])} />
+            <Button className='left-menu-button mt-2' onClick={() => handleUpload()}> Upload </Button>
+
+            {error && <AlertComponent variant="danger" message={errMsg} setErr={setErr} />}
+
+        </div>
     )
 }
 export default Sidebar;

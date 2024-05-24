@@ -13,6 +13,7 @@ import Block from './models/Block';
 import Superblock from './models/SuperBlock';
 import AlertConfirmation from './components/AlertConfirmation';
 import { BLOCKS_API } from './API/blocks';
+import ResponseMessage from './components/ResponseMessage';
 
 // just for temporary use
 const node1 = new Block('customNode', { x: 10, y: 0 }, { label: 'Leaky ReLU' }, [
@@ -42,6 +43,19 @@ export default function App() {
   const [message, setMessage] = useState('');
   const [variant, setVariant] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
+
+  // training parameters
+  const [learningRate, setLearningRate] = useState(0);
+  const [epochs, setEpochs] = useState(0);
+  const [batchSize, setBatchSize] = useState(0);
+  const [loss, setLoss] = useState('');
+  const [optimizer, setOptimizer] = useState('');
+  // --------------------------------------------------
+
+  // message props
+  const [showMessage, setShowMessage] = useState(false);
+  // --------------------------------------------------
+
 
   const [appName, setAppName] = useState("My DeepBlock's network")
 
@@ -102,33 +116,78 @@ export default function App() {
     setNodes((prevNodes) => [...prevNodes, copy])
   }
 
-  const handleSave = (networkParameters) => {
-    // convert collection to json
-    const nodesJson = JSON.stringify(nodes);
-    const edgesJson = JSON.stringify(edges);
-    const paramsJson = JSON.stringify(networkParameters);
+  const handleDownload = (networkParameters, fileType) => {
+    if(fileType === 'json') {
+      // convert collections to downloadable json file
+      const network = JSON.stringify({
+        nodes: nodes,
+        edges: edges,
+        params: networkParameters
+      })
 
-    const blob = new Blob([nodesJson, edgesJson, paramsJson], { type: 'application/json;charset=utf-8' })
+      const blob = new Blob([network], { type: 'application/json;charset=utf-8' })
 
-    const dataUrl = window.URL.createObjectURL(blob);
-    const downloadLink = document.createElement('a');
-    downloadLink.href = dataUrl;
-    downloadLink.setAttribute('download', appName);
+      const dataUrl = window.URL.createObjectURL(blob);
+      const downloadLink = document.createElement('a');
+      downloadLink.href = dataUrl;
+      downloadLink.setAttribute('download', appName);
 
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    window.URL.revokeObjectURL(dataUrl);
-    document.body.removeChild(downloadLink);
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      window.URL.revokeObjectURL(dataUrl);
+      document.body.removeChild(downloadLink);
+    } else if(fileType === 'onnx') {
+      
+    } else if(fileType === 'pth') {
+      
+    }
+
+    setShowMessage(true);
+    setMessage("Network succesfully downloaded");
+    setVariant("success");
   }
 
-  const handleLoad = () => {
-   console.log("not implemented")
-  }
+  const handleUpload = (inputFile) => {
+    if (inputFile) {
+      const reader = new FileReader();
 
-  const handleExport = () => {
-    BLOCKS_API.exportNetwork().then(() => {
-      console.log("Something has been received")
-    })
+      reader.onload = () => {
+        try {
+          const jsonData = JSON.parse(reader.result);
+          const { nodes, edges, params } = jsonData;
+
+          if(!nodes || !edges || !params) {
+            throw new Error('Error while uploading the file: the file is not a valid json file');
+          }
+
+          setNodes(nodes);
+          setEdges(edges);
+          setLearningRate(params.learningRate);
+          setEpochs(params.epochs);
+          setBatchSize(params.batchSize);
+          setLoss(params.loss);
+          setOptimizer(params.optimizer);
+
+        } catch (error) {
+          setShowMessage(true);
+          setMessage(error.message);
+          setVariant("danger");
+        }
+      };
+
+      reader.onerror = () => {
+        setShowMessage(true);
+        setMessage("Error while uploading the file: " + reader.error.message);
+        setVariant("danger");
+      };
+
+      reader.readAsText(inputFile);
+      
+      setShowMessage(true);
+      setMessage("Network succesfully uploaded");
+      setVariant("success");
+
+    }
   }
 
   return (
@@ -136,11 +195,12 @@ export default function App() {
       <div className='app-container' style={{ display: 'flex' }}>
         <Sidebar nodes={nodes} edges={edges} setNodes={setNodes} handleAddNode={handleAddNode} 
             handleDeleteNodes={handleDeleteNodes} handleRenameNode={handleRenameNode} handleDuplicateNode={handleDuplicateNode}
-            handleSave={handleSave}
-
+            handleDownload={handleDownload} handleUpload={handleUpload}
+            learningRate={learningRate} epochs={epochs} batchSize={batchSize} loss={loss} optimizer={optimizer}
+            setLearningRate={setLearningRate} setEpochs={setEpochs} setBatchSize={setBatchSize} setLoss={setLoss} setOptimizer={setOptimizer}
           />
 
-
+        {showMessage && <ResponseMessage message={message} variant={variant} setShowMesssage={setShowMessage} />}
         {showConfirmation && <AlertConfirmation message={message} title={title} handleCancel={handleCancel} handleConfirm={handleConfirm} variant={variant} />}
         <Routes>
           <Route index element={<MainContent style={{ flex: 1 }} edges={edges} setNodes={setNodes} setEdges={setEdges}

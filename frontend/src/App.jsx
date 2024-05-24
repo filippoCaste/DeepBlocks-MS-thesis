@@ -18,11 +18,11 @@ import ResponseMessage from './components/ResponseMessage';
 // just for temporary use
 const node1 = new Block('customNode', { x: 10, y: 0 }, { label: 'Leaky ReLU' }, [
   { name: "input_tensor", description: "Input tensor", value: 'null' }, 
-  { name: "negative_slope", description: "Negative slope", value: 'null' } ]);
+  { name: "negative_slope", description: "Negative slope", value: 'null' }], 'torch.nn.functional.leaky_relu');
 
 const node2 = new Block('customNode', { x: 10, y: 100 }, { label: 'ReLU' }, [
     { name: "input_tensor", description: "Input tensor", value: null }
-]);
+], 'torch.relu');
 
 const superNode1 = new Superblock('superBlockNode', { x: 10, y: 200 }, { label: 'sb1', isSelected: false }, [node1.id, node2.id]);
 

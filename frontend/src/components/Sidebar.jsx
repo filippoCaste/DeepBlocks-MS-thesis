@@ -94,7 +94,7 @@ const Menu = (props) => {
 }
 
 const handleAddBlock = ({block, handleAddNode}) => {
-    let b = new Block('customNode', { x: 10, y: 50 }, { label: block.name }, block.parameters);
+    let b = new Block('customNode', { x: 10, y: 50 }, { label: block.name }, block.parameters, block.function);
     handleAddNode(b)
 }
 
@@ -230,9 +230,18 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
                 setErrMsg(errMsg)
                 setErr(true)
             } else {
-                console.log("You successfully trained your network with this parameters: ", params)
-                BLOCKS_API.postNetwork(nodes, edges, params).then((data) => {
+                const paramObj = [
+                    {"key": "learningRate", "value": params.learningRate},
+                    {"key": "epochs", "value": params.epochs},
+                    {"key": "batchSize", "value": params.batchSize},
+                    {"key": "loss", "value": params.loss},
+                    {"key": "optimizer", "value": params.optimizer}
+                ]
+                console.log("You successfully trained your network with this parameters: ", paramObj)
+                BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
                     
+                }).catch((err) => {
+                    console.err(err)
                 })
             }
         } else {
@@ -328,7 +337,13 @@ const Options = (props) => {
     };
 
     const handleDownload = () => {
-        const parameters = {learningRate, epochs, batchSize, loss, optimizer}
+        const parameters = [
+            { "key": "learningRate", "value": learningRate },
+            { "key": "epochs", "value": epochs },
+            { "key": "batchSize", "value": batchSize },
+            { "key": "loss", "value": loss },
+            { "key": "optimizer", "value": optimizer }
+        ];
         props.handleDownload(parameters, selectedFileType);
     }
 

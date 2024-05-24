@@ -8,4 +8,9 @@ block_routes = Blueprint('block_routes', __name__)
 
 @block_routes.route('/api/blocks', methods=['POST'])
 def api_post_all_blocks():
-    post_all_blocks()
+    response = post_all_blocks()
+    print(response)
+    if response.status == '200':
+        return jsonify({'status': 'OK'})
+    else:
+        return jsonify({'status': 'KO'})

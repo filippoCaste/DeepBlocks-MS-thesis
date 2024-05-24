@@ -1,9 +1,12 @@
-from proto_pb2 import NetworkResult
-from proto_pb2_grpc import TrainerServicer, add_TrainerServicer_to_server
+import grpc, logging
+from concurrent import futures
+from proto.proto_pb2 import NetworkResult
+from proto.proto_pb2_grpc import TrainerServicer, add_TrainerServicer_to_server
 
-def Executor(TrainerServicer):
+class Executor(TrainerServicer):
     def TrainNetwork(self, request, context):       
         print("This operation is not yet implemented") 
+        print(f"The request is {request}")
         return NetworkResult(status="200", message="OK, completed")
 
 def serve():
@@ -14,4 +17,5 @@ def serve():
     server.wait_for_termination()
 
 if __name__ == '__main__':
+    logging.basicConfig()
     serve()

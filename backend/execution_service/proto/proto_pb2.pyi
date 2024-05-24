@@ -14,14 +14,14 @@ class Parameters(_message.Message):
     def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
 
 class Node(_message.Message):
-    __slots__ = ("id", "label", "parameters")
+    __slots__ = ("id", "function", "parameters")
     ID_FIELD_NUMBER: _ClassVar[int]
-    LABEL_FIELD_NUMBER: _ClassVar[int]
+    FUNCTION_FIELD_NUMBER: _ClassVar[int]
     PARAMETERS_FIELD_NUMBER: _ClassVar[int]
     id: str
-    label: str
+    function: str
     parameters: _containers.RepeatedCompositeFieldContainer[Parameters]
-    def __init__(self, id: _Optional[str] = ..., label: _Optional[str] = ..., parameters: _Optional[_Iterable[_Union[Parameters, _Mapping]]] = ...) -> None: ...
+    def __init__(self, id: _Optional[str] = ..., function: _Optional[str] = ..., parameters: _Optional[_Iterable[_Union[Parameters, _Mapping]]] = ...) -> None: ...
 
 class Edge(_message.Message):
     __slots__ = ("source", "target")

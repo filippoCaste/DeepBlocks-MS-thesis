@@ -1,7 +1,7 @@
 import URL from "./connection";
 
-const postNetwork = async (blocks, edges, parameters) => {
-    const network = {blocks, edges, parameters};
+const postNetwork = async (blocks, edges, params) => {
+    const network = {blocks, edges, params};
 
     try {
         const response = await fetch(URL + "/api/blocks", {

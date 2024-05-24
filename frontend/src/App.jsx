@@ -95,9 +95,9 @@ export default function App() {
   const handleDuplicateNode = (node) => {
     let copy = {};
     if (node.type === 'superBlockNode') {
-      copy = new Superblock(node.type, { ...node.position, y: node.position.y - 10 }, { ...node.data, label: node.data.label + " copy" }, []);
+      copy = new Superblock(node.type, { ...node.position, y: node.position.y - 10 }, { ...node.data, label: "copy of " + node.data.label}, []);
     } else {
-      copy = new Block(node.type, {...node.position, y: node.position.y-10}, {...node.data, label: node.data.label+" copy"}, node.parameters);
+      copy = new Block(node.type, {...node.position, y: node.position.y-10}, {...node.data, label: "copy of " + node.data.label}, node.parameters);
     }
     setNodes((prevNodes) => [...prevNodes, copy])
   }

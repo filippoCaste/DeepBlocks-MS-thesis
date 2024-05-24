@@ -8,6 +8,7 @@ class Block {
     this.position = position;
     this.data = {...data, openInfo: false, isSelected: false};
     this.parameters = parameters;
+    this.hidden = false;
   }
 
 }

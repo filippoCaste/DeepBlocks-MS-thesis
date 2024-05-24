@@ -151,7 +151,6 @@ const BlockTable = ({category, blocks, handleAddNode}) => {
 
 const NetworkDetails = (props) => {
     const { nodes, handleDeleteNodes, handleRenameNode, handleDuplicateNode } = props;
-
     return (
         <Table striped variant='dark' hover>
             <thead>
@@ -161,7 +160,7 @@ const NetworkDetails = (props) => {
                 </tr>
             </thead>
             <tbody style={{ textAlign: 'left' }}>
-                {nodes.map((node, index) => {
+                {nodes.filter((n) => n.hidden===false).map((node, index) => {
                     return <BlockDetailsAndActions key={node+"-"+index} node={node} index={index} 
                                 handleDeleteNodes={handleDeleteNodes} handleRenameNode={handleRenameNode} handleDuplicateNode={handleDuplicateNode}
                             />
@@ -186,19 +185,25 @@ const BlockDetailsAndActions = (props)  => {
     }
 
     const handleDuplicateNode = () => {
-        setIsRename(false)
         props.handleDuplicateNode(props.node)
     }
 
     return (
         <tr>
-            <td>
-                {isRename ?  
-                    <Form.Control type='text' value={newName} onChange={(ev) => { setNewName(ev.target.value) }} />
-                : props.node.data.label}
-                
+            <td style={{
+                fontWeight: `${props.node.type === 'superBlockNode' ? 'bold' : ''}`, 
+                maxWidth: '9.5em', 
+                width: 'fit-content',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap' }}
+                >
+                <div style={{overflowX: 'auto', whiteSpace: 'nowrap', maxWidth: '100%'}}>
+                    {isRename ?  
+                        <Form.Control type='text' value={newName} onChange={(ev) => { setNewName(ev.target.value) }} />
+                    : props.node.data.label}
+                </div>
             </td>
-            <td style={{ textAlign: 'right' }}>
+            <td style={{ textAlign: 'right', whiteSpace: 'nowrap', overflowX: 'auto' }}>
                 { isRename ?
                     <Button onClick={() => handleRename()}> OK </Button>
                 : <>

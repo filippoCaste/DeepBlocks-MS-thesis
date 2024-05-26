@@ -1,11 +1,27 @@
-import grpc, logging
+import grpc, logging, os
 from concurrent import futures
 from proto.proto_pb2 import NetworkResult
 from proto.proto_pb2_grpc import TrainerServicer, add_TrainerServicer_to_server
 
+UPLOAD_DIRECTORY = 'uploads'
+if not os.path.exists(UPLOAD_DIRECTORY):
+    os.makedirs(UPLOAD_DIRECTORY)
+
+# delete upload directory on exit
+import atexit, shutil
+atexit.register(lambda: shutil.rmtree(f"./{UPLOAD_DIRECTORY}"))
+#############################################################
+
+
 class Executor(TrainerServicer):
     def TrainNetwork(self, request, context):       
         print("This operation is not yet implemented") 
+
+        for file in request.files:
+            file_path = os.path.join(UPLOAD_DIRECTORY, file.file_name)
+            with open(file_path, 'wb') as w_file:
+                w_file.write(file.file_data)
+        
         print(f"The request is {request}")
         return NetworkResult(status="200", message="OK, completed")
 

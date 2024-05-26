@@ -21,10 +21,16 @@ message Edge {
   string target = 2;
 }
 
+message File {
+  bytes file_data = 1;
+  string file_name = 2;
+}
+
 message Network {
     repeated Node nodes = 1;
     repeated Edge edges = 2;
     repeated Parameters parameters = 3;
+    repeated File files = 4;
 }
 
 message NetworkResult {

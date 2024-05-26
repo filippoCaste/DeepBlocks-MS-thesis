@@ -1,24 +1,32 @@
+# controllers/block_controller.py
+
 from flask import request, jsonify
 from services.block_service import train_network as train_network_service
-import pandas as pd
+from USERS_SET import USERS_SET
+import os
 
 def post_all_blocks():
     data = request.get_json()
     # print(data)
-    params = data.get('params')
-    blocks = data.get('blocks')
-    edges = data.get('edges')
+    params = data.get('network').get('params')
+    blocks = data.get('network').get('blocks')
+    edges = data.get('network').get('edges')
+    session_id = int(data.get('sessionId'))
 
-    # change blocks so that it has: id, function
+    global USERS_SET
+    if session_id not in USERS_SET:
+        return jsonify({'message': 'No session found'}), 403
+
+    # change blocks so that it has: id, function (according to proto file)
     transformed_blocks = []
     for block in blocks:
         transformed_blocks.append({
             'id': block.get('id'),
             'function': block.get('fn'),
-            'parameters': [{'key': param.get('name'), 'value': param.get('value')} for param in block.get('parameters', [])]
+            'parameters': [{'key': param.get('name'), 'value': str(param.get('value'))} for param in block.get('parameters', [])]
         })
 
-    # chande edges so that it has: source, target
+    # chande edges so that it has: source, target (according to proto file)
     transformed_edges = []
     for edge in edges:
         transformed_edges.append({
@@ -26,39 +34,28 @@ def post_all_blocks():
             'target': edge.get('target')  
         })
 
-    # change params so that it has: key, value
+    # change params so that it has: key, value (according to proto file)
     transformed_params = []
     for param in params:
         transformed_params.append({
             'key': param.get('key'),
-            'value': param.get('value')
+            'value': str(param.get('value'))
         })
 
-    response = train_network_service(transformed_blocks, transformed_edges, transformed_params)
+    response = train_network_service(transformed_blocks, transformed_edges, transformed_params, session_id)
 
     return response
 
 def post_input_files():
+    session_id = int(request.form.get('sessionId'))
+    
+    global USERS_SET
+    if session_id not in USERS_SET:
+        return jsonify({'message': 'No session found'}), 403
+        
     files = request.files.getlist('files')
     for file in files:
-        filename = file.filename
-        if filename.endswith('.csv'):
-            # Elabora il file CSV
-            df = pd.read_csv(file)
-            # Fai qualcosa con il DataFrame
-            print(df)
-        elif filename.endswith('.xlsx'):
-            # Elabora il file Excel
-            df = pd.read_excel(file)
-            # Fai qualcosa con il DataFrame
-            print(df)
-        elif filename.endswith('.txt'):
-            # Elabora il file di testo
-            content = file.read().decode('utf-8')
-            # Fai qualcosa con il contenuto del file
-            print(content)
-        else:
-            # Gestisci altri formati di file se necessario
-            pass
+        filename = os.path.join('uploads/' + str(session_id), file.filename)
+        file.save(filename)
 
     return jsonify({'message': 'Files uploaded successfully'})

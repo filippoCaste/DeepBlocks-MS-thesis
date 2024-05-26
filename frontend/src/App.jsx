@@ -14,6 +14,7 @@ import Superblock from './models/SuperBlock';
 import AlertConfirmation from './components/AlertConfirmation';
 import { BLOCKS_API } from './API/blocks';
 import ResponseMessage from './components/ResponseMessage';
+import { SESSION_API } from './API/session';
 
 // just for temporary use
 const node1 = new Block('customNode', { x: 10, y: 0 }, { label: 'Leaky ReLU' }, [
@@ -30,6 +31,9 @@ const superNode1 = new Superblock('superBlockNode', { x: 10, y: 200 }, { label: 
 const initialNodes = [node1, node2, superNode1]
 const initialEdges = [{ id: 'e1-2', source: '0', target: '1' }];
 // -----------------------------------------------------------------------------------------------------
+
+export const sessionId = await SESSION_API.getSession();
+window.addEventListener('beforeunload', SESSION_API.deleteSession);
 
 const nodeTypes = { customNode: CustomNode, superBlockNode: SuperBlockNode };
 

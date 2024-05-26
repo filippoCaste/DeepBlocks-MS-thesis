@@ -31,15 +31,25 @@ class Edge(_message.Message):
     target: str
     def __init__(self, source: _Optional[str] = ..., target: _Optional[str] = ...) -> None: ...
 
+class File(_message.Message):
+    __slots__ = ("file_data", "file_name")
+    FILE_DATA_FIELD_NUMBER: _ClassVar[int]
+    FILE_NAME_FIELD_NUMBER: _ClassVar[int]
+    file_data: bytes
+    file_name: str
+    def __init__(self, file_data: _Optional[bytes] = ..., file_name: _Optional[str] = ...) -> None: ...
+
 class Network(_message.Message):
-    __slots__ = ("nodes", "edges", "parameters")
+    __slots__ = ("nodes", "edges", "parameters", "files")
     NODES_FIELD_NUMBER: _ClassVar[int]
     EDGES_FIELD_NUMBER: _ClassVar[int]
     PARAMETERS_FIELD_NUMBER: _ClassVar[int]
+    FILES_FIELD_NUMBER: _ClassVar[int]
     nodes: _containers.RepeatedCompositeFieldContainer[Node]
     edges: _containers.RepeatedCompositeFieldContainer[Edge]
     parameters: _containers.RepeatedCompositeFieldContainer[Parameters]
-    def __init__(self, nodes: _Optional[_Iterable[_Union[Node, _Mapping]]] = ..., edges: _Optional[_Iterable[_Union[Edge, _Mapping]]] = ..., parameters: _Optional[_Iterable[_Union[Parameters, _Mapping]]] = ...) -> None: ...
+    files: _containers.RepeatedCompositeFieldContainer[File]
+    def __init__(self, nodes: _Optional[_Iterable[_Union[Node, _Mapping]]] = ..., edges: _Optional[_Iterable[_Union[Edge, _Mapping]]] = ..., parameters: _Optional[_Iterable[_Union[Parameters, _Mapping]]] = ..., files: _Optional[_Iterable[_Union[File, _Mapping]]] = ...) -> None: ...
 
 class NetworkResult(_message.Message):
     __slots__ = ("status", "message", "parameters")

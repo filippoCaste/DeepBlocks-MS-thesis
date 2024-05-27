@@ -18,9 +18,9 @@ To run the application, open 3 terminal windows:
   ```
 - in the second one, run:
   ```sh
-  cd backend; cd server; venv/Scripts/activate; pip install -r requirements.txt; python main.py
+  cd backend; cd server; python -m venv venv; venv/Scripts/activate; pip install -r requirements.txt; python main.py
   ```
 - in the third one, run:
   ```sh
-  cd backend; cd execution_service; venv/Scripts/activate; pip install -r requirements.txt; python execution_service.py
+  cd backend; cd execution_service; python -m venv venv; venv/Scripts/activate; pip install -r requirements.txt; python execution_service.py
   ```

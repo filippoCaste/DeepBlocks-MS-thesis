@@ -3,6 +3,8 @@ syntax = "proto3";
 service Trainer {
   // Train the network
   rpc TrainNetwork (Network) returns (NetworkResult) {}
+  // Export to file (onnx or pth)
+  rpc ExportNetwork (Network) returns (File) {}
 }
 
 message Parameters {

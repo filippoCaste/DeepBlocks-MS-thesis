@@ -213,7 +213,7 @@ export default function App() {
             setLearningRate={setLearningRate} setEpochs={setEpochs} setBatchSize={setBatchSize} setLoss={setLoss} setOptimizer={setOptimizer}
           />
 
-        {showMessage && <ResponseMessage message={message} variant={variant} setShowMesssage={setShowMessage} />}
+        {showMessage && <ResponseMessage message={message} variant={variant} setShowMessage={setShowMessage} />}
         {showConfirmation && <AlertConfirmation message={message} title={title} handleCancel={handleCancel} handleConfirm={handleConfirm} variant={variant} />}
         <Routes>
           <Route index element={<MainContent style={{ flex: 1 }} edges={edges} setNodes={setNodes} setEdges={setEdges}

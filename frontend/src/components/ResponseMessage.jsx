@@ -7,7 +7,7 @@ import { useEffect } from "react";
 export default function ResponseMessage(props) {
     const message = props.message;
     const variant = props.variant;
-    const setShowMessage = props.setShowMesssage;
+    const setShowMessage = props.setShowMessage;
 
     useEffect(() => {
         const timer = setTimeout(() => {

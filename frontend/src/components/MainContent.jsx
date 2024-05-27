@@ -72,7 +72,7 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
                                                     setMessage={setMessage} setVariant={setVariant} setShowMessage={setShowMessage} 
                                                     handleDeleteNodes={handleDelete}    
                                                 /> }
-                {showMessage && <ResponseMessage message={message} variant={variant} setShowMesssage={setShowMessage} /> }
+                {showMessage && <ResponseMessage message={message} variant={variant} setShowMessage={setShowMessage} /> }
                 {openNodeInfo && <NodeInfoBar nodeInfo={nodeInfo} handleCloseNodeInfo={handleCloseNodeInfo} /> }
 
                 <AppNameBar appName={appName} setAppName={setAppName} />

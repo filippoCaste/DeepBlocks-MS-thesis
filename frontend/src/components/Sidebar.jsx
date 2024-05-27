@@ -16,6 +16,7 @@ import Form from 'react-bootstrap/Form';
 import AlertComponent from './AlertComponent';
 import Block from '../models/Block';
 import { BLOCKS_API } from '../API/blocks';
+import ResponseMessage from './ResponseMessage';
 
 
 const Sidebar = (props) => {
@@ -220,6 +221,9 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
 
     const [err, setErr] = useState(false);
     const [errMsg, setErrMsg] = useState('');
+    const [message, setMessage] = useState('');
+    const [showMessage, setShowMessage] = useState(false);
+    const [variant, setVariant] = useState('')
 
     const handleTrain = (params, { setErr, setErrMsg }) => {
         // controls parameters are all set and of the right type
@@ -249,10 +253,16 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
                 console.log("You successfully trained your network with this parameters: ", paramObj)
                 BLOCKS_API.postInputFiles(fileList).then((data) => {
                     BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
-
+                        console.log(data)
+                        setMessage("Training completed")
+                        setShowMessage(true)
+                        setVariant('success')
                     })
                 }).catch((err) => {
                     console.log(err)
+                    setMessage("Error while training: " + err)
+                    setShowMessage(true)
+                    setVariant('danger')
                 })
             }
         } else {
@@ -332,6 +342,7 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
             <Button className='left-menu-button' onClick={() => handleReset({ setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer })}> Reset </Button>
 
             {err && <AlertComponent variant="danger" message={errMsg} setErr={setErr} />}
+            {showMessage && <ResponseMessage message={message} variant={variant} setShowMessage={setShowMessage} />}
         </>
     );
 }

@@ -2,5 +2,6 @@
 **/pyvenv
 **/__pycache__
 **/ignore.md
-flask_session/
-uploads/
+*/uploads/
+*/converted/
+execution_service/network_generation/test_model.py

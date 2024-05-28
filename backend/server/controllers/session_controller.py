@@ -30,7 +30,8 @@ def delete_session():
     USERS_SET.remove(session_id)
 
     try:
-        shutil.rmtree('uploads/' + str(session_id))
+        shutil.rmtree(os.path.join('uploads', str(session_id)))
+        shutil.rmtree(os.path.join('converted', str(session_id)))
         print("Deleted session: " + str(session_id))
     except OSError as e:
         print(f"Error: {e.strerror}")

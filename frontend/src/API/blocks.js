@@ -41,17 +41,23 @@ const postInputFiles = async (files) => {
     }
 }
 
-const exportNetwork = async (type) => {
+const exportNetwork = async (blocks, edges, params, type, appName) => {
+    const network = { blocks, edges, params };
+
     // check type
-    if(type !== 'onnx' || type !== 'pytorch') {
+    if(type !== 'onnx' && type !== 'pth') {
         return {'message':'Export type not available'}
     }
     try {
-        const response = await fetch (URL+`/api/blocks/?type=${type}`, {
-            method: "GET"
+        const response = await fetch (URL+`/api/blocks/export`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({network, type, appName, sessionId}),
         });
 
-        const data = await response.json();
+        const data = await response.blob();
         return data;
     } catch(error) {
         return error;

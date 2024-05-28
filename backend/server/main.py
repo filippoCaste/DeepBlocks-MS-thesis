@@ -12,12 +12,17 @@ UPLOAD_DIRECTORY = 'uploads'
 if not os.path.exists(UPLOAD_DIRECTORY):
     os.makedirs(UPLOAD_DIRECTORY)
 
+CONVERTED_DIRECTORY = 'converted'
+if not os.path.exists(CONVERTED_DIRECTORY):
+    os.makedirs(CONVERTED_DIRECTORY)
+
 app.register_blueprint(block_routes)
 app.register_blueprint(session_routes)
 
 # delete upload directory on exit
 import atexit, shutil
 atexit.register(lambda: shutil.rmtree(f"./{UPLOAD_DIRECTORY}"))
+atexit.register(lambda: shutil.rmtree(f"./{CONVERTED_DIRECTORY}"))
 #############################################################
 
 if __name__ == "__main__":

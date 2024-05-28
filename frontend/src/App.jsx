@@ -140,10 +140,22 @@ export default function App() {
       downloadLink.click();
       window.URL.revokeObjectURL(dataUrl);
       document.body.removeChild(downloadLink);
-    } else if(fileType === 'onnx') {
-      
-    } else if(fileType === 'pth') {
-      
+    } else {
+      BLOCKS_API.exportNetwork(nodes, edges, networkParameters,fileType, appName).then((blob) => {
+        // console.log(data)
+        console.log("Scaricato")
+
+        const dataUrl = window.URL.createObjectURL(blob);
+        const downloadLink = document.createElement('a');
+        downloadLink.href = dataUrl;
+        downloadLink.setAttribute('download', appName+'.'+fileType);
+
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        window.URL.revokeObjectURL(dataUrl);
+        document.body.removeChild(downloadLink);
+
+      })
     }
 
     setShowMessage(true);

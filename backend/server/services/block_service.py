@@ -24,3 +24,20 @@ def train_network(nodes, edges, params, session_id):
 
         response = stub.TrainNetwork(Network(nodes=nodes, edges=edges, parameters=params, files=files))
         return response
+
+def export_network(nodes, edges, params, file_name, session_id):
+    with grpc.insecure_channel('localhost:50051',
+                               options=[('grpc_max_send_message_length', MAX_MESSAGE_LENGTH),
+                                        ('grpc_max_receive_message_length', MAX_MESSAGE_LENGTH)]) as channel:
+        stub = TrainerStub(channel)
+
+        files = [{'file_data': b'000', 'file_name': file_name}]
+
+        response = stub.ExportNetwork(Network(nodes=nodes, edges=edges, parameters=params, files=files))
+
+        os.makedirs(os.path.join('converted', str(session_id)), exist_ok=True)
+
+        with open(os.path.join('converted', str(session_id), file_name), 'wb') as file:
+            file.write(response.file_data)
+
+        return response

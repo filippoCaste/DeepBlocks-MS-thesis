@@ -9,8 +9,9 @@ import ResponseMessage from './ResponseMessage';
 import SheetsComponent from './SheetsComponent';
 import NodeInfoBar from './NodeInfoBar';
 import AppNameBar from './AppNameBar';
+import InvisibleBlock from '../models/InvisibleBlock';
 
-export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesChange, onEdgesChange, nodeTypes, appName, setAppName, handleDeleteNodes }) {
+export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesChange, onEdgesChange, nodeTypes, appName, setAppName, handleDeleteNodes, handleAddNode }) {
 
     const onConnect = useCallback(
         (params) => setEdges((eds) => addEdge(params, eds)),
@@ -19,8 +20,48 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
 
     const createSuperblock = (listOfNodes) => {
         const children = listOfNodes.map(e => e.id)
+
+       // add input and output invisible edges
+        const internalEdges = edges.filter(e => children.includes(e.source) || children.includes(e.target))
+        let inp;
+        let out;
+       // case 1: already existing internal edges
+        if (internalEdges.length > 0) {
+            let possibleInputs = [...children]
+            let possibleOutputs = [...children]
+            for(let edge of internalEdges) {
+                // if the edge is a source, then remove from possible input (since the input has no source coming from inside the superblock)
+                possibleInputs = possibleInputs.filter(e => e != edge.target)
+                // if the edge is a target, then remove from possible output (since the output has no target coming from inside the superblock)
+                possibleOutputs = possibleOutputs.filter(e => e != edge.source)
+            }
+
+            inp = possibleInputs[0];
+            out = possibleOutputs[0];
+
+        } else {
+            
+           // case 2: no existing edges (just nodes)
+           // input edge with one random node (possibly the first children)
+            inp = children[0];
+            // output edge with one random node (possibly the last children)
+            out = children[-1];
+        }
+
+        // create a new edge between the first possible input and the first possible output
         const superblock = new Superblock('superBlockNode', { x: 10, y: 10 }, { label: 'new superblock', isSelected: false }, children)
-       setNodes(nodes.map(e => children.includes(e.id) ? {...e, data: {...e.data, isSelected: false}, hidden: true} : e).concat(superblock));
+
+        const invisibleInput = new InvisibleBlock(superblock.id + 'i', 'invisibleInputNode', { x: 2, y: 100 })
+        const invisibleOutput = new InvisibleBlock(superblock.id + 'o', 'invisibleOutputNode', { x: 300, y: 100 })
+        superblock.children.push(invisibleInput.id, invisibleOutput.id)
+        children.push(invisibleInput.id, invisibleOutput.id)
+
+        setEdges(eds => addEdge({ id: `e${superblock.id + '_i'}`, source: invisibleInput.id, target: inp }, eds))
+        setEdges(eds => addEdge({ id: `e${superblock.id + '_o'}`, source: out, target: invisibleOutput.id }, eds))
+
+        setNodes(nodes.map(e => children.includes(e.id) ? { ...e, data: { ...e.data, isSelected: false }, hidden: true } : e).concat(superblock));
+        setNodes(prevNodes => [...prevNodes, invisibleInput, invisibleOutput])
+
     }
 
     const [selectedNodes, setSelectedNodes] = useState([]);

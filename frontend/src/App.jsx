@@ -15,6 +15,8 @@ import AlertConfirmation from './components/AlertConfirmation';
 import { BLOCKS_API } from './API/blocks';
 import ResponseMessage from './components/ResponseMessage';
 import { SESSION_API } from './API/session';
+import InvisibleInputNode from './components/InvisibleInputNode';
+import { InvisibleOutputNode } from './components/InvisibleOutputNode';
 
 // just for temporary use
 const node1 = new Block('customNode', { x: 10, y: 0 }, { label: 'Leaky ReLU' }, [
@@ -35,7 +37,7 @@ const initialEdges = [{ id: 'e1-2', source: '0', target: '1' }];
 export const sessionId = await SESSION_API.getSession();
 window.addEventListener('beforeunload', SESSION_API.deleteSession);
 
-const nodeTypes = { customNode: CustomNode, superBlockNode: SuperBlockNode };
+const nodeTypes = { customNode: CustomNode, superBlockNode: SuperBlockNode, invisibleInputNode: InvisibleInputNode, invisibleOutputNode: InvisibleOutputNode };
 
 
 export default function App() {
@@ -142,9 +144,6 @@ export default function App() {
       document.body.removeChild(downloadLink);
     } else {
       BLOCKS_API.exportNetwork(nodes, edges, networkParameters,fileType, appName).then((blob) => {
-        // console.log(data)
-        console.log("Scaricato")
-
         const dataUrl = window.URL.createObjectURL(blob);
         const downloadLink = document.createElement('a');
         downloadLink.href = dataUrl;
@@ -231,7 +230,7 @@ export default function App() {
           <Route index element={<MainContent style={{ flex: 1 }} edges={edges} setNodes={setNodes} setEdges={setEdges}
                                       nodeTypes={nodeTypes} nodes={nodes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange}
                                       appName={appName} setAppName={setAppName} handleDeleteNodes={handleDeleteNodes}
-                                      
+                                      handleAddNode={handleAddNode}
                                   />} 
             />
           <Route path='*' element={<NotFoundPage />} />

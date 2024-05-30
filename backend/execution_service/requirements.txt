@@ -12,6 +12,7 @@ networkx==3.3
 numpy==1.26.4
 onnx==1.16.1
 onnxscript==0.1.0.dev20240527
+packaging==24.0
 protobuf==5.26.1
 sympy==1.12
 tbb==2021.12.0

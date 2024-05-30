@@ -3,7 +3,7 @@ from concurrent import futures
 from proto.proto_pb2 import NetworkResult, File
 from proto.proto_pb2_grpc import TrainerServicer, add_TrainerServicer_to_server
 
-from network_generation.model_generation import export_to_onnx, export_to_pth
+from network_generation.model_generation import export_to_onnx, export_to_pth, create_model
 
 MAX_MESSAGE_LENGTH = 100 * 1024 * 1024
 UPLOAD_DIRECTORY = 'uploads'
@@ -39,6 +39,10 @@ class Executor(TrainerServicer):
         
         # delete id folder when the operations are completed
         shutil.rmtree('uploads/' + str(uid))
+        print(request.nodes)
+        print(request.edges)
+        model = create_model(request.nodes, request.edges, request.parameters)
+        print(model)
 
         return NetworkResult(status="200", message="OK, completed")
 

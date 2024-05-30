@@ -55,6 +55,15 @@
     border: solid 2px #0f0;
 }
 
+.invisible-node{
+    background-color: transparent;
+    padding-left: 5px;
+    padding-right: 5px;
+    border-radius: 5em;
+    height: 1.7rem;
+    display: flex;
+}
+
 .left-menu{
     background-color: #333;
     height: 100vh;

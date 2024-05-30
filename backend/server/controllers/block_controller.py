@@ -64,33 +64,43 @@ def export_blocks():
 def transform_blocks(blocks):
     """
     Transforms a list of blocks into a list of dictionaries, where each dictionary represents a block and has the following keys:
-    - 'id': the ID of the block (according to the proto file)
+    - 'id': the id of the block (according to the proto file)
     - 'function': the function of the block (according to the proto file)
-    - 'parameters': a list of dictionaries, where each dictionary represents a parameter of the block and has the following keys:
-        - 'key': the name of the parameter
+    - 'parameters': a list of dictionaries, where each dictionary represents a parameter and has the following keys:
+        - 'key': the name of the parameter (according to the proto file)
         - 'value': the value of the parameter as a string
     
     :param blocks: A list of dictionaries, where each dictionary represents a block and has the following keys:
-        - 'id': the ID of the block
+        - 'type': the type of the block
+        - 'id': the id of the block
         - 'fn': the function of the block
-        - 'parameters': a list of dictionaries, where each dictionary represents a parameter of the block and has the following keys:
+        - 'children': (optional) a list of child blocks (only for superBlockNode type)
+        - 'parameters': (optional) a list of dictionaries, where each dictionary represents a parameter and has the following keys:
             - 'name': the name of the parameter
             - 'value': the value of the parameter
     :return: A list of dictionaries, where each dictionary represents a block and has the following keys:
-        - 'id': the ID of the block
-        - 'function': the function of the block
-        - 'parameters': a list of dictionaries, where each dictionary represents a parameter of the block and has the following keys:
-            - 'key': the name of the parameter
+        - 'id': the id of the block (according to the proto file)
+        - 'function': the function of the block (according to the proto file)
+        - 'parameters': a list of dictionaries, where each dictionary represents a parameter and has the following keys:
+            - 'key': the name of the parameter (according to the proto file)
             - 'value': the value of the parameter as a string
     """
+
     # TLDR: change blocks so that it has: id, function (according to proto file)
     transformed_blocks = []
     for block in blocks:
-        transformed_blocks.append({
-            'id': block.get('id'),
-            'function': block.get('fn'),
-            'parameters': [{'key': param.get('name'), 'value': str(param.get('value'))} for param in block.get('parameters', [])]
-        })
+        if block.get('type') == 'superBlockNode':
+            transformed_blocks.append({
+                'id': block.get('id'),
+                'function': block.get('fn'),
+                'parameters': [{'key': 'childId', 'value': child} for child in block.get('children', [])]
+            })
+        else:
+            transformed_blocks.append({
+                'id': block.get('id'),
+                'function': block.get('fn'),
+                'parameters': [{'key': param.get('name'), 'value': str(param.get('value'))} for param in block.get('parameters', [])]
+            })
 
     return transformed_blocks
 

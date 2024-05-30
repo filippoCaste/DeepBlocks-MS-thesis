@@ -5,10 +5,12 @@ import torch, os, packaging
 import torch.nn as nn
 import torch.optim as optim
 
-def model_creation(nodes, edges, params):
+def create_model(nodes, edges, params):
 
     # list of list of nodes
     nodes_list = order_nodes(nodes, edges)
+
+    print(nodes_list)
 
     # transfor string into modules
     modules = [eval(node.function) () for node in nodes_list if node.function]
@@ -46,6 +48,8 @@ def order_nodes(nodes, edges):
     return ordered_nodes
 
 def recursive(edges, src_node, nodes_list):
+
+    print(nodes_list)
     
     # exit conditions
     if src_node is None or len(edges) == 0:
@@ -54,14 +58,42 @@ def recursive(edges, src_node, nodes_list):
     # recursive call
     for edge in edges:
         if edge.source == src_node:
-            nodes_list.append(edge.target)
+
+            res = None
+
+            if 'so' in edge.target:
+                super_node_id = edge.target.split('o')[0]
+                print(super_node_id)
+                for e in edges:
+                    if e.source == super_node_id:
+                        res = e.target
+                        break
+
+            elif 's' in edge.target:
+                # super_node_id, = edge.target.split('s')
+                super_node_id = edge.target
+                for e in edges:
+                    if e.source == super_node_id + 'i':
+                        res = e.target
+                        # nodes_list.append(res)
+                        break
+
+            else:
+                res = edge.target
+                # nodes_list.append(edge.target)
+    
+            nodes_list.append(res)
             cpy_edges = [e for e in edges if e is not None and e.source != src_node and e.target != edge.target]
-            recursive(cpy_edges, edge.target, nodes_list)
+            recursive(cpy_edges, res, nodes_list)
 
 
+
+############################################################################################################
+#                                                   EXPORT                                                 #
+############################################################################################################
 def export_to_onnx(nodes, edges, params, file_name, uid):
 
-    model = model_creation(nodes, edges, params)
+    model = create_model(nodes, edges, params)
 
     try:
         onnx_file = torch.onnx.export(model, torch.randn(1, 1, 32, 32), os.path.join(f'converted/{uid}',file_name), verbose=True)
@@ -72,7 +104,7 @@ def export_to_onnx(nodes, edges, params, file_name, uid):
 
 def export_to_pth(nodes, edges, params, file_name, uid):
 
-    model = model_creation(nodes, edges, params)
+    model = create_model(nodes, edges, params)
 
     try:
         torch.save(model.state_dict(), os.path.join(f'converted/{uid}',file_name))

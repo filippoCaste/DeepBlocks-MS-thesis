@@ -17,6 +17,7 @@ import AlertComponent from './AlertComponent';
 import Block from '../models/Block';
 import { BLOCKS_API } from '../API/blocks';
 import ResponseMessage from './ResponseMessage';
+import { PlusLg } from 'react-bootstrap-icons';
 
 
 const Sidebar = (props) => {
@@ -32,22 +33,22 @@ const Sidebar = (props) => {
                 <ul className="sidebar-menu">
                     <li onClick={() => {
                             openMenu === "Network Design" ? setOpenMenu('none') : setOpenMenu('Network Design')
-                        }} style={openMenu === 'Network Design' ? { backgroundColor: '#555' } : {}}>
+                        }} className={`${openMenu === 'Network Design' ? 'selected' : ''}`}>
                         <span> <PencilFill className='sidebar-icon' /> </span>
                     </li>
                     <li onClick={() => {
                             openMenu === "Network Details" ? setOpenMenu('none') : setOpenMenu('Network Details')
-                        }} style={openMenu === 'Network Details' ? { backgroundColor: '#555' } : {}}>
+                        }} className={`${openMenu === 'Network Details' ? 'selected' : ''}`}>
                         <span> <ListColumns className='sidebar-icon' /> </span>
                     </li>
                     <li onClick={() => {
                             openMenu === "Training" ? setOpenMenu('none') : setOpenMenu('Training')
-                        }} style={openMenu === 'Training' ? { backgroundColor: '#555' } : {}}>
+                        }} className={`${openMenu === 'Training' ? 'selected' : ''}`}>
                         <span> <PlayFill className='sidebar-icon' /> </span>
                     </li>
                     <li onClick={() => {
                             openMenu === "Options" ? setOpenMenu('none') : setOpenMenu('Options')
-                        }} style={openMenu === 'Options' ? { backgroundColor: '#555' } : {}}>
+                        }} className={`${openMenu === 'Options' ?  'selected' : '' }`}>
                         <span> <Download className='sidebar-icon' /> </span>
                     </li>     
                 </ul>
@@ -135,8 +136,8 @@ const BlockTable = ({category, blocks, handleAddNode}) => {
                 {blocks.map((block, index) => {
                     return (
                         <tr key={block.id + "-" + index}>
-                            <td>{block.name}</td>
-                            <td style={{ textAlign: 'right' }}><Button onClick={() => {handleAddBlock({block, handleAddNode})}}>+</Button></td>
+                            <td style={{ verticalAlign: 'middle' }}>{block.name}</td>
+                            <td style={{ textAlign: 'right' }}><Button onClick={() => {handleAddBlock({block, handleAddNode})}}> <PlusLg /></Button></td>
                         </tr>
                     )}
                 )}
@@ -157,7 +158,7 @@ const NetworkDetails = (props) => {
                 </tr>
             </thead>
             <tbody style={{ textAlign: 'left' }}>
-                {nodes.filter((n) => n.hidden===false).map((node, index) => {
+                {nodes.filter((n) => n.hidden===false && !n.type.includes('invisible')).map((node, index) => {
                     return <BlockDetailsAndActions key={node+"-"+index} node={node} index={index} 
                                 handleDeleteNodes={handleDeleteNodes} handleRenameNode={handleRenameNode} handleDuplicateNode={handleDuplicateNode}
                             />
@@ -193,7 +194,8 @@ const BlockDetailsAndActions = (props)  => {
                 width: 'fit-content',
                 overflow: 'hidden',
                 whiteSpace: 'nowrap',
-                height: '3.3em'
+                height: 'auto',
+                verticalAlign: 'middle',
                 }}
                 >
                 <div style={{overflowX: 'auto', whiteSpace: 'nowrap', maxWidth: '100%', height:'100%'}}>

@@ -18,7 +18,7 @@ export default function ResponseMessage(props) {
     }, []);
     
     return (
-        <Alert variant={variant} style={{width: 'fit-content', zIndex:'1000', top:'3.5em', right:'0.5em', position:'fixed'}}dismissible onClose={() => setShowMessage(false)}>
+        <Alert variant={variant} style={{width: 'fit-content', zIndex:'1000', top:'6em', right:'0.5em', position:'fixed'}}dismissible onClose={() => setShowMessage(false)}>
             {message}
             {variant === 'success' && <Check2 />}
             {variant === 'error' && <XCircleFill /> }

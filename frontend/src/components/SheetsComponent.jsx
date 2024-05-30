@@ -58,8 +58,8 @@ function Sheet(props) {
     const handleOpenSheet = props.handleOpenSheet;
 
     return (
-        <Container className={`sheet ${props.label === props.selectedSheet ? 'selectedSheet' : ''}`} onClick={() => handleOpenSheet(props.label, props.node)}>
+        <div className={`sheet ${props.label === props.selectedSheet ? 'selectedSheet' : ''}`} onClick={() => handleOpenSheet(props.label, props.node)}>
             <p>{props.label}</p>
-        </Container>
+        </div>
     )
 }

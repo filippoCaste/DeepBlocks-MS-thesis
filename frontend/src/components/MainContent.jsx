@@ -11,7 +11,7 @@ import NodeInfoBar from './NodeInfoBar';
 import AppNameBar from './AppNameBar';
 import InvisibleBlock from '../models/InvisibleBlock';
 
-export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesChange, onEdgesChange, nodeTypes, appName, setAppName, handleDeleteNodes, handleAddNode }) {
+export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesChange, onEdgesChange, onNodesDelete, nodeTypes, appName, setAppName, handleDeleteNodes, handleAddNode }) {
 
     const onConnect = useCallback(
         (params) => setEdges((eds) => addEdge(params, eds)),
@@ -101,6 +101,7 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
                 nodeTypes={nodeTypes}
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
+                onNodesDelete={onNodesDelete}
                 onConnect={onConnect}
                 fitView
             >

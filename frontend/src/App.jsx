@@ -1,5 +1,5 @@
 'use strict';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import Sidebar from './components/Sidebar';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './style.css';
@@ -7,7 +7,7 @@ import MainContent from './components/MainContent';
 import CustomNode from './components/CustomNode';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import NotFoundPage from './pages/NotFoundPage';
-import { useNodesState, useEdgesState } from 'reactflow';
+import { useNodesState, useEdgesState, getIncomers, getOutgoers, getConnectedEdges } from 'reactflow';
 import SuperBlockNode from './components/SuperBlockNode';
 import Block from './models/Block';
 import Superblock from './models/SuperBlock';
@@ -89,10 +89,21 @@ export default function App() {
 
   //   setNodes(() => updatedNodes);
   // }
+  
+  const onNodesDelete = useCallback(
+    (deleted) => {
+      handleDeleteNodes(deleted);
+    }, [nodes, edges]
+  );
 
   const handleDeleteNodes = (toDeleteNodes) => {
     let updatedNodes = [...nodes];
+    let updatedEdges = [...edges];
+
+    let superNodes = nodes.filter(e => e.type === 'superBlockNode');
+
     for(let node of toDeleteNodes) {
+
       if (node.type === 'superBlockNode') {
         const nodeChildren = updatedNodes.find(e => e.id === node.id).children;
         // delete the children
@@ -100,10 +111,26 @@ export default function App() {
         // delete the supernode
         updatedNodes = [...updatedNodes.filter(n => n.id != node.id)];
 
+        // delete the edges inside the supernode
+        updatedEdges = [...updatedEdges.filter(e => !nodeChildren.includes(e.source) && !nodeChildren.includes(e.target))]
+
+        // delete the edges coming/going to the supernode
+        updatedEdges = [...updatedEdges.filter(e => e.source != node.id && e.target != node.id)]
+
       } else {
+        // delete the child from the supernode
+        for (let sn of superNodes) {
+          if (sn.children.includes(node.id)) {
+            sn.children = sn.children.filter(e => e != node.id);
+          }
+        }
+
+        updatedEdges = [...updatedEdges.filter(n => n.source != node.id && n.target != node.id)];
         updatedNodes = [...updatedNodes.filter(n => n.id != node.id)]
       }
     }
+
+    setEdges(() => updatedEdges);
     setNodes(() => updatedNodes);
   }
 
@@ -228,7 +255,7 @@ export default function App() {
         {showConfirmation && <AlertConfirmation message={message} title={title} handleCancel={handleCancel} handleConfirm={handleConfirm} variant={variant} />}
         <Routes>
           <Route index element={<MainContent style={{ flex: 1 }} edges={edges} setNodes={setNodes} setEdges={setEdges}
-                                      nodeTypes={nodeTypes} nodes={nodes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange}
+                                      nodeTypes={nodeTypes} nodes={nodes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onNodesDelete={onNodesDelete}
                                       appName={appName} setAppName={setAppName} handleDeleteNodes={handleDeleteNodes}
                                       handleAddNode={handleAddNode}
                                   />} 

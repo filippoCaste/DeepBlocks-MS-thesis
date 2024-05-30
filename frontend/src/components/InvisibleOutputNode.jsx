@@ -1,8 +1,6 @@
 import { Handle, Position } from "reactflow";
 
 export function InvisibleOutputNode(props) {
-    const data = props.data
-    const id = props.id
 
     return (
         <>

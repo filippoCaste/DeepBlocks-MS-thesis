@@ -19,7 +19,7 @@ export default function AppNameBar(props) {
     return <div className="app-name-bar">
         
         {isRename ? 
-            <Form.Control style={{width:'auto', backgroundColor:'transparent', fontSize: '18px', color:'white', border:'none', borderRadius:'none',borderBottom: '1px solid white'}} type='text' value={newName} onChange={(ev) => {setNewName(ev.target.value)}}></Form.Control>  
+            <Form.Control style={{outline: 'none', width:'auto', backgroundColor:'transparent', fontSize: '18px', color:'white', border:'none', borderRadius:'0',borderBottom: '1px solid white'}} type='text' value={newName} onChange={(ev) => {setNewName(ev.target.value)}}></Form.Control>  
             
             : <h3>{appName}</h3> 
         }

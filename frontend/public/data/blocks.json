@@ -76,28 +76,28 @@
         "Activation": [
             {
                 "name": "Sigmoid",
-                "function": "torch.sigmoid",
+                "function": "torch.nn.Sigmoid",
                 "parameters": [
                     { "name": "input_tensor", "description": "Input tensor", "value": null }
                 ]
             },
             {
                 "name": "Tanh",
-                "function": "torch.tanh",
+                "function": "torch.nn.Tanh",
                 "parameters": [
                     { "name": "input_tensor", "description": "Input tensor", "value": null }
                 ]
             },
             {
                 "name": "ReLU",
-                "function": "torch.relu",
+                "function": "torch.nn.ReLU",
                 "parameters": [
                     { "name": "input_tensor", "description": "Input tensor", "value": null }
                 ]
             },
             {
                 "name": "Leaky ReLU",
-                "function": "torch.nn.functional.leaky_relu",
+                "function": "torch.nn.LeakyReLU",
                 "parameters": [
                     { "name": "input_tensor", "description": "Input tensor", "value": null },
                     { "name": "negative_slope", "description": "Negative slope", "value": null }
@@ -105,7 +105,7 @@
             },
             {
                 "name": "Softmax",
-                "function": "torch.nn.functional.softmax",
+                "function": "torch.nn.Softmax",
                 "parameters": [
                     { "name": "input_tensor", "description": "Input tensor", "value": null },
                     { "name": "dim", "description": "Dimension along which softmax will be computed", "value": null }
@@ -126,7 +126,7 @@
         "Pooling": [
             {
                 "name": "Max Pooling",
-                "function": "torch.nn.functional.max_pool2d (for 2D pooling)",
+                "function": "torch.nn.MaxPool2d",
                 "parameters": [
                     { "name": "input_tensor", "description": "Input tensor", "value": null },
                     { "name": "kernel_size", "description": "Kernel size", "value": null },
@@ -136,7 +136,7 @@
             },
             {
                 "name": "Average Pooling",
-                "function": "torch.nn.functional.avg_pool2d (for 2D pooling)",
+                "function": "torch.nn.AvgPool2d",
                 "parameters": [
                     { "name": "input_tensor", "description": "Input tensor", "value": null },
                     { "name": "kernel_size", "description": "Kernel size", "value": null },

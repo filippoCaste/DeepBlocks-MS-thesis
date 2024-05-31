@@ -52,7 +52,7 @@ const Sidebar = (props) => {
                         <span> <Download className='sidebar-icon' /> </span>
                     </li>     
                 </ul>
-                <ul className="sidebar-menu" style={{ position: 'absolute', top:'62vh' }}>
+                <ul className="sidebar-menu" style={{ position: 'relative', top:'62vh' }}>
                     <li onClick={() => {
                             openMenu === "Analysis" ? setOpenMenu('none') : setOpenMenu('Analysis')
                         }} className={`${openMenu === 'Analysis' ? 'selected' : ''}`}>

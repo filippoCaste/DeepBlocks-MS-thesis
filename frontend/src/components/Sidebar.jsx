@@ -52,7 +52,7 @@ const Sidebar = (props) => {
                         <span> <Download className='sidebar-icon' /> </span>
                     </li>     
                 </ul>
-                <ul className="sidebar-menu" style={{ position: 'relative', top:'62vh' }}>
+                <ul className="sidebar-menu" style={{ position: 'relative', top:'57vh' }}>
                     <li onClick={() => {
                             openMenu === "Analysis" ? setOpenMenu('none') : setOpenMenu('Analysis')
                         }} className={`${openMenu === 'Analysis' ? 'selected' : ''}`}>
@@ -316,7 +316,7 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
                                     onSelect={sel => setLoss(sel)}
                                 >
                                     <Dropdown.Item eventKey="CE">CE</Dropdown.Item>
-                                    <Dropdown.Item eventKey="SME">SME</Dropdown.Item>
+                                    <Dropdown.Item eventKey="MSE">MSE</Dropdown.Item>
                                 </DropdownButton>
                             </td>
                         </tr>

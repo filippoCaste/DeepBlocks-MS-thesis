@@ -7,7 +7,7 @@ import MainContent from './components/MainContent';
 import CustomNode from './components/CustomNode';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import NotFoundPage from './pages/NotFoundPage';
-import { useNodesState, useEdgesState, getIncomers, getOutgoers, getConnectedEdges } from 'reactflow';
+import { useNodesState, useEdgesState } from 'reactflow';
 import SuperBlockNode from './components/SuperBlockNode';
 import Block from './models/Block';
 import Superblock from './models/SuperBlock';
@@ -30,8 +30,8 @@ let node2 = new Block('customNode', { x: 10, y: 100 }, { label: 'ReLU' }, [
 node1.hidden = true;
 node2.hidden = true;
 
-const superNode1 = new Superblock('superBlockNode', { x: 10, y: 200 }, { label: 'sb1', isSelected: false }, [node1.id, node2.id]);
-
+let superNode1 = new Superblock('superBlockNode', { x: 10, y: 200 }, { label: 'sb1', isSelected: false }, [node1.id, node2.id]);
+superNode1.hidden = false;
 
 const initialNodes = [node1, node2, superNode1]
 const initialEdges = [{ id: 'e1-2', source: '0', target: '1' }];

@@ -112,7 +112,7 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
 
                 {selectedNodes.length !==0 &&  <SelectionBox selectedNodes={selectedNodes} createSuperblock={createSuperblock} 
                                                     setMessage={setMessage} setVariant={setVariant} setShowMessage={setShowMessage} 
-                                                    handleDeleteNodes={handleDelete}    
+                                                    handleDeleteNodes={handleDelete} nodes={nodes} setNodes={setNodes}
                                                 /> }
                 {showMessage && <ResponseMessage message={message} variant={variant} setShowMessage={setShowMessage} /> }
                 {openNodeInfo && <NodeInfoBar nodeInfo={nodeInfo} handleCloseNodeInfo={handleCloseNodeInfo} /> }

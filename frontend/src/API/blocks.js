@@ -16,7 +16,7 @@ const postNetwork = async (blocks, edges, params) => {
         return data;
     } catch(error) {
         console.log(error)
-        return error;
+        throw new Error(error.message);
     }
 };
 
@@ -37,7 +37,7 @@ const postInputFiles = async (files) => {
         return resData;
     } catch(error) {
         console.log(error)
-        return error;
+        throw new Error(error.message);
     }
 }
 
@@ -60,7 +60,8 @@ const exportNetwork = async (blocks, edges, params, type, appName) => {
         const data = await response.blob();
         return data;
     } catch(error) {
-        return error;
+        console.log(error)
+        throw new Error(error.message);
     }
 } 
 

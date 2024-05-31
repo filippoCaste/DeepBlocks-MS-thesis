@@ -37,7 +37,7 @@ def post_input_files():
         filename = os.path.join('uploads/' + str(session_id), file.filename)
         file.save(filename)
 
-    return jsonify({'message': 'Files uploaded successfully'})
+    return jsonify({'message': 'Files uploaded successfully'}), 201
 
 def export_blocks():
     data = request.get_json()

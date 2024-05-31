@@ -19,13 +19,16 @@ import InvisibleInputNode from './components/InvisibleInputNode';
 import { InvisibleOutputNode } from './components/InvisibleOutputNode';
 
 // just for temporary use
-const node1 = new Block('customNode', { x: 10, y: 0 }, { label: 'Leaky ReLU' }, [
+let node1 = new Block('customNode', { x: 10, y: 0 }, { label: 'Leaky ReLU' }, [
   { name: "input_tensor", description: "Input tensor", value: 'null' }, 
   { name: "negative_slope", description: "Negative slope", value: 'null' }], 'torch.nn.functional.leaky_relu');
 
-const node2 = new Block('customNode', { x: 10, y: 100 }, { label: 'ReLU' }, [
+let node2 = new Block('customNode', { x: 10, y: 100 }, { label: 'ReLU' }, [
     { name: "input_tensor", description: "Input tensor", value: null }
 ], 'torch.relu');
+
+node1.hidden = true;
+node2.hidden = true;
 
 const superNode1 = new Superblock('superBlockNode', { x: 10, y: 200 }, { label: 'sb1', isSelected: false }, [node1.id, node2.id]);
 
@@ -181,12 +184,17 @@ export default function App() {
         window.URL.revokeObjectURL(dataUrl);
         document.body.removeChild(downloadLink);
 
+        setShowMessage(true);
+        setMessage("Network succesfully downloaded");
+        setVariant("success");
+
+      }).catch((error) => {
+        // console.log(error);
+        setShowMessage(true);
+        setMessage("Error while exporting the network: " + error.message);
+        setVariant("danger");
       })
     }
-
-    setShowMessage(true);
-    setMessage("Network succesfully downloaded");
-    setVariant("success");
   }
 
   const handleUpload = (inputFile) => {
@@ -199,7 +207,7 @@ export default function App() {
           const { nodes, edges, params } = jsonData;
 
           if(!nodes || !edges || !params) {
-            throw new Error('Error while uploading the file: the file is not a valid json file');
+            throw new Error('The file is not a valid json file');
           }
 
           setNodes(nodes);

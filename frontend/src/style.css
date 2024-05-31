@@ -236,7 +236,7 @@
 }
 
 .tab-content.selected {
-    background-color: #555;
+    border-bottom: rgb(160, 48, 113) 3px solid;
 }
 
 .tab-content:hover {

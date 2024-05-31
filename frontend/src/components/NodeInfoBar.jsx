@@ -65,8 +65,6 @@ function FormInput(props) {
 
     const { name, value, description, setParameterValue } = props;
 
-
-
     return (
         <Row className="mb-3">
             <Col md={1}>
@@ -81,6 +79,9 @@ function FormInput(props) {
                         style={{ width: '100%' }}
                     />
                 </Form.Group>
+            </Col>
+            <Col md={7}>
+                <Form.Label>{description}</Form.Label>
             </Col>
         </Row>
     );

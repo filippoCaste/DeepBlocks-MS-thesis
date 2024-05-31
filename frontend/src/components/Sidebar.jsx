@@ -17,7 +17,7 @@ import AlertComponent from './AlertComponent';
 import Block from '../models/Block';
 import { BLOCKS_API } from '../API/blocks';
 import ResponseMessage from './ResponseMessage';
-import { PlusLg } from 'react-bootstrap-icons';
+import PlusLg from 'react-bootstrap-icons/dist/icons/plus-lg';
 
 
 const Sidebar = (props) => {
@@ -52,10 +52,10 @@ const Sidebar = (props) => {
                         <span> <Download className='sidebar-icon' /> </span>
                     </li>     
                 </ul>
-                <ul className="sidebar-menu" style={{ position: 'absolute', bottom:'0' }}>
+                <ul className="sidebar-menu" style={{ position: 'absolute', top:'62vh' }}>
                     <li onClick={() => {
                             openMenu === "Analysis" ? setOpenMenu('none') : setOpenMenu('Analysis')
-                        }} style={openMenu === 'Analysis' ? { backgroundColor: '#555' } : {}}>
+                        }} className={`${openMenu === 'Analysis' ? 'selected' : ''}`}>
                         <span> <BarChartFill className='sidebar-icon' /> </span>
                     </li>
                 </ul>
@@ -424,8 +424,9 @@ const Options = (props) => {
             <Button className='left-menu-button mt-3' onClick={() => handleDownload()}> Download </Button> <br />
             <hr />
             <h5>Import from existing file</h5>
+            <p style={{fontStyle: 'italic'}}>Supported format: .json</p>
             <Form.Control type='file' id='file-json' accept=".json" onChange={(e) => setLoadFile(e.target.files[0])} />
-            <Button className='left-menu-button mt-2' onClick={() => handleUpload()}> Upload </Button>
+            <Button className='left-menu-button mt-3' onClick={() => handleUpload()}> Upload </Button>
 
             {error && <AlertComponent variant="danger" message={errMsg} setErr={setErr} />}
 

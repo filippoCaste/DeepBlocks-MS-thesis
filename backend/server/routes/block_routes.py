@@ -12,7 +12,7 @@ def api_post_all_blocks():
     if response.status == '200':
         return jsonify({'status': 'OK'})
     else:
-        return jsonify({'status': 'KO'})
+        return jsonify(message="Error while posting all blocks"), 500
 
 @block_routes.route('/api/blocks/input', methods=['POST'])
 def api_post_input_files():
@@ -30,4 +30,4 @@ def api_export_blocks():
     try:
         return send_file(file_path, as_attachment=True, mimetype='application/octet-stream')
     except Exception as e:
-        return jsonify(error=str(e)), 500
+        return jsonify(message=str(e)), 500

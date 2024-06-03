@@ -180,8 +180,6 @@
     max-width: 200px;
     display: flex;
     justify-content: space-between;
-    padding-left: 1em;
-    padding-right: 1em;
 }
 
 .sheet p {

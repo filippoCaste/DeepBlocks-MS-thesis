@@ -11,7 +11,7 @@ import NodeInfoBar from './NodeInfoBar';
 import AppNameBar from './AppNameBar';
 import InvisibleBlock from '../models/InvisibleBlock';
 
-export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesChange, onEdgesChange, onNodesDelete, nodeTypes, appName, setAppName, handleDeleteNodes, handleAddNode }) {
+export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesChange, onEdgesChange, onNodesDelete, nodeTypes, appName, setAppName, handleDeleteNodes, handleAddNode, sheets, setSheets }) {
 
     const onConnect = useCallback(
         (params) => setEdges((eds) => addEdge(params, eds)),
@@ -74,7 +74,7 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
         setEdges(eds => addEdge({ id: `e${superblock.id + '_o'}`, source: out, target: invisibleOutput.id }, eds))
 
         setNodes(nodes.map(e => children.includes(e.id) ? { ...e, data: { ...e.data, isSelected: false }, hidden: true } : e).concat(superblock));
-        setNodes(prevNodes => [...prevNodes, invisibleInput, invisibleOutput])
+        setNodes(prevNodes => [...prevNodes, ...invisibleInput, ...invisibleOutput])
 
     }
 
@@ -85,18 +85,22 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
     const [openNodeInfo, setOpenNodeInfo] = useState(false);
     const [nodeInfo, setNodeInfo] = useState(null);
     const [selectedSheet, setSelectedSheet] = useState(['main', 'main']);
-    const [createdSheet, setCreatedSheet] = useState(['main', 'main']);
-
 
     useEffect(() => {
-        setSelectedNodes(nodes.filter(node => node.data.isSelected === true))
-        const tmp = nodes.filter(node => node.data.openInfo === true)
+        // get selected nodes
+        setSelectedNodes(nodes.filter(node => node.data.isSelected === true));
+
+        // check if there is an open info node
+        const tmp = nodes.filter(node => node.data.openInfo === true && (node.type === 'customNode' || (node.type === 'superBlockNode' && node.data.hasSheet === false)))
         if (tmp.length > 0) {
-            if (tmp[0].type == 'customNode') {
+            let nodeFound = tmp[0]
+            if (nodeFound.type == 'customNode') {
                 setOpenNodeInfo(true)
-                setNodeInfo(tmp[0])
-            } else if (tmp[0].type == 'superBlockNode') {
-                setCreatedSheet([tmp[0].id, tmp[0].data.label])
+                setNodeInfo(nodeFound)
+            } else if (nodeFound.type == 'superBlockNode') {
+                if(sheets.filter(e => e[0] == nodeFound.id).length === 0) {
+                    setSheets((oldSheets) => [...oldSheets, [nodeFound.id, nodeFound.data.label]]);
+                }
             }
         }
 
@@ -137,7 +141,9 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
                 {openNodeInfo && <NodeInfoBar nodeInfo={nodeInfo} handleCloseNodeInfo={handleCloseNodeInfo} /> }
 
                 <AppNameBar appName={appName} setAppName={setAppName} />
-                <SheetsComponent nodes={nodes} selectedSheet={selectedSheet} setSelectedSheet={setSelectedSheet} createdSheet={createdSheet} setCreatedSheet={setCreatedSheet} />
+                <SheetsComponent nodes={nodes} selectedSheet={selectedSheet} setSelectedSheet={setSelectedSheet} 
+                                    sheets={sheets} setSheets={setSheets}
+                    />
 
             </ReactFlow>
         </div>

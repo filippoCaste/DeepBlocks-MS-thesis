@@ -21,6 +21,7 @@ export default function SuperBlockNode(props) {
 
     const handleOpenInfo = () => {
         data.openInfo = true;
+        data.hasSheet = false;
     }
 
     return (

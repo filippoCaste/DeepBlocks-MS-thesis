@@ -66,7 +66,7 @@ export default function App() {
   const [showMessage, setShowMessage] = useState(false);
   // --------------------------------------------------
 
-
+  const [sheets, setSheets] = useState([['main', 'main']])
   const [appName, setAppName] = useState("My DeepBlock's network")
 
   const handleAddNode = (node) => {
@@ -100,6 +100,12 @@ export default function App() {
     }, [nodes, edges]
   );
 
+  /**
+ * Deletes the specified nodes and their associated edges from the graph.
+ *
+ * @param {Array} toDeleteNodes - An array of nodes to be deleted.
+ * @return {void} This function does not return a value.
+ */
   const handleDeleteNodes = (toDeleteNodes) => {
     let updatedNodes = [...nodes];
     let updatedEdges = [...edges];
@@ -121,6 +127,7 @@ export default function App() {
         // delete the edges coming/going to the supernode
         updatedEdges = [...updatedEdges.filter(e => e.source != node.id && e.target != node.id)]
 
+        setSheets((oldSheets) => [...oldSheets.filter(e => e[0] != node.id)]);
       } else {
         // delete the child from the supernode
         for (let sn of superNodes) {
@@ -134,13 +141,13 @@ export default function App() {
       }
     }
 
-    setEdges(() => updatedEdges);
-    setNodes(() => updatedNodes);
+    setEdges(() => [...updatedEdges]);
+    setNodes(() => [...updatedNodes]);
   }
 
   const handleRenameNode = (node, newName) => {
     const updatedNodes = nodes.map(n => n.id === node.id ? {...n, data: {...n.data, label: newName}} : n)
-    setNodes(() => updatedNodes)
+    setNodes(() => [...updatedNodes])
   }
 
   const handleDuplicateNode = (node) => {
@@ -168,7 +175,7 @@ export default function App() {
       //// get the new blocksId
       const newChildrenId = copy.map(e => e.id);
       //// create superblock
-      let superblock = new Superblock(node.type, { ...node.position, y: node.position.y - 10 }, { ...node.data, label: "copy of " + node.data.label }, newChildrenId);
+      let superblock = new Superblock(node.type, { ...node.position, y: node.position.y - 10 }, { ...node.data, label: "copy of " + node.data.label, hasSheet: false, isOpenInSheet: false, openInfo: false }, newChildrenId);
       const invisibleInput = new InvisibleBlock(superblock.id + 'i', 'invisibleInputNode', { x: 2, y: 100 })
       const invisibleOutput = new InvisibleBlock(superblock.id + 'o', 'invisibleOutputNode', { x: 300, y: 100 })
       superblock.children.push(invisibleInput.id, invisibleOutput.id)
@@ -307,7 +314,7 @@ export default function App() {
           <Route index element={<MainContent style={{ flex: 1 }} edges={edges} setNodes={setNodes} setEdges={setEdges}
                                       nodeTypes={nodeTypes} nodes={nodes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onNodesDelete={onNodesDelete}
                                       appName={appName} setAppName={setAppName} handleDeleteNodes={handleDeleteNodes}
-                                      handleAddNode={handleAddNode}
+                                      handleAddNode={handleAddNode} sheets={sheets} setSheets={setSheets}
                                   />} 
             />
           <Route path='*' element={<NotFoundPage />} />

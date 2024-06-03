@@ -1,6 +1,5 @@
 'use strict';
 
-import { useState } from "react";
 import { NodePlus, XCircle } from "react-bootstrap-icons";
 import { useReactFlow } from "reactflow";
 
@@ -8,21 +7,19 @@ export default function SheetsComponent(props) {
 
     const nodes = props.nodes;
     const reactflow = useReactFlow();
-    const createdSheet = props.createdSheet;
-    const setCreatedSheet = props.setCreatedSheet;
     const selectedSheet = props.selectedSheet;
     const setSelectedSheet = props.setSelectedSheet;
-    const [sheets, setSheets] = useState([['main', 'main']])
+    const sheets = props.sheets;
+    const setSheets = props.setSheets;
 
     const handleCloseSheet = (id, label) => {
-        setCreatedSheet(null);
-
         handleOpenSheet('main', 'main');
-        nodes.find(e => e.id == id).data.openInfo = false;
+        let n = nodes.find(e => e.id == id);
+        n.data.openInfo = false;
+        n.data.hasSheet = false;
         reactflow.setNodes([...nodes]);
 
         setSheets((oldSheets) => { return [...oldSheets.filter(([eId]) => eId != id)]});
-        // console.log(sheets)
     }
 
     const handleOpenSheet = (id, label) => {
@@ -59,16 +56,13 @@ export default function SheetsComponent(props) {
             }
 
             node.data.isOpenInSheet = true;
+            node.data.hasSheet = true;
         }
         setSelectedSheet([id, label]);
         reactflow.setNodes([...nodes]);
     }
 
-    if (createdSheet && sheets.filter(e => e[0] === createdSheet[0]).length === 0) {
-        handleOpenSheet(createdSheet[0], createdSheet[1])
-        setSheets((oldSheets) => [...oldSheets, createdSheet]);
-    }
-
+    // handleOpenSheet(selectedSheet[0], selectedSheet[1])
 
     return (
         <div className='sheets'>
@@ -85,15 +79,21 @@ function Sheet(props) {
     const handleCloseSheet = props.handleCloseSheet;
 
     return (
-        <div className={`sheet ${props.label === props.selectedSheet[1] ? 'selectedSheet' : ''}`} onClick={() => handleOpenSheet(props.id, props.label)}>
-            <p>{props.label !== 'main' && <NodePlus style={{fontSize:'1em'}} />} {props.label}</p>
-            {props.label !== 'main' && <XCircle style={{
-                padding: '0',
-                border: 'none',
-                verticalAlign: 'middle',
-                height: '100%',
-                justifyContent: 'flex-end'
-            }} onClick={() => handleCloseSheet(props.id, props.label)} />}
+        <div className={`sheet ${props.label === props.selectedSheet[1] ? 'selectedSheet' : ''}`}>
+            <div style={{width:'100%', height:'100%', paddingLeft:'1em', paddingRight:'1em'}} onClick={() => handleOpenSheet(props.id, props.label)}>
+                <p>{props.label !== 'main' && <NodePlus style={{fontSize:'1em'}} />} {props.label}</p>
+            </div>
+            {
+                props.label !== 'main' && <XCircle style={{
+                    padding: '0',
+                    border: 'none',
+                    verticalAlign: 'middle',
+                    height: '100%',
+                    justifyContent: 'flex-end',
+                    zIndex: '1000',
+                }} onClick={() => handleCloseSheet(props.id, props.label)} />
+            }
         </div>
+
     )
 }

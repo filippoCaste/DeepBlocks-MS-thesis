@@ -36,8 +36,17 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
                 possibleOutputs = possibleOutputs.filter(e => e != edge.source)
             }
 
-            inp = possibleInputs[0];
-            out = possibleOutputs[0];
+            if(possibleInputs.length > 0) {
+                inp = possibleInputs[0];
+            } else {
+                inp = children[0];
+            }
+
+            if(possibleOutputs.length > 0) {
+                out = possibleOutputs[0];
+            } else {
+                out = children[-1];
+            }
 
         } else {
             
@@ -54,7 +63,6 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
         const invisibleInput = new InvisibleBlock(superblock.id + 'i', 'invisibleInputNode', { x: 2, y: 100 })
         const invisibleOutput = new InvisibleBlock(superblock.id + 'o', 'invisibleOutputNode', { x: 300, y: 100 })
         superblock.children.push(invisibleInput.id, invisibleOutput.id)
-        children.push(invisibleInput.id, invisibleOutput.id)
 
         setEdges(eds => addEdge({ id: `e${superblock.id + '_i'}`, source: invisibleInput.id, target: inp }, eds))
         setEdges(eds => addEdge({ id: `e${superblock.id + '_o'}`, source: out, target: invisibleOutput.id }, eds))
@@ -70,15 +78,20 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
     const [showMessage, setShowMessage] = useState(false);
     const [openNodeInfo, setOpenNodeInfo] = useState(false);
     const [nodeInfo, setNodeInfo] = useState(null);
-    const [selectedSheet, setSelectedSheet] = useState('main');
+    const [selectedSheet, setSelectedSheet] = useState(['main', 'main']);
+    const [createdSheet, setCreatedSheet] = useState(['main', 'main']);
 
 
     useEffect(() => {
         setSelectedNodes(nodes.filter(node => node.data.isSelected === true))
         const tmp = nodes.filter(node => node.data.openInfo === true)
-        if(tmp.length > 0) {
-            setOpenNodeInfo(true)
-            setNodeInfo(tmp[0])
+        if (tmp.length > 0) {
+            if (tmp[0].type == 'customNode') {
+                setOpenNodeInfo(true)
+                setNodeInfo(tmp[0])
+            } else if (tmp[0].type == 'superBlockNode') {
+                setCreatedSheet([tmp[0].id, tmp[0].data.label])
+            }
         }
 
     }, [nodes])
@@ -108,7 +121,7 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
                 <Controls position='bottom-right' />
                 <Background />
 
-                <div className={`${selectedSheet !== 'main' ? 'sheet-border' : ''}`}></div>
+                <div className={`${selectedSheet[1] !== 'main' ? 'sheet-border' : ''}`}></div>
 
                 {selectedNodes.length !==0 &&  <SelectionBox selectedNodes={selectedNodes} createSuperblock={createSuperblock} 
                                                     setMessage={setMessage} setVariant={setVariant} setShowMessage={setShowMessage} 
@@ -118,7 +131,7 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
                 {openNodeInfo && <NodeInfoBar nodeInfo={nodeInfo} handleCloseNodeInfo={handleCloseNodeInfo} /> }
 
                 <AppNameBar appName={appName} setAppName={setAppName} />
-                <SheetsComponent nodes={nodes} edges={edges} selectedSheet={selectedSheet} setSelectedSheet={setSelectedSheet} />
+                <SheetsComponent nodes={nodes} selectedSheet={selectedSheet} setSelectedSheet={setSelectedSheet} createdSheet={createdSheet} setCreatedSheet={setCreatedSheet} />
 
             </ReactFlow>
         </div>

@@ -9,6 +9,7 @@ export default function SuperBlockNode(props) {
     const id = props.id;
     const type = props.type;
     const [openOptions, setOpenOptions] = useState(false);
+    // const [openSheet, setOpenSheet] = useState(false);
     const [rename, setRename] = useState(false);
     const [inputValue, setInputValue] = useState(data.label);
 

@@ -3,9 +3,10 @@
 ## Repository organization
 - Frontend developed with ReactJS
 - Backend:
-  - Flask server (`server/`)
+  - Flask server (GRPC client) (`server/`)
   - GRPC server (`execution_service/`)
 
+## Architecture
 ![](imgs/architecture.png)
 
 ## Instructions

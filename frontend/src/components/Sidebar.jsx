@@ -6,7 +6,7 @@ import Download from 'react-bootstrap-icons/dist/icons/download'
 import PencilFill from 'react-bootstrap-icons/dist/icons/pencil-fill'
 import PlayFill from 'react-bootstrap-icons/dist/icons/play-fill'
 import ListColumns from 'react-bootstrap-icons/dist/icons/list-columns'
-import BarChartFill from 'react-bootstrap-icons/dist/icons/bar-chart-fill';
+import Diagram3Fill from 'react-bootstrap-icons/dist/icons/diagram-3-fill';
 import TrashFill from 'react-bootstrap-icons/dist/icons/trash-fill';
 import Copy from 'react-bootstrap-icons/dist/icons/copy'
 import Blocks from '../../public/data/blocks.json'
@@ -56,7 +56,7 @@ const Sidebar = (props) => {
                     <li onClick={() => {
                             openMenu === "Analysis" ? setOpenMenu('none') : setOpenMenu('Analysis')
                         }} className={`${openMenu === 'Analysis' ? 'selected' : ''}`}>
-                        <span> <BarChartFill className='sidebar-icon' /> </span>
+                        <span> <Diagram3Fill className='sidebar-icon' /> </span>
                     </li>
                 </ul>
             </div>

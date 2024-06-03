@@ -17,6 +17,7 @@ import ResponseMessage from './components/ResponseMessage';
 import { SESSION_API } from './API/session';
 import InvisibleInputNode from './components/InvisibleInputNode';
 import { InvisibleOutputNode } from './components/InvisibleOutputNode';
+import InvisibleBlock from './models/InvisibleBlock';
 
 // just for temporary use
 let node1 = new Block('customNode', { x: 10, y: 0 }, { label: 'Leaky ReLU' }, [
@@ -145,11 +146,52 @@ export default function App() {
   const handleDuplicateNode = (node) => {
     let copy = {};
     if (node.type === 'superBlockNode') {
-      copy = new Superblock(node.type, { ...node.position, y: node.position.y - 10 }, { ...node.data, label: "copy of " + node.data.label}, []);
+      // copy the superblock
+      //// get children
+      const childrenId = nodes.find(e => e.id === node.id).children.filter(e => !e.includes('i') && !e.includes('o'));
+      let childrenNodes = [];
+
+      for(let childId of childrenId) {
+        childrenNodes.push(nodes.find(e => e.id === childId));
+      }
+
+      let pairIds = []
+
+      //// create children blocks
+      copy = childrenNodes.map(n => {
+        let b = new Block(n.type, { ...n.position }, { ...n.data, label: n.data.label }, n.parameters);
+        b = {...b, hidden: true, fn: n.fn };
+        pairIds.push([n.id, b.id]);
+        return b;
+      })
+
+      //// get the new blocksId
+      const newChildrenId = copy.map(e => e.id);
+      //// create superblock
+      let superblock = new Superblock(node.type, { ...node.position, y: node.position.y - 10 }, { ...node.data, label: "copy of " + node.data.label }, newChildrenId);
+      const invisibleInput = new InvisibleBlock(superblock.id + 'i', 'invisibleInputNode', { x: 2, y: 100 })
+      const invisibleOutput = new InvisibleBlock(superblock.id + 'o', 'invisibleOutputNode', { x: 300, y: 100 })
+      superblock.children.push(invisibleInput.id, invisibleOutput.id)
+      copy.push({...invisibleInput, hidden:true})
+      copy.push({...invisibleOutput, hidden:true})
+      copy.push(superblock);
+
+      // copy the edges
+      const edgesToCopy = edges.filter(e => childrenId.includes(e.source) || childrenId.includes(e.target)).map(e => {
+        // console.log(pairIds.find(e => { console.log(e, e.source) ; return e[0] == e.source}))
+        return {...e, 
+          source: e.source.includes('i') ? invisibleInput.id : pairIds.find(p => p[0] == e.source)[1], 
+          target: e.target.includes('o') ? invisibleOutput.id : pairIds.find(p => p[0] == e.target)[1]}
+      });
+
+      setEdges((prevEdges) => [...prevEdges, ...edgesToCopy])
+
     } else {
-      copy = new Block(node.type, {...node.position, y: node.position.y-10}, {...node.data, label: "copy of " + node.data.label}, node.parameters);
+
+      copy.push(new Block(node.type, {...node.position, y: node.position.y-10}, {...node.data, label: "copy of " + node.data.label}, node.parameters));
+
     }
-    setNodes((prevNodes) => [...prevNodes, copy])
+    setNodes((prevNodes) => [...prevNodes, ...copy])
   }
 
   const handleDownload = (networkParameters, fileType) => {

@@ -18,6 +18,12 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
         [setEdges],
     );
 
+    /**
+     * Creates a superblock and adds input and output invisible edges to it.
+     *
+     * @param {Array} listOfNodes - The list of nodes to be included in the superblock.
+     * @return {void} This function does not return a value.
+     */
     const createSuperblock = (listOfNodes) => {
         const children = listOfNodes.map(e => e.id)
 

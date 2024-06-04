@@ -118,7 +118,7 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
     }
 
     return(
-        <div style={{ height: '100vh', width: '105.5rem'}}>
+        <div className='reactflow-div' id="reactflow-div">
             <ReactFlow 
                 nodes={nodes} 
                 edges={edges}

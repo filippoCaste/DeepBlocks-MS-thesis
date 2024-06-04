@@ -27,6 +27,15 @@ const Sidebar = (props) => {
             handleDownload, handleUpload, learningRate, epochs, batchSize, loss, optimizer,
             setLearningRate, setEpochs, setBatchSize, setLoss, setOptimizer } = props;
 
+    // const viewportWidth = window.innerWidth;
+    // console.log(viewportWidth)
+    const zoomLevel = window.screen.width / window.innerWidth;
+    if (openMenu !== 'none') {
+        document.getElementById('reactflow-div').style.width = `${80 / zoomLevel}vw`;
+    } else if (document.getElementById('reactflow-div') != null) {
+        document.getElementById('reactflow-div').style.width = `${96.4 / zoomLevel}vw`;;
+    }
+
     return (
         <>
             <div className="sidebar">

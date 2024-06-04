@@ -5,15 +5,31 @@
                 "name": "Input",
                 "function": null,
                 "parameters": [
+                    { "name": "layer_type", "description": "Type of the layer", "value": null},
+                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
                     {"name": "input_file", "description": "Input file", "value": null}
                 ]
             }
         ],
         "Normalization": [
             {
-                "name": "Batch Normalization",
-                "function": "torch.nn.BatchNorm1d (for 1D data), torch.nn.BatchNorm2d (for 2D convolutional data)",
+                "name": "Batch Normalization 1D",
+                "function": "torch.nn.BatchNorm1d",
                 "parameters": [
+                    { "name": "layer_type", "description": "Type of the layer", "value": null},
+                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
+                    { "name": "features", "description": "Number of features", "value": null },
+                    { "name": "momentum", "description": "Momentum", "value": null },
+                    { "name": "eps", "description": "Epsilon", "value": null },
+                    { "name": "affine", "description": "Whether to use learnable affine parameters", "value": null }
+                ]
+            },
+            {
+                "name": "Batch Normalization 2D",
+                "function": "torch.nn.BatchNorm2d",
+                "parameters": [
+                    { "name": "layer_type", "description": "Type of the layer", "value": null},
+                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
                     { "name": "features", "description": "Number of features", "value": null },
                     { "name": "momentum", "description": "Momentum", "value": null },
                     { "name": "eps", "description": "Epsilon", "value": null },
@@ -24,6 +40,8 @@
                 "name": "Layer Normalization",
                 "function": "torch.nn.LayerNorm",
                 "parameters": [
+                    { "name": "layer_type", "description": "Type of the layer", "value": null},
+                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
                     { "name": "normalized_shape", "description": "Input size or shape", "value": null },
                     { "name": "eps", "description": "Epsilon", "value": null },
                     { "name": "elementwise_affine", "description": "Whether to apply affine transformation element-wise", "value": null }
@@ -35,6 +53,8 @@
                 "name": "Addition",
                 "function": "torch.add",
                 "parameters": [
+                    { "name": "layer_type", "description": "Type of the layer", "value": null},
+                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
                     { "name": "tensor1", "description": "First tensor", "value": null },
                     { "name": "tensor2", "description": "Second tensor", "value": null }
                 ]
@@ -43,6 +63,8 @@
                 "name": "Subtraction",
                 "function": "torch.sub",
                 "parameters": [
+                    { "name": "layer_type", "description": "Type of the layer", "value": null},
+                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
                     { "name": "tensor1", "description": "First tensor", "value": null },
                     { "name": "tensor2", "description": "Second tensor", "value": null }
                 ]
@@ -51,6 +73,8 @@
                 "name": "Multiplication",
                 "function": "torch.mul",
                 "parameters": [
+                    { "name": "layer_type", "description": "Type of the layer", "value": null},
+                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
                     { "name": "tensor1", "description": "First tensor", "value": null },
                     { "name": "tensor2", "description": "Second tensor", "value": null }
                 ]
@@ -59,6 +83,8 @@
                 "name": "Division",
                 "function": "torch.div",
                 "parameters": [
+                    { "name": "layer_type", "description": "Type of the layer", "value": null},
+                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
                     { "name": "tensor1", "description": "First tensor", "value": null },
                     { "name": "tensor2", "description": "Second tensor", "value": null }
                 ]
@@ -69,6 +95,8 @@
                 "name": "Dropout",
                 "function": "torch.nn.Dropout",
                 "parameters": [
+                    { "name": "layer_type", "description": "Type of the layer", "value": null},
+                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
                     { "name": "probability", "description": "Dropout probability", "value": null }
                 ]
             }
@@ -78,28 +106,38 @@
                 "name": "Sigmoid",
                 "function": "torch.nn.Sigmoid",
                 "parameters": [
-                    { "name": "input_tensor", "description": "Input tensor", "value": null }
+                    { "name": "layer_type", "description": "Type of the layer", "value": null},
+                    { "name": "input_tensor", "description": "Input tensor", "value": null },
+                    { "name": "output_tensor", "description": "Output tensor", "value": null }
                 ]
             },
             {
                 "name": "Tanh",
                 "function": "torch.nn.Tanh",
                 "parameters": [
-                    { "name": "input_tensor", "description": "Input tensor", "value": null }
+                    { "name": "layer_type", "description": "Type of the layer", "value": null},
+                    { "name": "input_tensor", "description": "Input tensor", "value": null },
+                    { "name": "output_tensor", "description": "Output tensor", "value": null }
+
                 ]
             },
             {
                 "name": "ReLU",
                 "function": "torch.nn.ReLU",
                 "parameters": [
-                    { "name": "input_tensor", "description": "Input tensor", "value": null }
+                    { "name": "layer_type", "description": "Type of the layer", "value": null},
+                    { "name": "input_tensor", "description": "Input tensor", "value": null },
+                    { "name": "output_tensor", "description": "Output tensor", "value": null }
                 ]
             },
             {
                 "name": "Leaky ReLU",
                 "function": "torch.nn.LeakyReLU",
                 "parameters": [
+                    { "name": "layer_type", "description": "Type of the layer", "value": null},
+                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
                     { "name": "input_tensor", "description": "Input tensor", "value": null },
+                    { "name": "output_tensor", "description": "Output tensor", "value": null },
                     { "name": "negative_slope", "description": "Negative slope", "value": null }
                 ]
             },
@@ -107,7 +145,10 @@
                 "name": "Softmax",
                 "function": "torch.nn.Softmax",
                 "parameters": [
+                    { "name": "layer_type", "description": "Type of the layer", "value": null},
+                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
                     { "name": "input_tensor", "description": "Input tensor", "value": null },
+                    { "name": "output_tensor", "description": "Output tensor", "value": null },
                     { "name": "dim", "description": "Dimension along which softmax will be computed", "value": null }
                 ]
             },
@@ -115,6 +156,8 @@
                 "name": "Multihead Attention",
                 "function": "torch.nn.MultiheadAttention",
                 "parameters": [
+                    { "name": "layer_type", "description": "Type of the layer", "value": null},
+                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
                     { "name": "dim", "description": "Total dimension of model input", "value": null },
                     { "name": "parallel_attention_heads", "description": "Number of parallel attention heads", "value": null },
                     { "name": "dropout_probability", "description": "Dropout probability", "value": null },
@@ -128,7 +171,10 @@
                 "name": "Max Pooling",
                 "function": "torch.nn.MaxPool2d",
                 "parameters": [
+                    { "name": "layer_type", "description": "Type of the layer", "value": null},
+                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
                     { "name": "input_tensor", "description": "Input tensor", "value": null },
+                    { "name": "output_tensor", "description": "Output tensor", "value": null },
                     { "name": "kernel_size", "description": "Kernel size", "value": null },
                     { "name": "stride", "description": "Stride", "value": null },
                     { "name": "padding", "description": "Padding", "value": null }
@@ -138,7 +184,10 @@
                 "name": "Average Pooling",
                 "function": "torch.nn.AvgPool2d",
                 "parameters": [
+                    { "name": "layer_type", "description": "Type of the layer", "value": null},
+                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
                     { "name": "input_tensor", "description": "Input tensor", "value": null },
+                    { "name": "output_tensor", "description": "Output tensor", "value": null },
                     { "name": "kernel_size", "description": "Kernel size", "value": null },
                     { "name": "stride", "description": "Stride", "value": null },
                     { "name": "padding", "description": "Padding", "value": null }

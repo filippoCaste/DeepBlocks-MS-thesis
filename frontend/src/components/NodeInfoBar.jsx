@@ -8,9 +8,10 @@ import Row from "react-bootstrap/Row";
 
 export default function NodeInfoBar(props) {
 
-    const [selectedTab, setSelectedTab] = useState('Parameters');
-
     const node = props.nodeInfo;
+
+    const [selectedTab, setSelectedTab] = useState('Parameters');
+    const [layerType, setLayerType] = useState(null);
 
     const topBarOptions = ['Parameters', 'Info']
 
@@ -24,6 +25,10 @@ export default function NodeInfoBar(props) {
     }
 
     const setParameterValue = (name, value) => {
+        console.log(name, value)
+        if(name === 'layer_type') {
+            setLayerType(value);
+        }
         node.parameters.filter(e => e.name === name)[0].value = value
     }
 
@@ -40,7 +45,7 @@ export default function NodeInfoBar(props) {
                 }}>X</p>
             </div>
             <div style={{ overflowY: 'auto' }}>
-                {selectedTab === 'Parameters' && <ParametersTab node={node} setParameterValue={setParameterValue} />}
+                {selectedTab === 'Parameters' && <ParametersTab node={node} setParameterValue={setParameterValue} layerType={layerType} />}
                 {selectedTab === 'Info' && <InfoTab node={node} />}
             </div>
         </div>
@@ -48,15 +53,52 @@ export default function NodeInfoBar(props) {
 }
 
 function ParametersTab(props) {
-    const { node } = props;
+    const { node, layerType } = props;
 
     return (
         <Container>
+            <Row style={{justifyContent: 'space-between'}}>
+                <Col md={4}>
+                    {node.parameters.filter(e => e.name !== 'layer_type').map(e => {
+                        return <FormInput key={"node-"+node.id+"-"+e.name} name={e.name} value={e.value} description={e.description} setParameterValue={props.setParameterValue}/>
+                    })}
+                </Col>
+                <Col md={4}>
+                    <Row className="mb-3" style={{ justifyContent: 'space-between' }}>
+                        <Col md={7}>
+                            <p>LAYER TYPE</p>
+                            <Form.Group onChange={(e) => props.setParameterValue("layer_type", e.target.value)}>
+                                <Form.Check
+                                    type={'radio'}
+                                    name='layerType'
+                                    value="2dconv"
+                                    label={"2D Convolution"}
+                                    id={`2dconv-${node.id}`}
+                                />
 
-            {node.parameters.map(e => {
-                return <FormInput key={"node-"+node.id+"-"+e.name} name={e.name} value={e.value} description={e.description} setParameterValue={props.setParameterValue}/>
-            })}
+                                <Form.Check
+                                    type={'radio'}
+                                    value="fc"
+                                    name='layerType'
+                                    label={"Fully Connected"}
+                                    id={`fc-${node.id}`}
+                                />
 
+                                <Form.Check
+                                    type={'radio'}
+                                    value={null}
+                                    name='layerType'
+                                    label={"None"}
+                                    id={`none-${node.id}`}
+                                />
+                            </Form.Group>
+
+                            {layerType === '2dconv' && <div className="mt-3"> <FormInput key={"node-" + node.id + "-kernel_size"} name="kernel_size" value={null} description="Size of the convolving kernel" setParameterValue={props.setParameterValue} /> </div>}
+
+                        </Col>
+                    </Row>
+                </Col>
+            </Row>
         </Container>
     )
 }
@@ -66,11 +108,12 @@ function FormInput(props) {
     const { name, value, description, setParameterValue } = props;
 
     return (
-        <Row className="mb-3">
+        <Row className="mb-3" style={{justifyContent: 'space-between', verticalAlign: 'middle'}}>
             <Col md={1}>
                 <Form.Label>{name}</Form.Label>
             </Col>
-            <Col md={`${name==='input_file' ? 4 : 3}`}>
+            {/* <Col md={`${name==='input_file' ? 4 : 3}`}> */}
+            <Col md={4}>
                 <Form.Group >
                     <Form.Control
                         defaultValue={value!='null' ? value : ''}
@@ -80,9 +123,9 @@ function FormInput(props) {
                     />
                 </Form.Group>
             </Col>
-            <Col md={7}>
+            {/* <Col md={3}>
                 <Form.Label>{description}</Form.Label>
-            </Col>
+            </Col> */}
         </Row>
     );
 }

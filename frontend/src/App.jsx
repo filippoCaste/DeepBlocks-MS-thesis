@@ -21,11 +21,16 @@ import InvisibleBlock from './models/InvisibleBlock';
 
 // just for temporary use
 let node1 = new Block('customNode', { x: 10, y: 0 }, { label: 'Leaky ReLU' }, [
-  { name: "input_tensor", description: "Input tensor", value: 'null' }, 
-  { name: "negative_slope", description: "Negative slope", value: 'null' }], 'torch.nn.functional.leaky_relu');
+  { "name": "layer_type", "description": "Type of the layer", "value": null },
+  { "name": "input_tensor", "description": "Input tensor", "value": null },
+  { "name": "output_tensor", "description": "Output tensor", "value": null },
+  { "name": "negative_slope", "description": "Negative slope", "value": null }
+  ], 'torch.nn.functional.leaky_relu');
 
 let node2 = new Block('customNode', { x: 10, y: 100 }, { label: 'ReLU' }, [
-    { name: "input_tensor", description: "Input tensor", value: null }
+  { "name": "layer_type", "description": "Type of the layer", "value": null },
+  { "name": "input_tensor", "description": "Input tensor", "value": null },
+  { "name": "output_tensor", "description": "Output tensor", "value": null }
 ], 'torch.relu');
 
 node1.hidden = true;

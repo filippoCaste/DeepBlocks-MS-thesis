@@ -1,29 +1,78 @@
-# network_creation/model.py
+# network_generation/model.py
 
 import numpy as np
 import torch, os, packaging
 import torch.nn as nn
 import torch.optim as optim
+from datasets import load_dataset, Audio, Image
 
-def create_model(nodes, edges, params):
+from network_generation.pytorch_functions import valid_pytorch_functions
 
-    # list of list of nodes
-    nodes_list = order_nodes(nodes, edges)
+############################################################################################################
+#                                                 TRAINING                                                 #
+############################################################################################################
 
-    print(nodes_list)
+def train_model(nodes, edges, params, user_id, file_names):
+    model = create_model(nodes, edges)
 
-    # transfor string into modules
-    modules = [eval(node.function) () for node in nodes_list if node.function]
+    n_epochs, lr, batch_size, loss, optimizer = set_parameters(params, model.parameters())
 
-    # for node in nodes_list:
-    #     if node.get('function') != 'None':
-    #         modules = eval(node.get('function'))
+    print(n_epochs, lr, batch_size, loss, optimizer)
+
+    # dataset = np.loadtxt(os.path.join(f'./uploads/{user_id}/{file_names[0]}'))
+    dataset = np.genfromtxt(os.path.join(f'./uploads/{user_id}/{file_names[0]}'), delimiter=None)
+    num_columns = dataset.shape[1]
+
+    X = dataset[:,0:num_columns-1] 
+    y = dataset[:,num_columns-1]
+
+    X = torch.tensor(X, dtype=torch.float32)
+    y = torch.tensor(y, dtype=torch.float32).reshape(-1,1)
+
+    for epoch in range(n_epochs):
+        for i in range(0, len(X), batch_size):
+            Xbatch = X[i:i+batch_size]
+            ybatch = y[i:i+batch_size]
+
+            optimizer.zero_grad()
+            y_pred = model(Xbatch)
+            ybatch = ybatch.expand_as(y_pred)
+
+            loss = loss_fn(y_pred, ybatch)
+            loss.backward()
+            optimizer.step()
+
+        print(f'Finished epoch {epoch}, latest loss {loss}')
     
-    # create the corresponding model
-    model = nn.Sequential(*modules)
+def set_parameters(params, model_parameters):
+    n_epochs = 0
+    lr = 0
+    batch_size = 0
+    loss = None
+    optimizer = None
 
-    return model
+    for param in params:
+        if param.key == "epochs":
+            n_epochs = int(param.value)
+        elif param.key == "learningRate":
+            lr = float(param.value)
+        elif param.key == "batchSize":
+            batch_size = int(param.value)
+        elif param.key == "loss":
+            # can be CE or MSE
+            if param.value == "CE":
+                loss = nn.CrossEntropyLoss()
+            elif param.value == "MSE":
+                loss = nn.MSELoss()
 
+        elif param.key == "optimizer":
+            # can be Adam or SGD
+            if param.value == "Adam":
+                optimizer = optim.Adam(model_parameters, lr=lr)
+            elif param.value == "SGD":
+                optimizer = optim.SGD(model_parameters, lr=lr)
+
+    return n_epochs, lr, batch_size, loss, optimizer
 
 def order_nodes(nodes, edges):
     input_nodes = []
@@ -86,7 +135,55 @@ def recursive(edges, src_node, nodes_list):
             cpy_edges = [e for e in edges if e is not None and e.source != src_node and e.target != edge.target]
             recursive(cpy_edges, res, nodes_list)
 
+def create_model(nodes, edges):
 
+    # list of list of nodes
+    nodes_list = order_nodes(nodes, edges)
+
+    print(nodes_list)
+
+    # transform string into modules
+    modules = []
+    for node in nodes_list:
+        try:
+            fn_name = node.function.split(".")[-1]
+            fn =  valid_pytorch_functions.get(fn_name)
+
+            if fn is not None:
+                if hasattr(torch.nn, fn_name):
+                    module_class = getattr(torch.nn, fn_name)
+                    params = get_params_values(node)
+
+                    if get_layer_type(node) == "2dconv":
+                        conv = getattr(torch.nn, "Conv2d")
+                        modules.append(conv(params.get('input_tensor'), params.get('output_tensor'), params.get('kernel_size')))
+                    elif get_layer_type(node) == "fc":
+                        lin = getattr(torch.nn, "Linear")
+                        modules.append(lin(params.get('input_tensor'), params.get('output_tensor')))
+                    modules.append(module_class())
+                else:
+                    print("module not found ", fn)
+
+        except Exception as e:
+            print("Not found ", node.function)
+            print(e)
+
+    # create the corresponding model
+    model = nn.Sequential(*modules)
+
+    return model
+
+def get_layer_type(node):
+    for param in node.parameters:
+        if param.key == "layer_type":
+            return param.value
+    return None
+
+def get_params_values(node):
+    params = {}
+    for param in node.parameters:
+        params[param.get('key')] = param.get('value')
+    return params
 
 ############################################################################################################
 #                                                   EXPORT                                                 #
@@ -99,8 +196,7 @@ def export_to_onnx(nodes, edges, params, file_name, uid):
         onnx_file = torch.onnx.export(model, torch.randn(1, 1, 32, 32), os.path.join(f'converted/{uid}',file_name), verbose=True)
         return True
     except Exception as e:
-        print(e)
-        return False
+        raise Exception("Error while converting the model to onnx")
 
 def export_to_pth(nodes, edges, params, file_name, uid):
 
@@ -111,4 +207,4 @@ def export_to_pth(nodes, edges, params, file_name, uid):
         return True
     except Exception as e:
         print(e)
-        return False
+        raise Exception("Error while converting the model to pth")

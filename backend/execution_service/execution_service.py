@@ -30,10 +30,12 @@ class Executor(TrainerServicer):
         uid = USERS_ID
         USERS_ID += 1
 
+        file_names = []
         os.makedirs('uploads/' + str(uid), exist_ok=True)
         if len(request.files) != 0:
             for file in request.files:
                 file_path = os.path.join(UPLOAD_DIRECTORY, str(uid), file.file_name)
+                file_names.append(file.file_name)
                 with open(file_path, 'wb') as w_file:
                     w_file.write(file.file_data)
         
@@ -47,7 +49,25 @@ class Executor(TrainerServicer):
         return NetworkResult(status="200", message="OK, completed")
 
     def ExportNetwork(self, request, context):
+        """
+        Exports a network to a file of the specified type.
 
+        Args:
+            request (Network): The Network object containing the list of files to be exported.
+                The files are expected to be in the format {'file_name': 'test.pth', 'file_data': b'000'}.
+            context: The context object for the RPC call.
+
+        Returns:
+            File: The exported file as a File object.
+
+        Raises:
+            None
+
+        Side Effects:
+            - Creates a directory named 'converted' and a subdirectory with the user ID.
+            - Exports the network to a file of the specified type using the export_to_onnx or export_to_pth function.
+            - Deletes the subdirectory with the user ID when the export is completed.
+        """
         # the request contain the Network object which contains a list of files `files` that in this case
         # will contain {'file_name': 'test.pth', 'file_data': b'000'}
 

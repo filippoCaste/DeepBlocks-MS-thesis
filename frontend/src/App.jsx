@@ -176,7 +176,7 @@ export default function App() {
       const newChildrenId = copy.map(e => e.id);
       //// create superblock
       let superblock = new Superblock(node.type, { ...node.position, y: node.position.y - 10 }, { ...node.data, label: "copy of " + node.data.label, hasSheet: false, isOpenInSheet: false, openInfo: false }, newChildrenId);
-      const invisibleInput = new InvisibleBlock(superblock.id + 'i', 'invisibleInputNode', { x: 2, y: 100 })
+      const invisibleInput = new InvisibleBlock(superblock.id + 'i', 'invisibleInputNode', { x: -250, y: 100 })
       const invisibleOutput = new InvisibleBlock(superblock.id + 'o', 'invisibleOutputNode', { x: 300, y: 100 })
       superblock.children.push(invisibleInput.id, invisibleOutput.id)
       copy.push({...invisibleInput, hidden:true})

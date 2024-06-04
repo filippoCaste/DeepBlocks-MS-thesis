@@ -66,7 +66,7 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
         // create a new edge between the first possible input and the first possible output
         const superblock = new Superblock('superBlockNode', { x: 10, y: 10 }, { label: 'new superblock', isSelected: false }, children)
 
-        const invisibleInput = new InvisibleBlock(superblock.id + 'i', 'invisibleInputNode', { x: 2, y: 100 })
+        const invisibleInput = new InvisibleBlock(superblock.id + 'i', 'invisibleInputNode', { x: -250, y: 100 })
         const invisibleOutput = new InvisibleBlock(superblock.id + 'o', 'invisibleOutputNode', { x: 300, y: 100 })
         superblock.children.push(invisibleInput.id, invisibleOutput.id)
 
@@ -100,6 +100,7 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
             } else if (nodeFound.type == 'superBlockNode') {
                 if(sheets.filter(e => e[0] == nodeFound.id).length === 0) {
                     setSheets((oldSheets) => [...oldSheets, [nodeFound.id, nodeFound.data.label]]);
+                    setSelectedSheet([nodeFound.id, nodeFound.data.label])
                 }
             }
         }

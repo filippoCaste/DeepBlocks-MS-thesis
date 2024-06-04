@@ -180,6 +180,7 @@
     max-width: 200px;
     display: flex;
     justify-content: space-between;
+    border-right: #555 solid 2px;
 }
 
 .sheet p {

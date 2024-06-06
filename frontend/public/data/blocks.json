@@ -2,14 +2,23 @@
     "blocks": {
         "Input": [
             {
-                "name": "Input",
+                "name": "Input File",
                 "function": null,
                 "parameters": [
-                    { "name": "layer_type", "description": "Type of the layer", "value": null},
-                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
                     {"name": "input_file", "description": "Input file", "value": null}
                 ]
+            },
+            {
+                "name": "Input Dataset (from huggingface.co)",
+                "function": null,
+                "parameters": [
+                    {"name": "input_dataset", "description": "Input dataset (e.g. 'dair-ai/emotion')", "value": null},
+                    {"name": "dataset_split", "description": "Dataset split (e.g. 'train', 'validation', 'test')", "value": null},
+                    {"name": "dataset_type", "description": "Dataset type (currently could be either 'text' or 'image')", "value": null},
+                    {"name": "dataset_config", "description": "Dataset configuration (e.g. 'default'). This is indicated when you click in the 'Use in the library' button as a second argument of the load_dataset function.", "value": null}
+                ]
             }
+
         ],
         "Normalization": [
             {

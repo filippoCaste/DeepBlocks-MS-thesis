@@ -23,32 +23,33 @@ def resize_images(ds_batch):
 
 def train_model(nodes, edges, params, user_id, uploads):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+    ds_config = None
     for node in nodes:
         if(node.parameters[0].key == 'input_dataset'):
-            ds_info = node.parameters[0].value
-            # ds = ds_info.split(",")[0]
-            # ds_specific = ds_info.split(",")[1]
+            ds_name = node.parameters[0].value
+            ds_split = node.parameters[1].value
+            ds_type = node.parameters[2].value
+            ds_config = node.parameters[3].value
             break
 
-    ds_type = "text"
-
-    # print("hello",ds, ds_info, ds_specific)
-
-    # if ds is None:
-    #     raise ValueError("Input dataset not specified in nodes")
+    if ds_name is None or ds_type is None or ds_split is None:
+        raise ValueError("Input dataset informations are not correct")
 
     model = create_model(nodes, edges)
 
     n_epochs, lr, batch_size, loss_fn, optimizer = set_parameters(params, model.parameters())
     # print(n_epochs, lr, batch_size, loss_fn, optimizer)
 
-    # if ds_specific is not None:
-    #     dataset = load_dataset(ds, ds_specific, split='test')
-    # else: 
-    #     dataset = load_dataset(ds, split='test')
-    dataset = load_dataset(ds_info, split='test')
-    print(dataset)
+    # print(ds_name, ds_split, ds_type, ds_config)
+    if ds_config == 'None':
+        dataset = load_dataset(ds_name, split=ds_split)
+    else: 
+        dataset = load_dataset(ds_name, ds_config, split=ds_split)
+
+    # print(dataset)
+
+    if dataset is None:
+        raise Exception("Dataset not found")
 
     if ds_type == "text":
         auto_model = AutoModelForSequenceClassification.from_pretrained("bert-base-uncased")
@@ -71,9 +72,8 @@ def train_model(nodes, edges, params, user_id, uploads):
         total_loss = 0
         for batch in data_loader:
             # print(f"Batch type: {type(batch)}")
-            print("batch in execution")           
-            
-            
+            print("batch in execution")
+
             labels_batch = batch["label"]
 
             if ds_type == 'text':
@@ -85,7 +85,6 @@ def train_model(nodes, edges, params, user_id, uploads):
                 image_batch = batch["pixel_values"]
                 inputs = feature_extractor(images=image_batch, return_tensors="pt")
                 input_ids = inputs['pixel_values'].to(device)
-                # attention_mask = inputs['pixel_values'].to(device)
 
             #######################################################################################################
             optimizer.zero_grad()

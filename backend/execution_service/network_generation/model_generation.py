@@ -4,7 +4,13 @@ import numpy as np
 import torch, os, packaging
 import torch.nn as nn
 import torch.optim as optim
+import torch.nn.functional as F
 from datasets import load_dataset, Audio, Image
+from transformers import AutoModelForSequenceClassification, AutoTokenizer, BertTokenizer
+from torch.utils.data import DataLoader, default_collate
+import evaluate
+from torchvision import transforms
+from PIL import Image
 
 from network_generation.pytorch_functions import valid_pytorch_functions
 
@@ -12,38 +18,91 @@ from network_generation.pytorch_functions import valid_pytorch_functions
 #                                                 TRAINING                                                 #
 ############################################################################################################
 
-def train_model(nodes, edges, params, user_id, file_names):
+def train_model(nodes, edges, params, user_id, uploads):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    for node in nodes:
+        if(node.parameters[0].key == 'input_dataset'):
+            ds_info = node.parameters[0].value
+            # ds = ds_info.split(",")[0]
+            # ds_specific = ds_info.split(",")[1]
+            break
+
+    # print("hello",ds, ds_info, ds_specific)
+
+    # if ds is None:
+    #     raise ValueError("Input dataset not specified in nodes")
+
     model = create_model(nodes, edges)
 
-    n_epochs, lr, batch_size, loss, optimizer = set_parameters(params, model.parameters())
+    n_epochs, lr, batch_size, loss_fn, optimizer = set_parameters(params, model.parameters())
+    # print(n_epochs, lr, batch_size, loss_fn, optimizer)
 
-    print(n_epochs, lr, batch_size, loss, optimizer)
+    # if ds_specific is not None:
+    #     dataset = load_dataset(ds, ds_specific, split='test')
+    # else: 
+    #     dataset = load_dataset(ds, split='test')
+    dataset = load_dataset(ds_info, split='test')
+    print(dataset)
 
-    # dataset = np.loadtxt(os.path.join(f'./uploads/{user_id}/{file_names[0]}'))
-    dataset = np.genfromtxt(os.path.join(f'./uploads/{user_id}/{file_names[0]}'), delimiter=None)
-    num_columns = dataset.shape[1]
+    auto_model = AutoModelForSequenceClassification.from_pretrained("bert-base-uncased")
+    auto_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
-    X = dataset[:,0:num_columns-1] 
-    y = dataset[:,num_columns-1]
+    auto_model.classifier = model
+    auto_model.to(device)
 
-    X = torch.tensor(X, dtype=torch.float32)
-    y = torch.tensor(y, dtype=torch.float32).reshape(-1,1)
+    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
+
+    # accuracy = evaluate.load("accuracy")
 
     for epoch in range(n_epochs):
-        for i in range(0, len(X), batch_size):
-            Xbatch = X[i:i+batch_size]
-            ybatch = y[i:i+batch_size]
+        auto_model.train()
+        total_loss = 0
+        for batch in data_loader:
+            # print(f"Batch type: {type(batch)}")
+            print("batch in execution")           
+            
+            text_batch = batch["text"]
+            labels_batch = batch["label"]
+
+            encoded_input = auto_tokenizer(text_batch, padding=True, truncation=True, return_tensors='pt')
+            input_ids = encoded_input['input_ids'].to(device)
+            attention_mask = encoded_input['attention_mask'].to(device)
+
 
             optimizer.zero_grad()
-            y_pred = model(Xbatch)
-            ybatch = ybatch.expand_as(y_pred)
 
-            loss = loss_fn(y_pred, ybatch)
+            outputs = auto_model(input_ids, attention_mask)
+
+            loss = loss_fn(outputs.logits, labels_batch.to(device))
+            
+            total_loss += loss.item()
+
             loss.backward()
             optimizer.step()
 
-        print(f'Finished epoch {epoch}, latest loss {loss}')
-    
+        print(f"Epoch {epoch+1}, Loss: {total_loss / len(data_loader)}")
+        evaluate_model(auto_model, data_loader, device, loss_fn, metric)
+
+    # Final evaluation
+    print("Final Evaluation")
+    # evaluate_model(auto_model, data_loader, device, loss_fn, metric)
+
+def collate_fn(batch):
+    resize_transform = transforms.Compose([
+        transforms.Resize((256, 256)),
+        transforms.ToTensor()
+    ])
+
+    for sample in batch:
+        if 'image' in sample:
+            sample['image'] = resize_transform(sample['image'])
+    return default_collate(batch)
+
+############################################################################################################
+#                                                  UTILS                                                   #
+############################################################################################################
+
 def set_parameters(params, model_parameters):
     n_epochs = 0
     lr = 0
@@ -78,7 +137,7 @@ def order_nodes(nodes, edges):
     input_nodes = []
     for node in nodes:
         for param in node.parameters:
-            if param.key == "input_file":
+            if param.key == "input_file" or param.key == "input_dataset":
                 input_nodes.append(node)
                 break
 
@@ -156,21 +215,26 @@ def create_model(nodes, edges):
 
                     if get_layer_type(node) == "2dconv":
                         conv = getattr(torch.nn, "Conv2d")
-                        modules.append(conv(params.get('input_tensor'), params.get('output_tensor'), params.get('kernel_size')))
+                        modules.append(conv(int(params.get('input_tensor')), int(params.get('output_tensor')), int(params.get('kernel_size'))))
                     elif get_layer_type(node) == "fc":
                         lin = getattr(torch.nn, "Linear")
-                        modules.append(lin(params.get('input_tensor'), params.get('output_tensor')))
+                        modules.append(lin(int(params.get('input_tensor')), int(params.get('output_tensor'))))
+                    
                     modules.append(module_class())
+
                 else:
                     print("module not found ", fn)
 
         except Exception as e:
-            print("Not found ", node.function)
+            print("ERROR IN LAYER --> ", node.function)
             print(e)
 
+    print(modules)
     # create the corresponding model
     model = nn.Sequential(*modules)
-
+    
+    print("Model created --> ",model)
+    
     return model
 
 def get_layer_type(node):
@@ -182,11 +246,11 @@ def get_layer_type(node):
 def get_params_values(node):
     params = {}
     for param in node.parameters:
-        params[param.get('key')] = param.get('value')
+        params[param.key] = param.value
     return params
 
 ############################################################################################################
-#                                                   EXPORT                                                 #
+#                                                  EXPORT                                                  #
 ############################################################################################################
 def export_to_onnx(nodes, edges, params, file_name, uid):
 

@@ -3,7 +3,7 @@ from concurrent import futures
 from proto.proto_pb2 import NetworkResult, File
 from proto.proto_pb2_grpc import TrainerServicer, add_TrainerServicer_to_server
 
-from network_generation.model_generation import export_to_onnx, export_to_pth, create_model
+from network_generation.model_generation import export_to_onnx, export_to_pth, train_model
 
 MAX_MESSAGE_LENGTH = 100 * 1024 * 1024
 UPLOAD_DIRECTORY = 'uploads'
@@ -43,10 +43,19 @@ class Executor(TrainerServicer):
         shutil.rmtree('uploads/' + str(uid))
         print(request.nodes)
         print(request.edges)
-        model = create_model(request.nodes, request.edges, request.parameters)
-        print(model)
+        print(request.files)
+        try:
+            train_model(request.nodes, request.edges, request.parameters, uid, file_names)
+            response = NetworkResult(status="200", message="OK, completed", parameters=[])
 
-        return NetworkResult(status="200", message="OK, completed")
+        except ValueError as ve:
+            print(ve)
+            response = NetworkResult(status="400", message=str(ve))
+        except Exception as e:
+            print(e)
+            response = NetworkResult(status="500", message=str(e))
+
+        return response
 
     def ExportNetwork(self, request, context):
         """
@@ -80,10 +89,10 @@ class Executor(TrainerServicer):
         os.makedirs('converted/' + str(uid), exist_ok=True)
 
         if file_type == 'onnx':
-            export_to_onnx(request.nodes, request.edges, request.parameters, request.files[0].file_name,uid)
+            export_to_onnx(request.nodes, request.edges, request.files[0].file_name,uid)
 
         if file_type == 'pth':
-            export_to_pth(request.nodes, request.edges, request.parameters, request.files[0].file_name, uid)
+            export_to_pth(request.nodes, request.edges, request.files[0].file_name, uid)
 
         with open(os.path.join(CONVERTED_DIRECTORY+"/"+str(uid), request.files[0].file_name), 'rb') as r_file:
             ret_file = File(file_data=r_file.read(), file_name=request.files[0].file_name)
@@ -100,6 +109,7 @@ def serve():
     add_TrainerServicer_to_server(Executor(), server)
     server.add_insecure_port('[::]:50051')
     server.start()
+    print("GRPC Server listening on port 50051")
     server.wait_for_termination()
 
 if __name__ == '__main__':

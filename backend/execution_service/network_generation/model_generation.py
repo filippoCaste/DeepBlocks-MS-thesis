@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 from datasets import load_dataset, Audio, Image
-from transformers import AutoModelForSequenceClassification, AutoTokenizer, BertTokenizer
+from transformers import AutoModelForSequenceClassification, AutoTokenizer, BertTokenizer, ViTForImageClassification, ViTImageProcessor
 from torch.utils.data import DataLoader, default_collate
 import evaluate
 from torchvision import transforms
@@ -17,6 +17,9 @@ from network_generation.pytorch_functions import valid_pytorch_functions
 ############################################################################################################
 #                                                 TRAINING                                                 #
 ############################################################################################################
+def resize_images(ds_batch):
+    ds_batch["pixel_values"] = [image.convert("RGB").resize((100,100)) for image in ds_batch["image"]]
+    return ds_batch
 
 def train_model(nodes, edges, params, user_id, uploads):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -27,6 +30,8 @@ def train_model(nodes, edges, params, user_id, uploads):
             # ds = ds_info.split(",")[0]
             # ds_specific = ds_info.split(",")[1]
             break
+
+    ds_type = "text"
 
     # print("hello",ds, ds_info, ds_specific)
 
@@ -45,9 +50,15 @@ def train_model(nodes, edges, params, user_id, uploads):
     dataset = load_dataset(ds_info, split='test')
     print(dataset)
 
-    auto_model = AutoModelForSequenceClassification.from_pretrained("bert-base-uncased")
-    auto_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    if ds_type == "text":
+        auto_model = AutoModelForSequenceClassification.from_pretrained("bert-base-uncased")
+        auto_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    elif ds_type == "image":
+        dataset = dataset.map(resize_images, remove_columns=["image"], batch_size=batch_size, batched=True)
+        auto_model = ViTForImageClassification.from_pretrained("google/vit-base-patch16-224")
+        feature_extractor = ViTImageProcessor.from_pretrained("google/vit-base-patch16-224")
 
+    # print(auto_model.config, feature_extractor.config)
     auto_model.classifier = model
     auto_model.to(device)
 
@@ -62,22 +73,32 @@ def train_model(nodes, edges, params, user_id, uploads):
             # print(f"Batch type: {type(batch)}")
             print("batch in execution")           
             
-            text_batch = batch["text"]
+            
             labels_batch = batch["label"]
 
-            encoded_input = auto_tokenizer(text_batch, padding=True, truncation=True, return_tensors='pt')
-            input_ids = encoded_input['input_ids'].to(device)
-            attention_mask = encoded_input['attention_mask'].to(device)
+            if ds_type == 'text':
+                text_batch = batch["text"]
+                encoded_input = auto_tokenizer(text_batch, padding=True, truncation=True, return_tensors='pt')
+                input_ids = encoded_input['input_ids'].to(device)
+                attention_mask = encoded_input['attention_mask'].to(device)
+            elif ds_type == 'image':
+                image_batch = batch["pixel_values"]
+                inputs = feature_extractor(images=image_batch, return_tensors="pt")
+                input_ids = inputs['pixel_values'].to(device)
+                # attention_mask = inputs['pixel_values'].to(device)
 
-
+            #######################################################################################################
             optimizer.zero_grad()
 
-            outputs = auto_model(input_ids, attention_mask)
-
+            # FORWARD PASS
+            if ds_type == 'text':
+                outputs = auto_model(input_ids, attention_mask)
+            elif ds_type == 'image':
+                outputs = auto_model(input_ids)
             loss = loss_fn(outputs.logits, labels_batch.to(device))
-            
             total_loss += loss.item()
 
+            # BACKWARD PASS
             loss.backward()
             optimizer.step()
 
@@ -90,13 +111,13 @@ def train_model(nodes, edges, params, user_id, uploads):
 
 def collate_fn(batch):
     resize_transform = transforms.Compose([
-        transforms.Resize((256, 256)),
+        # transforms.Resize((256, 256)),
         transforms.ToTensor()
     ])
 
     for sample in batch:
-        if 'image' in sample:
-            sample['image'] = resize_transform(sample['image'])
+        if 'pixel_values' in sample:
+            sample['pixel_values'] = resize_transform(sample['pixel_values'])
     return default_collate(batch)
 
 ############################################################################################################

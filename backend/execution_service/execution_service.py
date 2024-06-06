@@ -54,6 +54,7 @@ class Executor(TrainerServicer):
         except Exception as e:
             print(e)
             response = NetworkResult(status="500", message=str(e))
+            raise(Exception(e))
 
         return response
 

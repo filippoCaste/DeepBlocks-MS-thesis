@@ -39,6 +39,14 @@ class File(_message.Message):
     file_name: str
     def __init__(self, file_data: _Optional[bytes] = ..., file_name: _Optional[str] = ...) -> None: ...
 
+class Metric(_message.Message):
+    __slots__ = ("name", "value")
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    VALUE_FIELD_NUMBER: _ClassVar[int]
+    name: str
+    value: _containers.RepeatedScalarFieldContainer[float]
+    def __init__(self, name: _Optional[str] = ..., value: _Optional[_Iterable[float]] = ...) -> None: ...
+
 class Network(_message.Message):
     __slots__ = ("nodes", "edges", "parameters", "files")
     NODES_FIELD_NUMBER: _ClassVar[int]
@@ -52,11 +60,11 @@ class Network(_message.Message):
     def __init__(self, nodes: _Optional[_Iterable[_Union[Node, _Mapping]]] = ..., edges: _Optional[_Iterable[_Union[Edge, _Mapping]]] = ..., parameters: _Optional[_Iterable[_Union[Parameters, _Mapping]]] = ..., files: _Optional[_Iterable[_Union[File, _Mapping]]] = ...) -> None: ...
 
 class NetworkResult(_message.Message):
-    __slots__ = ("status", "message", "parameters")
+    __slots__ = ("status", "message", "metrics")
     STATUS_FIELD_NUMBER: _ClassVar[int]
     MESSAGE_FIELD_NUMBER: _ClassVar[int]
-    PARAMETERS_FIELD_NUMBER: _ClassVar[int]
+    METRICS_FIELD_NUMBER: _ClassVar[int]
     status: str
     message: str
-    parameters: _containers.RepeatedCompositeFieldContainer[Parameters]
-    def __init__(self, status: _Optional[str] = ..., message: _Optional[str] = ..., parameters: _Optional[_Iterable[_Union[Parameters, _Mapping]]] = ...) -> None: ...
+    metrics: _containers.RepeatedCompositeFieldContainer[Metric]
+    def __init__(self, status: _Optional[str] = ..., message: _Optional[str] = ..., metrics: _Optional[_Iterable[_Union[Metric, _Mapping]]] = ...) -> None: ...

@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0bproto.proto\"(\n\nParameters\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"E\n\x04Node\x12\n\n\x02id\x18\x01 \x01(\t\x12\x10\n\x08\x66unction\x18\x02 \x01(\t\x12\x1f\n\nparameters\x18\x03 \x03(\x0b\x32\x0b.Parameters\"&\n\x04\x45\x64ge\x12\x0e\n\x06source\x18\x01 \x01(\t\x12\x0e\n\x06target\x18\x02 \x01(\t\",\n\x04\x46ile\x12\x11\n\tfile_data\x18\x01 \x01(\x0c\x12\x11\n\tfile_name\x18\x02 \x01(\t\"l\n\x07Network\x12\x14\n\x05nodes\x18\x01 \x03(\x0b\x32\x05.Node\x12\x14\n\x05\x65\x64ges\x18\x02 \x03(\x0b\x32\x05.Edge\x12\x1f\n\nparameters\x18\x03 \x03(\x0b\x32\x0b.Parameters\x12\x14\n\x05\x66iles\x18\x04 \x03(\x0b\x32\x05.File\"Q\n\rNetworkResult\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x1f\n\nparameters\x18\x03 \x03(\x0b\x32\x0b.Parameters2Y\n\x07Trainer\x12*\n\x0cTrainNetwork\x12\x08.Network\x1a\x0e.NetworkResult\"\x00\x12\"\n\rExportNetwork\x12\x08.Network\x1a\x05.File\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0bproto.proto\"(\n\nParameters\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t\"E\n\x04Node\x12\n\n\x02id\x18\x01 \x01(\t\x12\x10\n\x08\x66unction\x18\x02 \x01(\t\x12\x1f\n\nparameters\x18\x03 \x03(\x0b\x32\x0b.Parameters\"&\n\x04\x45\x64ge\x12\x0e\n\x06source\x18\x01 \x01(\t\x12\x0e\n\x06target\x18\x02 \x01(\t\",\n\x04\x46ile\x12\x11\n\tfile_data\x18\x01 \x01(\x0c\x12\x11\n\tfile_name\x18\x02 \x01(\t\"%\n\x06Metric\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x03(\x02\"l\n\x07Network\x12\x14\n\x05nodes\x18\x01 \x03(\x0b\x32\x05.Node\x12\x14\n\x05\x65\x64ges\x18\x02 \x03(\x0b\x32\x05.Edge\x12\x1f\n\nparameters\x18\x03 \x03(\x0b\x32\x0b.Parameters\x12\x14\n\x05\x66iles\x18\x04 \x03(\x0b\x32\x05.File\"J\n\rNetworkResult\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x18\n\x07metrics\x18\x03 \x03(\x0b\x32\x07.Metric2Y\n\x07Trainer\x12*\n\x0cTrainNetwork\x12\x08.Network\x1a\x0e.NetworkResult\"\x00\x12\"\n\rExportNetwork\x12\x08.Network\x1a\x05.File\"\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -29,10 +29,12 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_EDGE']._serialized_end=166
   _globals['_FILE']._serialized_start=168
   _globals['_FILE']._serialized_end=212
-  _globals['_NETWORK']._serialized_start=214
-  _globals['_NETWORK']._serialized_end=322
-  _globals['_NETWORKRESULT']._serialized_start=324
-  _globals['_NETWORKRESULT']._serialized_end=405
-  _globals['_TRAINER']._serialized_start=407
-  _globals['_TRAINER']._serialized_end=496
+  _globals['_METRIC']._serialized_start=214
+  _globals['_METRIC']._serialized_end=251
+  _globals['_NETWORK']._serialized_start=253
+  _globals['_NETWORK']._serialized_end=361
+  _globals['_NETWORKRESULT']._serialized_start=363
+  _globals['_NETWORKRESULT']._serialized_end=437
+  _globals['_TRAINER']._serialized_start=439
+  _globals['_TRAINER']._serialized_end=528
 # @@protoc_insertion_point(module_scope)

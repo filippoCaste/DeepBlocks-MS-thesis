@@ -28,6 +28,11 @@ message File {
   string file_name = 2;
 }
 
+message Metric {
+  string name = 1;
+  repeated float value = 2;
+}
+
 message Network {
     repeated Node nodes = 1;
     repeated Edge edges = 2;
@@ -38,5 +43,5 @@ message Network {
 message NetworkResult {
   string status = 1;
   string message = 2;
-  repeated Parameters parameters = 3;
+  repeated Metric metrics = 3;
 }

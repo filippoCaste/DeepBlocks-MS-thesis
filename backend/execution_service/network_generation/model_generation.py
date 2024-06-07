@@ -42,9 +42,9 @@ def train_model(nodes, edges, params, user_id, uploads):
 
     # print(ds_name, ds_split, ds_type, ds_config)
     if ds_config == 'None':
-        dataset = load_dataset(ds_name, split=ds_split)
+        dataset = load_dataset(ds_name, split=ds_split, trust_remote_code=True)
     else: 
-        dataset = load_dataset(ds_name, ds_config, split=ds_split)
+        dataset = load_dataset(ds_name, ds_config, split=ds_split, trust_remote_code=True)
 
     # print(dataset)
 
@@ -59,54 +59,88 @@ def train_model(nodes, edges, params, user_id, uploads):
         auto_model = ViTForImageClassification.from_pretrained("google/vit-base-patch16-224")
         feature_extractor = ViTImageProcessor.from_pretrained("google/vit-base-patch16-224")
 
-    # print(auto_model.config, feature_extractor.config)
     auto_model.classifier = model
     auto_model.to(device)
 
     data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
 
-    # accuracy = evaluate.load("accuracy")
+    accuracy_metric = evaluate.load("accuracy")
+    precision_metric = evaluate.load("precision")
+    recall_metric = evaluate.load("recall")
+    f1_metric = evaluate.load("f1")
+
+    metrics = {
+        "loss": [],
+        "accuracy": [],
+        "precision": [],
+        "recall": [],
+        "f1_score": []
+    }    
 
     for epoch in range(n_epochs):
         auto_model.train()
+        # model.train()
         total_loss = 0
         for batch in data_loader:
             # print(f"Batch type: {type(batch)}")
             print("batch in execution")
+            optimizer.zero_grad()
 
-            labels_batch = batch["label"]
+            labels_batch = batch["label"].to(device)
 
             if ds_type == 'text':
                 text_batch = batch["text"]
                 encoded_input = auto_tokenizer(text_batch, padding=True, truncation=True, return_tensors='pt')
                 input_ids = encoded_input['input_ids'].to(device)
                 attention_mask = encoded_input['attention_mask'].to(device)
+                outputs = auto_model(input_ids=input_ids, attention_mask=attention_mask)
+
             elif ds_type == 'image':
                 image_batch = batch["pixel_values"]
                 inputs = feature_extractor(images=image_batch, return_tensors="pt")
                 input_ids = inputs['pixel_values'].to(device)
+                outputs = auto_model(input_ids=input_ids)
 
             #######################################################################################################
-            optimizer.zero_grad()
 
             # FORWARD PASS
-            if ds_type == 'text':
-                outputs = auto_model(input_ids, attention_mask)
-            elif ds_type == 'image':
-                outputs = auto_model(input_ids)
-            loss = loss_fn(outputs.logits, labels_batch.to(device))
+            loss = loss_fn(outputs.logits, labels_batch)
             total_loss += loss.item()
+
+            # EVALUATION STEP
+            predictions = torch.argmax(outputs.logits, dim=-1)
+
+            accuracy_metric.add_batch(predictions=predictions, references=labels_batch)
+            precision_metric.add_batch(predictions=predictions, references=labels_batch)
+            recall_metric.add_batch(predictions=predictions, references=labels_batch)
+            f1_metric.add_batch(predictions=predictions, references=labels_batch)
 
             # BACKWARD PASS
             loss.backward()
             optimizer.step()
 
-        print(f"Epoch {epoch+1}, Loss: {total_loss / len(data_loader)}")
-        evaluate_model(auto_model, data_loader, device, loss_fn, metric)
+        # Epoch evaluation
+        accuracy = accuracy_metric.compute()
+        precision = precision_metric.compute(average='weighted')
+        recall = recall_metric.compute(average='weighted')
+        f1 = f1_metric.compute(average='weighted')
+        
+        metrics["loss"].append(total_loss / len(data_loader))
+        metrics["accuracy"].append(accuracy)
+        metrics["precision"].append(precision)
+        metrics["recall"].append(recall)
+        metrics["f1_score"].append(f1)
+
+        print(f"Epoch {epoch+1}, Loss: {total_loss / len(data_loader)}, Accuracy: {accuracy}, Precision: {precision}, Recall: {recall}, F1-Score: {f1}")
 
     # Final evaluation
     print("Final Evaluation")
-    # evaluate_model(auto_model, data_loader, device, loss_fn, metric)
+    print(f"Accuracy: {metrics['accuracy'][-1]}")
+    print(f"Precision: {metrics['precision'][-1]}")
+    print(f"Recall: {metrics['recall'][-1]}")
+    print(f"F1-Score: {metrics['f1_score'][-1]}")
+
+    return metrics
 
 def collate_fn(batch):
     resize_transform = transforms.Compose([

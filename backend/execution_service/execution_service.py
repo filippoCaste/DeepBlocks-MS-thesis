@@ -45,8 +45,13 @@ class Executor(TrainerServicer):
         print(request.edges)
         print(request.files)
         try:
-            train_model(request.nodes, request.edges, request.parameters, uid, file_names)
-            response = NetworkResult(status="200", message="OK, completed", parameters=[])
+            metrics_raw = train_model(request.nodes, request.edges, request.parameters, uid, file_names)
+            metrics = []
+            for m in metrics_raw:
+                print(type(m[1]))
+                metrics.append(Metric(name=m[0], value=m[1]))
+
+            response = NetworkResult(status="200", message="OK, completed", metrics=metrics)
 
         except ValueError as ve:
             print(ve)

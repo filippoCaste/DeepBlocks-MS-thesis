@@ -10,18 +10,20 @@ export default function ResponseMessage(props) {
     const setShowMessage = props.setShowMessage;
 
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setShowMessage(false);
-        }, 7000);
-
-        return () => clearTimeout(timer);
+        if(variant !== 'danger') {
+            const timer = setTimeout(() => {
+                setShowMessage(false);
+            }, 7000);
+            
+            return () => clearTimeout(timer);
+        }
     }, []);
     
     return (
         <Alert variant={variant} style={{width: 'fit-content', zIndex:'1000', top:'6em', right:'0.5em', position:'fixed'}}dismissible onClose={() => setShowMessage(false)}>
             {message}
             {variant === 'success' && <Check2 />}
-            {variant === 'error' && <XCircleFill /> }
+            {variant === 'danger' && <XCircleFill /> }
             {variant === 'warning' && <ExclamationCircleFill />}
             {variant === 'info' && <InfoCircleFill />}
         </Alert>

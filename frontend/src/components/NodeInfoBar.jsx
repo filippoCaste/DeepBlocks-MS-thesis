@@ -64,7 +64,7 @@ export default function NodeInfoBar(props) {
 function ParametersTab(props) {
     const { node } = props;
     const [layerType, setLayerType] = useState(node.parameters[0].name === 'layer_type' ? node.parameters[0].value : 'null');
-    const [datasetType, setDatasetType] = useState(node.parameters[0].name === 'dataset_type' ? node.parameters[0].value : 'null');
+    const [datasetType, setDatasetType] = useState(node.parameters[2].name === 'dataset_type' ? node.parameters[2].value : 'null');
 
     const setParameterLayerType = (value) => {
         setLayerType(value)
@@ -137,7 +137,7 @@ function ParametersTab(props) {
                                     name='datasetType'
                                     value='image'
                                     checked={datasetType === 'image'}
-                                    onChange={(e) => setDatasetType(e.target.value)}
+                                    onChange={(e) => setParameterDatasetType(e.target.value)}
                                 />
                                 <Form.Check
                                     type='radio'
@@ -146,7 +146,7 @@ function ParametersTab(props) {
                                     name='datasetType'
                                     value='text'
                                     checked={datasetType === 'text'}
-                                    onChange={(e) => setDatasetType(e.target.value)}   
+                                    onChange={(e) => setParameterDatasetType(e.target.value)}   
                                 />
                             </Form.Group>
                         </Col>

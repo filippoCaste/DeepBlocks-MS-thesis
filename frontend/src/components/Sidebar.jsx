@@ -18,7 +18,7 @@ import Block from '../models/Block';
 import { BLOCKS_API } from '../API/blocks';
 import ResponseMessage from './ResponseMessage';
 import PlusLg from 'react-bootstrap-icons/dist/icons/plus-lg';
-import { Col, Row } from 'react-bootstrap';
+import { Col, Row, Spinner } from 'react-bootstrap';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 
@@ -473,7 +473,19 @@ const Analysis = (props) => {
                     <h3>Analysis</h3>
                 </Row>
                 <Row>
-                    {metrics && <Results metrics={metrics} parameters={parameters} />}
+                    {metrics.length > 0 ? <Results metrics={metrics} parameters={parameters} /> 
+                        : <Container className="text-center my-5">
+                                <div className="d-flex flex-column align-items-center">
+                                    <Spinner animation="border" role="status" variant="secondary" style={{ width: '5rem', height: '5rem' }}>
+                                        <span className="visually-hidden">Loading...</span>
+                                    </Spinner>
+                                    <p className="mt-3">Executing network, please wait...</p>
+                                </div>
+                            
+                                <p>No results to show</p>
+                            
+                        </Container>
+                    }
                 </Row>
             </Container>
         </div>

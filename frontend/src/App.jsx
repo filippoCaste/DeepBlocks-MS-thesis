@@ -20,28 +20,31 @@ import { InvisibleOutputNode } from './components/InvisibleOutputNode';
 import InvisibleBlock from './models/InvisibleBlock';
 
 // just for temporary use
-let node1 = new Block('customNode', { x: 10, y: 0 }, { label: 'Leaky ReLU' }, [
-  { "name": "layer_type", "description": "Type of the layer", "value": null },
-  { "name": "input_tensor", "description": "Input tensor", "value": null },
-  { "name": "output_tensor", "description": "Output tensor", "value": null },
-  { "name": "negative_slope", "description": "Negative slope", "value": null }
-  ], 'torch.nn.functional.leaky_relu');
+// let node1 = new Block('customNode', { x: 10, y: 0 }, { label: 'Leaky ReLU' }, [
+//   { "name": "layer_type", "description": "Type of the layer", "value": null },
+//   { "name": "input_tensor", "description": "Input tensor", "value": null },
+//   { "name": "output_tensor", "description": "Output tensor", "value": null },
+//   { "name": "negative_slope", "description": "Negative slope", "value": null }
+//   ], 'torch.nn.functional.leaky_relu');
 
-let node2 = new Block('customNode', { x: 10, y: 100 }, { label: 'ReLU' }, [
-  { "name": "layer_type", "description": "Type of the layer", "value": null },
-  { "name": "input_tensor", "description": "Input tensor", "value": null },
-  { "name": "output_tensor", "description": "Output tensor", "value": null }
-], 'torch.relu');
+// let node2 = new Block('customNode', { x: 10, y: 100 }, { label: 'ReLU' }, [
+//   { "name": "layer_type", "description": "Type of the layer", "value": null },
+//   { "name": "input_tensor", "description": "Input tensor", "value": null },
+//   { "name": "output_tensor", "description": "Output tensor", "value": null }
+// ], 'torch.relu');
 
-node1.hidden = true;
-node2.hidden = true;
+// node1.hidden = true;
+// node2.hidden = true;
 
-let superNode1 = new Superblock('superBlockNode', { x: 10, y: 200 }, { label: 'sb1', isSelected: false }, [node1.id, node2.id]);
-superNode1.hidden = false;
+// let superNode1 = new Superblock('superBlockNode', { x: 10, y: 200 }, { label: 'sb1', isSelected: false }, [node1.id, node2.id]);
+// superNode1.hidden = false;
 
-const initialNodes = [node1, node2, superNode1]
-const initialEdges = [{ id: 'e1-2', source: '0', target: '1' }];
+// const initialNodes = [node1, node2, superNode1]
+// const initialEdges = [{ id: 'e1-2', source: '0', target: '1' }];
 // -----------------------------------------------------------------------------------------------------
+
+const initialEdges = [];
+const initialNodes = [];
 
 export const sessionId = await SESSION_API.getSession();
 window.addEventListener('beforeunload', SESSION_API.deleteSession);
@@ -261,7 +264,7 @@ export default function App() {
           const { nodes, edges, params } = jsonData;
 
           if(!nodes || !edges || !params) {
-            throw new Error('The file is not a valid json file');
+            throw new Error('The file is not a valid JSON file');
           }
 
           setNodes(nodes);

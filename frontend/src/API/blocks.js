@@ -12,10 +12,15 @@ const postNetwork = async (blocks, edges, params) => {
             },
             body: JSON.stringify({network, sessionId}),
         });
-        const data = await response.json();
-        return data;
+        if(response.ok) {
+            const data = await response.json();
+            return data;
+        } else {
+            const message = await response.text();
+            throw new Error(message);
+        }
     } catch(error) {
-        console.log(error)
+        // console.log(error.message)
         throw new Error(error.message);
     }
 };
@@ -33,8 +38,13 @@ const postInputFiles = async (files) => {
             method: "POST",
             body: data
         });
-        const resData = await response.json();
-        return resData;
+        if(response.ok) {
+            const resData = await response.json();
+            return resData;
+        } else {
+            const message = await response.text();
+            throw new Error(message);
+        }
     } catch(error) {
         console.log(error)
         throw new Error(error.message);
@@ -56,9 +66,13 @@ const exportNetwork = async (blocks, edges, params, type, appName) => {
             },
             body: JSON.stringify({network, type, appName, sessionId}),
         });
-
-        const data = await response.blob();
-        return data;
+        if(response.ok) {
+            const data = await response.json();
+            return data;
+        } else {
+            const message = await response.text();
+            throw new Error(message);
+        }
     } catch(error) {
         console.log(error)
         throw new Error(error.message);

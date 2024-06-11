@@ -5,7 +5,7 @@ import torch, os, packaging
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
-from datasets import load_dataset, Audio, Image
+from datasets import load_dataset, Audio, Image, load_from_disk
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, BertTokenizer, ViTForImageClassification, ViTImageProcessor
 from torch.utils.data import DataLoader, default_collate
 import evaluate
@@ -13,6 +13,7 @@ from torchvision import transforms
 from PIL import Image
 
 from network_generation.pytorch_functions import valid_pytorch_functions
+UPLOAD_DIRECTORY = "uploads"
 
 ############################################################################################################
 #                                                 TRAINING                                                 #
@@ -41,12 +42,16 @@ def train_model(nodes, edges, params, user_id, uploads):
     # print(n_epochs, lr, batch_size, loss_fn, optimizer)
 
     # print(ds_name, ds_split, ds_type, ds_config)
-    if ds_config == 'None':
-        dataset = load_dataset(ds_name, split=ds_split, trust_remote_code=True)
-    else: 
-        dataset = load_dataset(ds_name, ds_config, split=ds_split, trust_remote_code=True)
+    if not os.path.exists(os.path.join(UPLOAD_DIRECTORY, ds_name)):
+        if ds_config == 'None':
+            dataset = load_dataset(ds_name, split=ds_split, trust_remote_code=True)
+        else: 
+            dataset = load_dataset(ds_name, ds_config, split=ds_split, trust_remote_code=True)
+        
+        dataset.save_to_disk(os.path.join(UPLOAD_DIRECTORY, ds_name))
 
-    # print(dataset)
+    else:
+        dataset = load_from_disk(os.path.join(UPLOAD_DIRECTORY, ds_name))
 
     if dataset is None:
         raise Exception("Dataset not found")
@@ -58,6 +63,8 @@ def train_model(nodes, edges, params, user_id, uploads):
         dataset = dataset.map(resize_images, remove_columns=["image"], batch_size=batch_size, batched=True)
         auto_model = ViTForImageClassification.from_pretrained("google/vit-base-patch16-224")
         feature_extractor = ViTImageProcessor.from_pretrained("google/vit-base-patch16-224")
+    else:
+        raise Exception("Unsupported dataset type")
 
     auto_model.classifier = model
     auto_model.to(device)
@@ -126,10 +133,10 @@ def train_model(nodes, edges, params, user_id, uploads):
         f1 = f1_metric.compute(average='weighted')
         
         metrics["loss"].append(total_loss / len(data_loader))
-        metrics["accuracy"].append(accuracy)
-        metrics["precision"].append(precision)
-        metrics["recall"].append(recall)
-        metrics["f1_score"].append(f1)
+        metrics["accuracy"].append(accuracy["accuracy"])
+        metrics["precision"].append(precision["precision"])
+        metrics["recall"].append(recall["recall"])
+        metrics["f1_score"].append(f1["f1"])
 
         print(f"Epoch {epoch+1}, Loss: {total_loss / len(data_loader)}, Accuracy: {accuracy}, Precision: {precision}, Recall: {recall}, F1-Score: {f1}")
 

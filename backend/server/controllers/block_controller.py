@@ -3,6 +3,7 @@
 from flask import request, jsonify
 from services.block_service import train_network as train_network_service, export_network as export_network_service
 from USERS_SET import USERS_SET
+from google.protobuf.json_format import MessageToDict
 import os
 
 def post_all_blocks():
@@ -23,7 +24,12 @@ def post_all_blocks():
 
     response = train_network_service(transformed_blocks, transformed_edges, transformed_params, session_id)
 
-    return response
+    if response.status == '200':
+        # return jsonify({'message': response.message, 'metrics': response.metrics}), 200
+        metrics_list = [MessageToDict(metric) for metric in response.metrics]
+        return jsonify({'message': response.message, 'metrics': metrics_list}), 200
+    else:
+        return jsonify(response.message), 500
 
 def post_input_files():
     session_id = int(request.form.get('sessionId'))

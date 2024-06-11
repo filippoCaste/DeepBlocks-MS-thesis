@@ -23,6 +23,7 @@ def train_network(nodes, edges, params, session_id):
         print(params)
 
         response = stub.TrainNetwork(Network(nodes=nodes, edges=edges, parameters=params, files=files))
+        print(response)
         return response
 
 def export_network(nodes, edges, params, file_name, session_id):

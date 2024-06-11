@@ -1,6 +1,6 @@
 import grpc, logging, os, shutil
 from concurrent import futures
-from proto.proto_pb2 import NetworkResult, File
+from proto.proto_pb2 import NetworkResult, File, Metric
 from proto.proto_pb2_grpc import TrainerServicer, add_TrainerServicer_to_server
 
 from network_generation.model_generation import export_to_onnx, export_to_pth, train_model
@@ -46,10 +46,11 @@ class Executor(TrainerServicer):
         print(request.files)
         try:
             metrics_raw = train_model(request.nodes, request.edges, request.parameters, uid, file_names)
+            print(metrics_raw)
             metrics = []
-            for m in metrics_raw:
-                print(type(m[1]))
-                metrics.append(Metric(name=m[0], value=m[1]))
+            for name, value in metrics_raw.items():
+                print(name, value)
+                metrics.append(Metric(name=name, value=value))
 
             response = NetworkResult(status="200", message="OK, completed", metrics=metrics)
 
@@ -59,7 +60,7 @@ class Executor(TrainerServicer):
         except Exception as e:
             print(e)
             response = NetworkResult(status="500", message=str(e))
-            raise(Exception(e))
+            # raise(Exception(e))
 
         return response
 

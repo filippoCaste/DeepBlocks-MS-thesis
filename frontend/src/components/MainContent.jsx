@@ -92,10 +92,12 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
         setSelectedNodes(nodes.filter(node => node.data.isSelected === true));
 
         // check if there is an open info node
+        if(nodeInfo !== null) {
+            nodeInfo.data.openInfo = false;
+        }
         const tmp = nodes.filter(node => node.data.openInfo === true && (node.type === 'customNode' || (node.type === 'superBlockNode' && node.data.hasSheet === false)))
         if (tmp.length > 0) {
             let nodeFound = tmp[0]
-            console.log(nodeFound)
             if (nodeFound.type == 'customNode') {
                 setNodeInfo(nodeFound)
                 setOpenNodeInfo(true)
@@ -112,7 +114,8 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
     }, [nodes])
 
     const handleCloseNodeInfo = () => {
-        nodeInfo.data.openInfo = false;
+        nodes.map(n => n.data.openInfo = false)
+        // nodeInfo.data.openInfo = false;
         setNodeInfo(null);
         setOpenNodeInfo(false);
     }

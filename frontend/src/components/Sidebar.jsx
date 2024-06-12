@@ -1,5 +1,5 @@
 import Button from 'react-bootstrap/Button';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Container from 'react-bootstrap/Container';
 import Table from 'react-bootstrap/Table';
 import Download from 'react-bootstrap-icons/dist/icons/download'
@@ -18,7 +18,10 @@ import Block from '../models/Block';
 import { BLOCKS_API } from '../API/blocks';
 import ResponseMessage from './ResponseMessage';
 import PlusLg from 'react-bootstrap-icons/dist/icons/plus-lg';
-import { Col, Row, Spinner } from 'react-bootstrap';
+import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
+import Spinner from 'react-bootstrap/Spinner';
+
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 

@@ -51,7 +51,7 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
             if(possibleOutputs.length > 0) {
                 out = possibleOutputs[0];
             } else {
-                out = children[-1];
+                out = children[children.length - 1];
             }
 
         } else {
@@ -60,7 +60,7 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
            // input edge with one random node (possibly the first children)
             inp = children[0];
             // output edge with one random node (possibly the last children)
-            out = children[-1];
+            out = children[children.length - 1];
         }
 
         // create a new edge between the first possible input and the first possible output
@@ -69,12 +69,13 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
         const invisibleInput = new InvisibleBlock(superblock.id + 'i', 'invisibleInputNode', { x: -250, y: 100 })
         const invisibleOutput = new InvisibleBlock(superblock.id + 'o', 'invisibleOutputNode', { x: 300, y: 100 })
         superblock.children.push(invisibleInput.id, invisibleOutput.id)
-
+        
+        setEdges(eds => [...eds.filter(e => { return !((children.includes(e.source) && !children.includes(e.target)) || (!children.includes(e.source) && children.includes(e.target))); } )])
         setEdges(eds => addEdge({ id: `e${superblock.id + '_i'}`, source: invisibleInput.id, target: inp }, eds))
         setEdges(eds => addEdge({ id: `e${superblock.id + '_o'}`, source: out, target: invisibleOutput.id }, eds))
 
         setNodes(nodes.map(e => children.includes(e.id) ? { ...e, data: { ...e.data, isSelected: false }, hidden: true } : e).concat(superblock));
-        setNodes(prevNodes => [...prevNodes, ...invisibleInput, ...invisibleOutput])
+        setNodes(prevNodes => [...prevNodes, invisibleInput, invisibleOutput])
 
     }
 
@@ -94,12 +95,15 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
         const tmp = nodes.filter(node => node.data.openInfo === true && (node.type === 'customNode' || (node.type === 'superBlockNode' && node.data.hasSheet === false)))
         if (tmp.length > 0) {
             let nodeFound = tmp[0]
+            console.log(nodeFound)
             if (nodeFound.type == 'customNode') {
-                setOpenNodeInfo(true)
                 setNodeInfo(nodeFound)
+                setOpenNodeInfo(true)
             } else if (nodeFound.type == 'superBlockNode') {
                 if(sheets.filter(e => e[0] == nodeFound.id).length === 0) {
                     setSheets((oldSheets) => [...oldSheets, [nodeFound.id, nodeFound.data.label]]);
+                    setSelectedSheet([nodeFound.id, nodeFound.data.label])
+                } else {
                     setSelectedSheet([nodeFound.id, nodeFound.data.label])
                 }
             }
@@ -108,9 +112,9 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
     }, [nodes])
 
     const handleCloseNodeInfo = () => {
-        setOpenNodeInfo(false);
         nodeInfo.data.openInfo = false;
         setNodeInfo(null);
+        setOpenNodeInfo(false);
     }
 
     const handleDelete = (toDeleteNodes) => {
@@ -127,7 +131,6 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
                 onEdgesChange={onEdgesChange}
                 onNodesDelete={onNodesDelete}
                 onConnect={onConnect}
-                fitView
             >
                 <Controls position='bottom-right' />
                 <Background />
@@ -139,7 +142,7 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
                                                     handleDeleteNodes={handleDelete} nodes={nodes} setNodes={setNodes}
                                                 /> }
                 {showMessage && <ResponseMessage message={message} variant={variant} setShowMessage={setShowMessage} /> }
-                {openNodeInfo && <NodeInfoBar nodeInfo={nodeInfo} handleCloseNodeInfo={handleCloseNodeInfo} /> }
+                {openNodeInfo && <NodeInfoBar setNodes={setNodes} nodeInfo={nodeInfo} handleCloseNodeInfo={handleCloseNodeInfo} /> }
 
                 <AppNameBar appName={appName} setAppName={setAppName} />
                 <SheetsComponent nodes={nodes} selectedSheet={selectedSheet} setSelectedSheet={setSelectedSheet} 

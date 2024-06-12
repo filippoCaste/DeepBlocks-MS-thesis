@@ -31,13 +31,8 @@ export default function NodeInfoBar(props) {
     }
 
     const setParameterValue = (name, value) => {
-        // if(name === 'dataset_type' && (value !== 'image' || value !== 'text')) {
-        //     setMsg("Dataset type must be 'image' or 'text'")
-        //     setVariant("danger")
-        //     setShowMessage(true)
-        //     return ;
-        // }
-        node.parameters.filter(e => e.name === name)[0].value = value
+        console.log(node)
+        props.setNodes(prevNodes => [...prevNodes.map(n => n.id === node.id ? {...n, parameters: n.parameters.map(e => e.name === name ? {...e, value} : e )} : n)]);
     }
 
     return (

@@ -159,7 +159,7 @@ export default function App() {
   }
 
   const handleDuplicateNode = (node) => {
-    let copy = {};
+    let copy = [];
     if (node.type === 'superBlockNode') {
       // copy the superblock
       //// get children
@@ -202,8 +202,15 @@ export default function App() {
       setEdges((prevEdges) => [...prevEdges, ...edgesToCopy])
 
     } else {
+      let newBlock = new Block(node.type, { ...node.position, y: node.position.y - 10 }, { ...node.data, label: "copy of " + node.data.label }, node.parameters);
+      
+      let superBlockOpened = nodes.find(n => n.data.isOpenInSheet === true);
+      if(superBlockOpened) {
+        newBlock = {...newBlock, hidden: false, fn: node.fn };
+        superBlockOpened.children.push(newBlock.id);
+      }
 
-      copy.push(new Block(node.type, {...node.position, y: node.position.y-10}, {...node.data, label: "copy of " + node.data.label}, node.parameters));
+      copy.push(newBlock);
 
     }
     setNodes((prevNodes) => [...prevNodes, ...copy])

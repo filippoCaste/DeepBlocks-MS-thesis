@@ -11,6 +11,17 @@ export default function CustomNode(props) {
     const [rename, setRename] = useState(false);
     const [inputValue, setInputValue] = useState(data.label);
 
+    const handleContextMenu = (e) => {
+        e.preventDefault();
+        setOpenOptions(true);
+
+        const closeContextMenu = () => {
+            setOpenOptions(false);
+            document.removeEventListener('click', closeContextMenu);
+        };
+        document.addEventListener('click', closeContextMenu);
+    };
+
     const handleRename = () => {
         data.label = inputValue;
         setRename(false)
@@ -26,8 +37,8 @@ export default function CustomNode(props) {
             
             <div style={{ display: 'flex' }}>
                 <div className={`node ${data.isSelected ? "selected" : ""}`} 
-                    onContextMenu={(e) => {e.preventDefault(); setOpenOptions(true)}}
-                    onClick={() => handleOpenInfo()}
+                    onContextMenu={handleContextMenu}
+                    onClick={() => rename === false && handleOpenInfo()}
                     >
                     <Handle type="target" position={Position.Left} />
                     <div>

@@ -13,6 +13,16 @@ export default function SuperBlockNode(props) {
     const [rename, setRename] = useState(false);
     const [inputValue, setInputValue] = useState(data.label);
 
+    const handleContextMenu = (e) => {
+        e.preventDefault();
+        setOpenOptions(true);
+
+        const closeContextMenu = () => {
+            setOpenOptions(false);
+            document.removeEventListener('click', closeContextMenu);
+        };
+        document.addEventListener('click', closeContextMenu);
+    };
 
     const handleRename = () => {
         data.label = inputValue;
@@ -29,10 +39,8 @@ export default function SuperBlockNode(props) {
             {openOptions && <NodeOptions setOpenOptions={setOpenOptions} setRename={setRename} nodeInfo={props} />}
             
             <div className={`node ${data.isSelected ? "selected" : ""}`} 
-                // onMouseOver={() => setHovering(true)} 
-                // onMouseLeave={() => setHovering(false)} 
-                onContextMenu={(e) => { e.preventDefault(); setOpenOptions(true)}}
-                onClick={() => handleOpenInfo()}
+                onContextMenu={handleContextMenu}
+                onClick={() => rename===false && handleOpenInfo()}
                 style={{ backgroundImage: 'linear-gradient(red,yellow,green)', color: 'black' }}
                 >
                 <Handle type="target" position={Position.Left} />

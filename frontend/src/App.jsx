@@ -57,11 +57,6 @@ export default function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-  const [title, setTitle] = useState('');
-  const [message, setMessage] = useState('');
-  const [variant, setVariant] = useState('');
-  const [showConfirmation, setShowConfirmation] = useState(false);
-
   // training parameters
   const [learningRate, setLearningRate] = useState(0);
   const [epochs, setEpochs] = useState(0);
@@ -70,14 +65,24 @@ export default function App() {
   const [optimizer, setOptimizer] = useState('');
   // --------------------------------------------------
 
-  // message props
-  const [showMessage, setShowMessage] = useState(false);
-  // --------------------------------------------------
-
   const [sheets, setSheets] = useState([['main', 'main']])
   const [appName, setAppName] = useState("My DeepBlock's network")
 
   const [metrics, setMetrics] = useState([])
+
+  const [messages, setMessages] = useState([]);
+
+  const addMessage = (message, variant) => {
+    const id = new Date().getTime(); 
+    setMessages([...messages, { id, message, variant }]);
+
+    // Remove the message after the timeout
+    if (variant !== 'danger') {
+      setTimeout(() => {
+        setMessages((prevMessages) => prevMessages.filter((msg) => msg.id !== id));
+      }, 7000);
+    }
+  };
 
   // training api
   useEffect(() => {
@@ -94,22 +99,16 @@ export default function App() {
     if (inputNode && edges.find(e => e.source === inputNode.id)) {
       const isParamsSet = learningRate !== 0 && epochs !== 0 && batchSize !== 0 && loss !== '' && optimizer !== ''
       if(!isParamsSet) {
-        setMessage("To run your network, please set all the parameters in the sidebar.")
-        setShowMessage(true)
-        setVariant('danger')
+        addMessage("To run your network, please set all the parameters in the sidebar.", "danger")
         return;
       }
-      setMessage("Training in progress...")
-      setShowMessage(true)
-      setVariant('info')
+      addMessage("Training in progress...", "info")
 
       BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
         setMetrics(data.metrics)
       }).catch(err => {
         console.log(err)
-        setMessage("Error while training: " + err)
-        setShowMessage(true)
-        setVariant('danger')
+        addMessage("Error while training: " + err, "danger")
       })
     }
   }, [edges, nodes])
@@ -120,6 +119,7 @@ export default function App() {
     if(superBlockOpened) {
       superBlockOpened.children.push(node.id);
     }
+    addMessage("Added node: " + node.data.label, "success")
     setNodes((prevNodes) => [...prevNodes, node]);
   }
 
@@ -285,15 +285,11 @@ export default function App() {
         window.URL.revokeObjectURL(dataUrl);
         document.body.removeChild(downloadLink);
 
-        setShowMessage(true);
-        setMessage("Network succesfully downloaded");
-        setVariant("success");
+        addMessage("Network succesfully downloaded", "success");
 
       }).catch((error) => {
         // console.log(error);
-        setShowMessage(true);
-        setMessage("Error while exporting the network: " + error.message);
-        setVariant("danger");
+        addMessage("Error while exporting the network: " + error.message, "danger");
       })
     }
   }
@@ -329,23 +325,17 @@ export default function App() {
           }
 
         } catch (error) {
-          setShowMessage(true);
-          setMessage(error.message);
-          setVariant("danger");
+          addMessage(error.message, "danger");
         }
       };
 
       reader.onerror = () => {
-        setShowMessage(true);
-        setMessage("Error while uploading the file: " + reader.error.message);
-        setVariant("danger");
+        addMessage("Error while uploading the file: " + reader.error.message, "danger");
       };
 
       reader.readAsText(inputFile);
       
-      setShowMessage(true);
-      setMessage("Network succesfully uploaded");
-      setVariant("success");
+      addMessage("Network successfully uploaded", "success");
 
     }
   }
@@ -358,16 +348,19 @@ export default function App() {
             handleDownload={handleDownload} handleUpload={handleUpload}
             learningRate={learningRate} epochs={epochs} batchSize={batchSize} loss={loss} optimizer={optimizer}
             setLearningRate={setLearningRate} setEpochs={setEpochs} setBatchSize={setBatchSize} setLoss={setLoss} setOptimizer={setOptimizer}
-            metrics={metrics} setMetrics={setMetrics}
+            metrics={metrics} setMetrics={setMetrics} addMessage={addMessage}
           />
 
-        {showMessage && <ResponseMessage message={message} variant={variant} setShowMessage={setShowMessage} />}
-        {showConfirmation && <AlertConfirmation message={message} title={title} handleCancel={handleCancel} handleConfirm={handleConfirm} variant={variant} />}
+        <div style={{ position: 'fixed', top: '7em', right: '1.5em', zIndex: 1000, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+          {messages.map(({ id, message, variant }) => <ResponseMessage key={id} message={message} variant={variant} 
+                  setShowMessage={() => setMessages((prevMessages) => prevMessages.filter((msg) => msg.id !== id))} />)}
+        </div>
+
         <Routes>
           <Route index element={<MainContent style={{ flex: 1 }} edges={edges} setNodes={setNodes} setEdges={setEdges}
                                       nodeTypes={nodeTypes} nodes={nodes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onNodesDelete={onNodesDelete}
                                       appName={appName} setAppName={setAppName} handleDeleteNodes={handleDeleteNodes}
-                                      handleAddNode={handleAddNode} sheets={sheets} setSheets={setSheets}
+                                      handleAddNode={handleAddNode} sheets={sheets} setSheets={setSheets} addMessage={addMessage}
                                   />} 
             />
           <Route path='*' element={<NotFoundPage />} />

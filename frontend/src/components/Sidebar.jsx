@@ -16,7 +16,6 @@ import Form from 'react-bootstrap/Form';
 import AlertComponent from './AlertComponent';
 import Block from '../models/Block';
 import { BLOCKS_API } from '../API/blocks';
-import ResponseMessage from './ResponseMessage';
 import PlusLg from 'react-bootstrap-icons/dist/icons/plus-lg';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
@@ -29,7 +28,7 @@ const Sidebar = (props) => {
 
     const [openMenu, setOpenMenu] = useState('none');
     const { nodes, edges, handleAddNode, handleDeleteNodes, handleRenameNode, handleDuplicateNode, 
-            handleDownload, handleUpload, learningRate, epochs, batchSize, loss, optimizer,
+            handleDownload, handleUpload, learningRate, epochs, batchSize, loss, optimizer, addMessage,
             setLearningRate, setEpochs, setBatchSize, setLoss, setOptimizer, metrics, setMetrics } = props;
 
     // const viewportWidth = window.innerWidth;
@@ -78,7 +77,7 @@ const Sidebar = (props) => {
                                         learningRate={learningRate} epochs={epochs} batchSize={batchSize} loss={loss} optimizer={optimizer}
                                         setLearningRate={setLearningRate} setEpochs={setEpochs} setBatchSize={setBatchSize} setLoss={setLoss} setOptimizer={setOptimizer}
                                         handleDeleteNodes={handleDeleteNodes} handleRenameNode={handleRenameNode} handleDuplicateNode={handleDuplicateNode}
-                                        handleDownload={handleDownload} handleUpload={handleUpload} setMetrics={setMetrics}
+                                        handleDownload={handleDownload} handleUpload={handleUpload} setMetrics={setMetrics} addMessage={addMessage}
                                         />}
 
             {openMenu === 'Analysis' && <Analysis metrics={metrics} parameters={[{ "key": "Learning Rate", "value": learningRate}, { "key": "Epochs", "value": epochs}, { "key": "Batch size", "value": batchSize}, { "key": "Loss Function", "value": loss}, { "key": "Optimizer", "value": optimizer}]}/>}
@@ -101,7 +100,7 @@ const Menu = (props) => {
             {openMenu === 'Training' && <Training 
                                             learningRate={props.learningRate} epochs={props.epochs} batchSize={props.batchSize} loss={props.loss} optimizer={props.optimizer}
                                             setLearningRate={props.setLearningRate} setEpochs={props.setEpochs} setBatchSize={props.setBatchSize} setLoss={props.setLoss} setOptimizer={props.setOptimizer}
-                                            nodes={props.nodes} edges={props.edges} setMetrics={props.setMetrics}
+                                            nodes={props.nodes} edges={props.edges} setMetrics={props.setMetrics} addMessage={props.addMessage}
                                             />}
             {openMenu === 'Options' && <Options
                                             learningRate={props.learningRate} epochs={props.epochs} batchSize={props.batchSize} loss={props.loss} optimizer={props.optimizer}
@@ -236,13 +235,10 @@ const BlockDetailsAndActions = (props)  => {
 
 }
 
-const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimizer, setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer, setMetrics }) => {
+const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimizer, setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer, setMetrics, addMessage }) => {
 
     const [err, setErr] = useState(false);
     const [errMsg, setErrMsg] = useState('');
-    const [message, setMessage] = useState('');
-    const [showMessage, setShowMessage] = useState(false);
-    const [variant, setVariant] = useState('')
 
     const handleTrain = (params, { setErr, setErrMsg }) => {
         // controls parameters are all set and of the right type
@@ -274,21 +270,14 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
                     BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
                         console.log(data)
                         setMetrics(data.metrics)
-
-                        setMessage("Training completed")
-                        setShowMessage(true)
-                        setVariant('success')
+                        addMessage("Training completed", "success")
                     }).catch((err) => {
                         // console.log(err)
-                        setMessage("Error while training: " + err)
-                        setShowMessage(true)
-                        setVariant('danger')
+                        addMessage("Error while training: " + err, "danger")
                     })
                 }).catch((err) => {
                     // console.log(err)
-                    setMessage("Error while training: " + err)
-                    setShowMessage(true)
-                    setVariant('danger')
+                    addMessage("Error while training: " + err, "danger")
                 })
             }
         } else {
@@ -368,7 +357,6 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
             <Button className='left-menu-button' onClick={() => handleReset({ setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer })}> Reset </Button>
 
             {err && <AlertComponent variant="danger" message={errMsg} setErr={setErr} />}
-            {showMessage && <ResponseMessage message={message} variant={variant} setShowMessage={setShowMessage} />}
         </>
     );
 }

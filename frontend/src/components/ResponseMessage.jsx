@@ -20,7 +20,7 @@ export default function ResponseMessage(props) {
     }, []);
     
     return (
-        <Alert variant={variant} style={{width: 'fit-content', zIndex:'1000', top:'6em', right:'0.5em', position:'fixed'}}dismissible onClose={() => setShowMessage(false)}>
+        <Alert variant={variant} style={{width: 'fit-content', maxWidth: '350px', marginBottom: '1em'}}dismissible onClose={() => setShowMessage(false)}>
             {variant === 'success' && <Check2 />}
             {variant === 'danger' && <XCircleFill /> }
             {variant === 'warning' && <ExclamationCircleFill />}

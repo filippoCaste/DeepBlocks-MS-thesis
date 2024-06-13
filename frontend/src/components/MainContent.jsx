@@ -4,13 +4,12 @@ import 'reactflow/dist/style.css';
 import { useCallback, useEffect, useState } from 'react';
 import Superblock from '../models/SuperBlock';
 import SelectionBox from './SelectionBox';
-import ResponseMessage from './ResponseMessage';
 import SheetsComponent from './SheetsComponent';
 import NodeInfoBar from './NodeInfoBar';
 import AppNameBar from './AppNameBar';
 import InvisibleBlock from '../models/InvisibleBlock';
 
-export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesChange, onEdgesChange, onNodesDelete, nodeTypes, appName, setAppName, handleDeleteNodes, handleAddNode, sheets, setSheets }) {
+export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesChange, onEdgesChange, onNodesDelete, nodeTypes, appName, setAppName, handleDeleteNodes, sheets, setSheets, addMessage }) {
 
     const onConnect = useCallback(
         (params) => setEdges((eds) => addEdge(params, eds)),
@@ -79,9 +78,6 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
     }
 
     const [selectedNodes, setSelectedNodes] = useState([]);
-    const [message, setMessage] = useState('');
-    const [variant, setVariant] = useState('');
-    const [showMessage, setShowMessage] = useState(false);
     const [openNodeInfo, setOpenNodeInfo] = useState(false);
     const [nodeInfo, setNodeInfo] = useState(null);
     const [selectedSheet, setSelectedSheet] = useState(['main', 'main']);
@@ -140,10 +136,10 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
                 <div className={`${selectedSheet[1] !== 'main' ? 'sheet-border' : ''}`}></div>
 
                 {selectedNodes.length !==0 &&  <SelectionBox selectedNodes={selectedNodes} createSuperblock={createSuperblock} 
-                                                    setMessage={setMessage} setVariant={setVariant} setShowMessage={setShowMessage} 
+                                                    addMessage={addMessage}
                                                     handleDeleteNodes={handleDelete} nodes={nodes} setNodes={setNodes}
                                                 /> }
-                {showMessage && <ResponseMessage message={message} variant={variant} setShowMessage={setShowMessage} /> }
+
                 {openNodeInfo && <NodeInfoBar setNodes={setNodes} nodeInfo={nodeInfo} handleCloseNodeInfo={handleCloseNodeInfo} /> }
 
                 <AppNameBar appName={appName} setAppName={setAppName} />

@@ -6,7 +6,7 @@ import AlertConfirmation from "./AlertConfirmation";
 import { useState } from "react";
 import { XCircle } from "react-bootstrap-icons";
 
-export default function SelectionBox({selectedNodes, createSuperblock, setVariant, setMessage, setShowMessage, handleDeleteNodes, setNodes, nodes}) {
+export default function SelectionBox({selectedNodes, createSuperblock, addMessage, handleDeleteNodes, setNodes, nodes}) {
 
     const [showConfirmation, setShowConfirmation] = useState(false);
 
@@ -14,22 +14,16 @@ export default function SelectionBox({selectedNodes, createSuperblock, setVarian
         createSuperblock(selectedNodes)
         
         // message --> superblock succesfully created
-        setVariant('success')
-        setMessage('Superblock succesfully created')
-        setShowMessage(true)
+        addMessage('Superblock succesfully created', "success")
     }
 
     const handleDelete = (result) => {
         // ask for confirmation
         if(result === true) {
             handleDeleteNodes(selectedNodes);
-            setVariant('success');
-            setMessage(`${selectedNodes.length} nodes succesfully deleted`);
-            setShowMessage(true);
+            addMessage(`${selectedNodes.length} nodes succesfully deleted`, "success")
         } else if(result === false) {
-            setVariant('danger');
-            setMessage('Delete operation canceled');
-            setShowMessage(true);
+            addMessage('Delete operation canceled', "danger")
         }
         setShowConfirmation(false);
     }

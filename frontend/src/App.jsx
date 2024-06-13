@@ -18,6 +18,7 @@ import { SESSION_API } from './API/session';
 import InvisibleInputNode from './components/InvisibleInputNode';
 import { InvisibleOutputNode } from './components/InvisibleOutputNode';
 import InvisibleBlock from './models/InvisibleBlock';
+import isEqual from 'lodash.isequal';  
 
 // just for temporary use
 // let node1 = new Block('customNode', { x: 10, y: 0 }, { label: 'Leaky ReLU' }, [
@@ -68,8 +69,9 @@ export default function App() {
   const [sheets, setSheets] = useState([['main', 'main']])
   const [appName, setAppName] = useState("My DeepBlock's network")
 
-  const [metrics, setMetrics] = useState([])
-
+  const [metrics, setMetrics] = useState([]);
+  const [nodeParams, setNodeParams] = useState([]);
+  
   const [messages, setMessages] = useState([]);
 
   const addMessage = (message, variant) => {
@@ -111,7 +113,14 @@ export default function App() {
         addMessage("Error while training: " + err, "danger")
       })
     }
-  }, [edges, nodes])
+  }, [edges, nodeParams])
+
+  useEffect(() => {
+    const newNodeParams = nodes.map(n => n.parameters).flat();
+    if (!isEqual(newNodeParams, nodeParams))
+      setNodeParams(newNodeParams)
+  }, [nodes])
+
 
   const handleAddNode = (node) => {
     // check if there is a supernode which is opened in a sheet

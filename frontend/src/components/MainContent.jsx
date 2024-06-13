@@ -1,6 +1,5 @@
 'use strict';
 import ReactFlow, { Controls, Background, addEdge } from 'reactflow';
-
 import 'reactflow/dist/style.css';
 import { useCallback, useEffect, useState } from 'react';
 import Superblock from '../models/SuperBlock';

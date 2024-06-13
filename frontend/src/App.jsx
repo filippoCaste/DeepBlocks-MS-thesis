@@ -1,5 +1,5 @@
 'use strict';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Sidebar from './components/Sidebar';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './style.css';
@@ -76,6 +76,43 @@ export default function App() {
 
   const [sheets, setSheets] = useState([['main', 'main']])
   const [appName, setAppName] = useState("My DeepBlock's network")
+
+  const [metrics, setMetrics] = useState([])
+
+  // training api
+  useEffect(() => {
+    const paramObj = [
+      { "key": "learningRate", "value": learningRate },
+      { "key": "epochs", "value": epochs },
+      { "key": "batchSize", "value": batchSize },
+      { "key": "loss", "value": loss },
+      { "key": "optimizer", "value": optimizer }
+    ]
+
+    // check if all the conditions are satisfied
+    const inputNode = nodes.find(n => n.type === 'customNode' && n.parameters[0].name === 'input_dataset')
+    if (inputNode && edges.find(e => e.source === inputNode.id)) {
+      const isParamsSet = learningRate !== 0 && epochs !== 0 && batchSize !== 0 && loss !== '' && optimizer !== ''
+      if(!isParamsSet) {
+        setMessage("To run your network, please set all the parameters in the sidebar.")
+        setShowMessage(true)
+        setVariant('danger')
+        return;
+      }
+      setMessage("Training in progress...")
+      setShowMessage(true)
+      setVariant('info')
+
+      BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
+        setMetrics(data.metrics)
+      }).catch(err => {
+        console.log(err)
+        setMessage("Error while training: " + err)
+        setShowMessage(true)
+        setVariant('danger')
+      })
+    }
+  }, [edges, nodes])
 
   const handleAddNode = (node) => {
     // check if there is a supernode which is opened in a sheet
@@ -321,6 +358,7 @@ export default function App() {
             handleDownload={handleDownload} handleUpload={handleUpload}
             learningRate={learningRate} epochs={epochs} batchSize={batchSize} loss={loss} optimizer={optimizer}
             setLearningRate={setLearningRate} setEpochs={setEpochs} setBatchSize={setBatchSize} setLoss={setLoss} setOptimizer={setOptimizer}
+            metrics={metrics} setMetrics={setMetrics}
           />
 
         {showMessage && <ResponseMessage message={message} variant={variant} setShowMessage={setShowMessage} />}

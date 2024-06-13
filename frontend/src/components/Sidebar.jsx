@@ -28,13 +28,11 @@ import 'chart.js/auto';
 const Sidebar = (props) => {
 
     const [openMenu, setOpenMenu] = useState('none');
-    const [metrics, setMetrics] = useState([]);
     const { nodes, edges, handleAddNode, handleDeleteNodes, handleRenameNode, handleDuplicateNode, 
             handleDownload, handleUpload, learningRate, epochs, batchSize, loss, optimizer,
-            setLearningRate, setEpochs, setBatchSize, setLoss, setOptimizer } = props;
+            setLearningRate, setEpochs, setBatchSize, setLoss, setOptimizer, metrics, setMetrics } = props;
 
     // const viewportWidth = window.innerWidth;
-    // console.log(viewportWidth)
     const zoomLevel = window.screen.width / window.innerWidth;
     if (openMenu !== 'none') {
         document.getElementById('reactflow-div').style.width = `${80 / zoomLevel}vw`;
@@ -94,6 +92,7 @@ const Menu = (props) => {
     return (
         <Container className='left-menu'>
             <h4 style={{fontWeight: 'bold'}}>{openMenu}</h4>
+            <hr />
             <div>
             {openMenu === 'Network Design' && <NetworkDesign handleAddNode={props.handleAddNode} />}
             {openMenu === 'Network Details' && <NetworkDetails nodes={props.nodes} handleDeleteNodes={props.handleDeleteNodes} handleRenameNode={props.handleRenameNode}
@@ -226,9 +225,9 @@ const BlockDetailsAndActions = (props)  => {
                 { isRename ?
                     <Button onClick={() => handleRename()}> OK </Button>
                 : <>
-                    <Button onClick={() => handleDuplicateNode()}> <Copy /> </Button> {' '}
-                    <Button onClick={() => setIsRename(true)}> <PencilFill /> </Button> {' '}
-                    <Button variant='danger' onClick={() => handleDelete()}> <TrashFill /> </Button>
+                    <Button size='sm' onClick={() => handleDuplicateNode()}> <Copy /> </Button> {' '}
+                    <Button size='sm' onClick={() => setIsRename(true)}> <PencilFill /> </Button> {' '}
+                    <Button size='sm' variant='danger' onClick={() => handleDelete()}> <TrashFill /> </Button>
                   </>
                 }
             </td>

@@ -3,9 +3,10 @@ import React, { useState } from 'react';
 import Container from 'react-bootstrap/Container';
 import Table from 'react-bootstrap/Table';
 import Download from 'react-bootstrap-icons/dist/icons/download'
+import Upload from 'react-bootstrap-icons/dist/icons/upload'
 import PencilFill from 'react-bootstrap-icons/dist/icons/pencil-fill'
-import PlayFill from 'react-bootstrap-icons/dist/icons/play-fill'
-import ListColumns from 'react-bootstrap-icons/dist/icons/list-columns'
+import Sliders from 'react-bootstrap-icons/dist/icons/sliders'
+import List from 'react-bootstrap-icons/dist/icons/list'
 import Diagram3Fill from 'react-bootstrap-icons/dist/icons/diagram-3-fill';
 import TrashFill from 'react-bootstrap-icons/dist/icons/trash-fill';
 import Copy from 'react-bootstrap-icons/dist/icons/copy'
@@ -51,18 +52,23 @@ const Sidebar = (props) => {
                     <li onClick={() => {
                             openMenu === "Network Details" ? setOpenMenu('none') : setOpenMenu('Network Details')
                         }} className={`${openMenu === 'Network Details' ? 'selected' : ''}`}>
-                        <span> <ListColumns className='sidebar-icon' /> </span>
+                        <span> <List className='sidebar-icon' /> </span>
                     </li>
                     <li onClick={() => {
                             openMenu === "Training" ? setOpenMenu('none') : setOpenMenu('Training')
                         }} className={`${openMenu === 'Training' ? 'selected' : ''}`}>
-                        <span> <PlayFill className='sidebar-icon' /> </span>
+                        <span> <Sliders className='sidebar-icon' /> </span>
                     </li>
                     <li onClick={() => {
                             openMenu === "Options" ? setOpenMenu('none') : setOpenMenu('Options')
                         }} className={`${openMenu === 'Options' ?  'selected' : '' }`}>
                         <span> <Download className='sidebar-icon' /> </span>
-                    </li>     
+                    </li>
+                    <li onClick={() => {
+                        openMenu === "Upload" ? setOpenMenu('none') : setOpenMenu('Upload')
+                    }} className={`${openMenu === 'Upload' ? 'selected' : ''}`}>
+                        <span> <Upload className='sidebar-icon' /> </span>
+                    </li>
                 </ul>
                 <hr />
                 <ul className="sidebar-menu">
@@ -104,8 +110,10 @@ const Menu = (props) => {
                                             />}
             {openMenu === 'Options' && <Options
                                             learningRate={props.learningRate} epochs={props.epochs} batchSize={props.batchSize} loss={props.loss} optimizer={props.optimizer}
-                                            handleDownload={props.handleDownload} handleUpload={props.handleUpload}
+                                            handleDownload={props.handleDownload} 
                                             />}
+
+            {openMenu === 'Upload' && <Uploads handleUpload={props.handleUpload} />}
             </div>
         </Container>
     )
@@ -354,7 +362,7 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
                 </Table>
             </Form >
 
-            <Button className='left-menu-button' onClick={() => handleTrain({ epochs, learningRate, batchSize, loss, optimizer }, { setErr, setErrMsg })}> Train </Button>
+            {/* <Button className='left-menu-button' onClick={() => handleTrain({ epochs, learningRate, batchSize, loss, optimizer }, { setErr, setErrMsg })}> Train </Button> */}
             <Button className='left-menu-button' onClick={() => handleReset({ setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer })}> Reset </Button>
 
             {err && <AlertComponent variant="danger" message={errMsg} setErr={setErr} />}
@@ -364,7 +372,6 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
 
 const Options = (props) => {
     const {learningRate, epochs, batchSize, loss, optimizer} = props
-    const [loadFile, setLoadFile] = useState(null);
     const [error, setErr] = useState(false);
     const [errMsg, setErrMsg] = useState(""); 
     const [selectedFileType, setSelectedFileType] = useState('');
@@ -382,16 +389,6 @@ const Options = (props) => {
             { "key": "optimizer", "value": optimizer }
         ];
         props.handleDownload(parameters, selectedFileType);
-    }
-
-    const handleUpload = () => {
-
-        if(loadFile===null || loadFile.type !== 'application/json') {
-            setErr(true);
-            setErrMsg("Please select a .json file");
-        } else {
-            props.handleUpload(loadFile);
-        }
     }
 
     return (
@@ -435,9 +432,32 @@ const Options = (props) => {
             </p>
 
             <Button className='left-menu-button mt-3' onClick={() => handleDownload()}> Download </Button> <br />
-            <hr />
+
+            {error && <AlertComponent variant="danger" message={errMsg} setErr={setErr} />}
+
+        </div>
+    )
+}
+
+const Uploads = (props) => {
+    const [loadFile, setLoadFile] = useState(null);
+    const [error, setErr] = useState(false);
+    const [errMsg, setErrMsg] = useState(""); 
+
+    const handleUpload = () => {
+
+        if (loadFile === null || loadFile.type !== 'application/json') {
+            setErr(true);
+            setErrMsg("Please select a .json file");
+        } else {
+            props.handleUpload(loadFile);
+        }
+    }
+
+    return (
+        <div>
             <h5>Import from existing file</h5>
-            <p style={{fontStyle: 'italic'}}>Supported format: .json</p>
+            <p style={{ fontStyle: 'italic' }}>Supported format: .json</p>
             <Form.Control type='file' id='file-json' accept=".json" onChange={(e) => setLoadFile(e.target.files[0])} />
             <Button className='left-menu-button mt-3' onClick={() => handleUpload()}> Upload </Button>
 
@@ -445,6 +465,7 @@ const Options = (props) => {
 
         </div>
     )
+
 }
 
 const Analysis = (props) => {

@@ -11,7 +11,6 @@ import { useNodesState, useEdgesState } from 'reactflow';
 import SuperBlockNode from './components/SuperBlockNode';
 import Block from './models/Block';
 import Superblock from './models/SuperBlock';
-import AlertConfirmation from './components/AlertConfirmation';
 import { BLOCKS_API } from './API/blocks';
 import ResponseMessage from './components/ResponseMessage';
 import { SESSION_API } from './API/session';
@@ -19,6 +18,7 @@ import InvisibleInputNode from './components/InvisibleInputNode';
 import { InvisibleOutputNode } from './components/InvisibleOutputNode';
 import InvisibleBlock from './models/InvisibleBlock';
 import isEqual from 'lodash.isequal';  
+import { Spinner } from 'react-bootstrap';
 
 // just for temporary use
 // let node1 = new Block('customNode', { x: 10, y: 0 }, { label: 'Leaky ReLU' }, [
@@ -71,6 +71,7 @@ export default function App() {
 
   const [metrics, setMetrics] = useState([]);
   const [nodeParams, setNodeParams] = useState([]);
+  const [isTraining, setIsTraining] = useState(false);
   
   const [messages, setMessages] = useState([]);
 
@@ -105,11 +106,14 @@ export default function App() {
         return;
       }
       addMessage("Training in progress...", "info")
-
+      setIsTraining(true);
       BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
         setMetrics(data.metrics)
+        setIsTraining(false)
+        addMessage("Training completed", "success")
       }).catch(err => {
         console.log(err)
+        setIsTraining(false)
         addMessage("Error while training: " + err, "danger")
       })
     }
@@ -364,6 +368,10 @@ export default function App() {
           {messages.map(({ id, message, variant }) => <ResponseMessage key={id} message={message} variant={variant} 
                   setShowMessage={() => setMessages((prevMessages) => prevMessages.filter((msg) => msg.id !== id))} />)}
         </div>
+
+        {isTraining && <div style={{ position: 'fixed', bottom:'3em', right: '50%'}}> 
+          <p>Training... <Spinner animation="border" variant="primary" /> </p>
+          </div>}
 
         <Routes>
           <Route index element={<MainContent style={{ flex: 1 }} edges={edges} setNodes={setNodes} setEdges={setEdges}

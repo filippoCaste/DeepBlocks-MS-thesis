@@ -22,7 +22,7 @@ def api_export_blocks():
     session_id = int(request.get_json().get('sessionId'))
     file_path = os.path.join('converted', str(session_id), response.file_name)
     if not os.path.exists(file_path):
-        abort(404, description="Resource not found")
+        return jsonify(message="Resource not found"), 404
 
     try:
         return send_file(file_path, as_attachment=True, mimetype='application/octet-stream')

@@ -6,6 +6,7 @@ export default function InvisibleInputNode(props) {
         <>
             <div style={{ display: 'flex' }}>
                 <div className='invisible-node'>
+                    INPUT
                     <Handle type="source" position={Position.Right} id="a" />
                 </div>
             </div>

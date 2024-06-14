@@ -87,7 +87,7 @@ function Sheet(props) {
     const handleCloseSheet = props.handleCloseSheet;
 
     return (
-        <div className={`sheet ${props.label === props.selectedSheet[1] ? 'selectedSheet' : ''}`}>
+        <div className={`sheet ${props.id === props.selectedSheet[0] ? 'selectedSheet' : ''}`}>
             <div style={{ width: '100%', height: '100%', paddingLeft: '1em', paddingRight: '1em' }} onClick={() => setSelectedSheet([props.id, props.label])}>
                 <p>{props.label !== 'main' && <NodePlus style={{fontSize:'1em'}} />} {props.label}</p>
             </div>

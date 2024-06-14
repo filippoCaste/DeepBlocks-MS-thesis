@@ -6,6 +6,7 @@ export function InvisibleOutputNode(props) {
         <>
             <div style={{ display: 'flex' }}>
                 <div className='invisible-node'>
+                    OUTPUT
                     <Handle type="target" position={Position.Left} />
                 </div>
             </div>

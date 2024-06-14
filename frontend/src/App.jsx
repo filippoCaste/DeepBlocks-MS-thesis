@@ -136,22 +136,6 @@ export default function App() {
     setNodes((prevNodes) => [...prevNodes, node]);
   }
 
-  // const handleDeleteNode = (node) => {
-  //   let updatedNodes=[];
-  //   if(node.type === 'superBlockNode') {
-  //     const nodeChildren = nodes.find(e => e.id === node.id).children;
-  //     // delete the children
-  //     nodes.filter(n => !nodeChildren.includes(n.id));
-  //     // delete the supernode
-  //     updatedNodes = nodes.filter(n => n.id != node.id);
-
-  //   } else {
-  //     updatedNodes = nodes.filter(n => n.id != node.id);
-  //   }
-
-  //   setNodes(() => updatedNodes);
-  // }
-  
   const onNodesDelete = useCallback(
     (deleted) => {
       handleDeleteNodes(deleted);

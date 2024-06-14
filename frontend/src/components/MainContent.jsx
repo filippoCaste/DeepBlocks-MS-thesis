@@ -65,7 +65,7 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
         const superblock = new Superblock('superBlockNode', { x: 10, y: 10 }, { label: 'new superblock', isSelected: false }, children)
 
         const invisibleInput = new InvisibleBlock(superblock.id + 'i', 'invisibleInputNode', { x: -250, y: 100 })
-        const invisibleOutput = new InvisibleBlock(superblock.id + 'o', 'invisibleOutputNode', { x: 300, y: 100 })
+        const invisibleOutput = new InvisibleBlock(superblock.id + 'o', 'invisibleOutputNode', { x: 1400, y: 100 })
         superblock.children.push(invisibleInput.id, invisibleOutput.id)
         
         setEdges(eds => [...eds.filter(e => { return !((children.includes(e.source) && !children.includes(e.target)) || (!children.includes(e.source) && children.includes(e.target))); } )])
@@ -97,7 +97,7 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
                 setNodeInfo(nodeFound)
                 setOpenNodeInfo(true)
             } else if (nodeFound.type == 'superBlockNode') {
-                if(sheets.filter(e => e[0] == nodeFound.id).length === 0) {
+                if(sheets.filter(e => e[0] === nodeFound.id).length === 0) {
                     setSheets((oldSheets) => [...oldSheets, [nodeFound.id, nodeFound.data.label]]);
                     setSelectedSheet([nodeFound.id, nodeFound.data.label])
                 } else {
@@ -133,6 +133,7 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
                 <Controls position='bottom-right' />
                 <Background />
 
+                <div className={`${selectedSheet[1] !== 'main' ? 'overlay' : ''}`}></div>
                 <div className={`${selectedSheet[1] !== 'main' ? 'sheet-border' : ''}`}></div>
 
                 {selectedNodes.length !==0 &&  <SelectionBox selectedNodes={selectedNodes} createSuperblock={createSuperblock} 

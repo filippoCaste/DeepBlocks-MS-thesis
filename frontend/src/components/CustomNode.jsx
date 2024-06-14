@@ -35,7 +35,7 @@ export default function CustomNode(props) {
         <> 
             {openOptions && <NodeOptions setOpenOptions={setOpenOptions} setRename={setRename} nodeInfo={props} />}
             
-            <div style={{ display: 'flex' }}>
+            <div style={{ display: 'flex', zIndex: 1 }}>
                 <div className={`node ${data.isSelected ? "selected" : ""}`} 
                     onContextMenu={handleContextMenu}
                     onClick={() => rename === false && handleOpenInfo()}

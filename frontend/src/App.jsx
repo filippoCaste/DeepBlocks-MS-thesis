@@ -79,13 +79,13 @@ export default function App() {
 
   const addMessage = (message, variant) => {
     const id = new Date().getTime(); 
-    setMessages([...messages, { id, message, variant }]);
+    setMessages((prevMessages) => [...prevMessages, { id, message, variant }]);
 
     // Remove the message after the timeout
     if (variant !== 'danger') {
       setTimeout(() => {
         setMessages((prevMessages) => prevMessages.filter((msg) => msg.id !== id));
-      }, 7000);
+      }, 10000);
     }
   };
 

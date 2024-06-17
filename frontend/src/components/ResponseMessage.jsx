@@ -12,7 +12,7 @@ export default function ResponseMessage(props) {
 
     if(message.split('<a href=').length > 1) {
         let split_msg = message.split('<a href=')
-        message = split_msg[0];
+        message = split_msg[0].replace("\"", " ");
         link = split_msg[1].split(' />')[0];
         console.log(message, link)
     }

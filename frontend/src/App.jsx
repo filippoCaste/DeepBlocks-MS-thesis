@@ -320,7 +320,7 @@ export default function App() {
           }
           let mapping = [];
           const newNodes = nodes.map(n => {
-            let b = new Block(n.type, n.position, n.data, n.parameters);
+            let b = new Block(n.type, n.position, n.data, n.parameters, n.fn);
             mapping.push([n.id, b.id]);
             return b;
           });

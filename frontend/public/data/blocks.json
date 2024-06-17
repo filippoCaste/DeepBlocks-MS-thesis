@@ -2,20 +2,13 @@
     "blocks": {
         "Input": [
             {
-                "name": "Input File",
-                "function": null,
-                "parameters": [
-                    {"name": "input_file", "description": "Input file", "value": null}
-                ]
-            },
-            {
                 "name": "Input Dataset (from huggingface.co)",
                 "function": null,
                 "parameters": [
-                    {"name": "input_dataset", "description": "Input dataset (e.g. 'dair-ai/emotion')", "value": null},
-                    {"name": "dataset_split", "description": "Dataset split (e.g. 'train', 'validation', 'test')", "value": null},
-                    {"name": "dataset_type", "description": "Dataset type (currently could be either 'text' or 'image')", "value": null},
-                    {"name": "dataset_config", "description": "Dataset configuration (e.g. 'default'). This is indicated when you click in the 'Use in the library' button as a second argument of the load_dataset function.", "value": null}
+                    {"name": "input_dataset", "description": "Input dataset from huggingface.co/datasets (e.g. 'dair-ai/emotion')", "value": null},
+                    {"name": "dataset_split", "description": "Dataset split from huggingface.co/datasets (e.g. 'train', 'validation', 'test')", "value": null},
+                    {"name": "dataset_type", "description": "Dataset type from huggingface.co/datasets (currently could be either 'text' or 'image')", "value": null},
+                    {"name": "dataset_config", "description": "Dataset configuration (e.g. 'default'). This is indicated in from huggingface.co/datasets when you click in the 'Use in the Datasets library' button as a second argument of the load_dataset function.", "value": null}
                 ]
             }
 

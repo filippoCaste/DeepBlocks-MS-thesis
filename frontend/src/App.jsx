@@ -360,7 +360,7 @@ export default function App() {
             handleDownload={handleDownload} handleUpload={handleUpload}
             learningRate={learningRate} epochs={epochs} batchSize={batchSize} loss={loss} optimizer={optimizer}
             setLearningRate={setLearningRate} setEpochs={setEpochs} setBatchSize={setBatchSize} setLoss={setLoss} setOptimizer={setOptimizer}
-            metrics={metrics} setMetrics={setMetrics} addMessage={addMessage}
+            metrics={metrics} setMetrics={setMetrics} addMessage={addMessage} isTraining={isTraining}
           />
 
         <div style={{ position: 'fixed', top: '7em', right: '1.5em', zIndex: 1000, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>

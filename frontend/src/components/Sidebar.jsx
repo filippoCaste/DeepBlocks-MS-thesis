@@ -30,7 +30,7 @@ const Sidebar = (props) => {
     const [openMenu, setOpenMenu] = useState('none');
     const { nodes, edges, handleAddNode, handleDeleteNodes, handleRenameNode, handleDuplicateNode, 
             handleDownload, handleUpload, learningRate, epochs, batchSize, loss, optimizer, addMessage,
-            setLearningRate, setEpochs, setBatchSize, setLoss, setOptimizer, metrics, setMetrics } = props;
+            setLearningRate, setEpochs, setBatchSize, setLoss, setOptimizer, metrics, setMetrics, isTraining } = props;
 
     // const viewportWidth = window.innerWidth;
     const zoomLevel = window.screen.width / window.innerWidth;
@@ -86,7 +86,9 @@ const Sidebar = (props) => {
                                         handleDownload={handleDownload} handleUpload={handleUpload} setMetrics={setMetrics} addMessage={addMessage}
                                         />}
 
-            {openMenu === 'Analysis' && <Analysis metrics={metrics} parameters={[{ "key": "Learning Rate", "value": learningRate}, { "key": "Epochs", "value": epochs}, { "key": "Batch size", "value": batchSize}, { "key": "Loss Function", "value": loss}, { "key": "Optimizer", "value": optimizer}]}/>}
+            {openMenu === 'Analysis' && <Analysis metrics={metrics} isTraining={isTraining}
+                     parameters={[{ "key": "Learning Rate", "value": learningRate}, { "key": "Epochs", "value": epochs}, { "key": "Batch size", "value": batchSize}, { "key": "Loss Function", "value": loss}, { "key": "Optimizer", "value": optimizer}]}
+                    />}
         </>
     );
 };
@@ -469,7 +471,7 @@ const Uploads = (props) => {
 }
 
 const Analysis = (props) => {
-    const {metrics, parameters} = props;
+    const {metrics, parameters, isTraining} = props;
     // let metrics = [
     //     { "name": "loss", "value": [10.088768235851737, 4.932463331492365, 3.4670406011071586, 2.7300461371231173, 2.266199111913991, 1.8351842953604652, 1.6822232899396705, 1.4262728034201386, 1.3206678631344978, 1.235159848119565, 1.0630198826637325, 1.0362076695294394, 0.962142662765602, 0.927034489338314, 0.9082388981912212, 0.8158781058099188, 0.7906178209964223, 0.7586982334718996, 0.720835176617624, 0.7112367367980783, 0.6698448468221016, 0.6291567731550118, 0.611838281254697, 0.5894221199863745, 0.5735875618042353, 0.5582632129443392, 0.5246518890656352, 0.5086991575470858, 0.4965234529518678, 0.4845016760104345, 0.46068040668275865, 0.4477717151282443, 0.4399052754080579, 0.4218625700293924, 0.41561610161274114, 0.40540738151204286, 0.3938279635980837, 0.38657282535646556, 0.37628362434427415, 0.3714460456783205, 0.35767978775598235, 0.34682773129260376, 0.3392789829639966, 0.3325365095269155, 0.3251097842678981, 0.3199622077437282, 0.3155598423940505, 0.30877498052778135, 0.30287789668829354, 0.2973623525917684, 0.29294094963621594, 0.28860094511218754, 0.2816287929300965, 0.2762027289302411, 0.27339083555608584, 0.2679859908830959, 0.2625496620115351, 0.2579672141690159, 0.25347219198796306, 0.24919488286814152, 0.2443805685255386, 0.24027237748091482, 0.23586327779205928, 0.23229301366325506, 0.22851526374965867, 0.22429574093930984, 0.2208591091498944, 0.21773457232848115, 0.21470839163467413, 0.21133590533736796, 0.2084238320138534, 0.20541340212513124, 0.2024510893065081, 0.19989795069897528, 0.19719385698669088, 0.19443647242687934, 0.19189985796919308, 0.18954403080559777, 0.18701463272036362, 0.1847711531488161, 0.18265698225820997, 0.18057303281547378, 0.17859444034807618, 0.17670196146259418, 0.17481927945210907, 0.17292884074088843, 0.17112871527002917, 0.1694536782621465, 0.16772546203227783, 0.1660689701247971, 0.16438632752352214, 0.1627589785914379, 0.1612033568097399, 0.15973154238833793, 0.15817363979679763, 0.15665530929876867] },
     //     { "name": "accuracy", "value": [0.20910610468250794, 0.22041742992624508, 0.23308525519482428, 0.24571234009517884, 0.26016769871618467, 0.27368209918245565, 0.289372037432861, 0.3035068361446422, 0.3172876518552582, 0.3328726351548283, 0.3466047558698044, 0.3602616121211505, 0.3754787095253884, 0.3901522070732555, 0.4059995581057777, 0.42030887664905326, 0.4351260998744197, 0.4491499118955925, 0.4643191208196027, 0.4791570285389671, 0.4937751501979607, 0.5093906554529167, 0.5246335654844963, 0.5400546111266894, 0.554907518157049, 0.5703685860800133, 0.5854748266741896, 0.6006320527757132, 0.6153188038228583, 0.6307936978093317, 0.6458607851807937, 0.6615088306014422, 0.6768193136359285, 0.691678661286925, 0.7074813052971227, 0.722243930411678, 0.7373971778471817, 0.7527112059259876, 0.7672278261098052, 0.7824761034111165, 0.7975973918890935, 0.8125419810341635, 0.8274201762887585, 0.8421071507209336, 0.8573046536101792, 0.872028850769486, 0.8868964084179868, 0.9016179363247836, 0.916369785267344, 0.9308814585868721, 0.9453738443251847, 0.9600137595958017, 0.9745650400707835, 0.9887124298720154, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] },
@@ -486,19 +488,20 @@ const Analysis = (props) => {
                     <h3>Analysis</h3>
                 </Row>
                 <Row>
-                    {metrics.length > 0 ? <Results metrics={metrics} parameters={parameters} /> 
-                        : <Container className="text-center my-5">
-                                <div className="d-flex flex-column align-items-center">
-                                    <Spinner animation="border" role="status" variant="secondary" style={{ width: '5rem', height: '5rem' }}>
-                                        <span className="visually-hidden">Loading...</span>
-                                    </Spinner>
-                                    <p className="mt-3">Executing network, please wait...</p>
-                                </div>
+                    {metrics.length > 0 && <Results metrics={metrics} parameters={parameters} /> }
+                    <Container className="text-center my-5">
+                        {isTraining && <div className="d-flex flex-column align-items-center">
+                                            <Spinner animation="border" role="status" variant="secondary" style={{ width: '5rem', height: '5rem' }}>
+                                                <span className="visually-hidden">Loading...</span>
+                                            </Spinner>
+                                            <p className="mt-3">Executing network, please wait...</p>
+                                        </div>
+                        }
                             
-                                <p>No results to show</p>
+                                <p>No results to show:</p>
+                                <p> Add an <em>Input node</em> and set up the parameters (click on the <Sliders /> tab in the left menu) in order to start training your network</p>
                             
                         </Container>
-                    }
                 </Row>
             </Container>
         </div>

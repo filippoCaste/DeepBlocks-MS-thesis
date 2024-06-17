@@ -4,7 +4,9 @@ from flask import request, jsonify
 from services.block_service import train_network as train_network_service, export_network as export_network_service
 from USERS_SET import USERS_SET
 from google.protobuf.json_format import MessageToDict
-import os
+import os, requests, re
+
+stack_link = 'https://api.stackexchange.com/2.3/search/advanced?order=desc&sort=activity&accepted=True&site=stackoverflow'
 
 def post_all_blocks():
     data = request.get_json()
@@ -29,7 +31,15 @@ def post_all_blocks():
         metrics_list = [MessageToDict(metric) for metric in response.metrics]
         return jsonify({'message': response.message, 'metrics': metrics_list}), 200
     else:
-        return jsonify(response.message), 500
+        resp = requests.get(stack_link + '&q=' + re.sub(r'\([^)]*\)', '', response.message).strip())
+        if resp.status_code == 200:
+            solution_link = resp.json()['items'][0]['link']
+        
+        if solution_link != None:
+            ret_message = response.message + ' <a href=' + solution_link + '/>'
+        else:
+            ret_message = response.message
+        return jsonify(ret_message), 500
 
 def post_input_files():
     session_id = int(request.form.get('sessionId'))

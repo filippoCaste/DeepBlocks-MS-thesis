@@ -1,5 +1,5 @@
 'use strict';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import Sidebar from './components/Sidebar';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './style.css';
@@ -47,6 +47,8 @@ import { Spinner } from 'react-bootstrap';
 const initialEdges = [];
 const initialNodes = [];
 
+const DEBOUNCE_DELAY = 10000; // 10 seconds
+
 export const sessionId = await SESSION_API.getSession();
 window.addEventListener('beforeunload', SESSION_API.deleteSession);
 
@@ -87,6 +89,8 @@ export default function App() {
     }
   };
 
+  const debounceTimeoutRef = useRef(null);
+
   // training api
   useEffect(() => {
     const paramObj = [
@@ -97,26 +101,37 @@ export default function App() {
       { "key": "optimizer", "value": optimizer }
     ]
 
-    // check if all the conditions are satisfied
-    const inputNode = nodes.find(n => n.type === 'customNode' && n.parameters[0].name === 'input_dataset')
-    if (inputNode && edges.find(e => e.source === inputNode.id)) {
-      const isParamsSet = learningRate !== 0 && epochs !== 0 && batchSize !== 0 && loss !== '' && optimizer !== ''
-      if(!isParamsSet) {
-        addMessage("To run your network, please set all the parameters in the sidebar.", "danger")
-        return;
+    const debounceEffect = () => {
+      // check if all the conditions are satisfied
+      const inputNode = nodes.find(n => n.type === 'customNode' && n.parameters[0].name === 'input_dataset')
+      if (inputNode && edges.find(e => e.source === inputNode.id)) {
+        const isParamsSet = learningRate !== 0 && epochs !== 0 && batchSize !== 0 && loss !== '' && optimizer !== ''
+        if(!isParamsSet) {
+          addMessage("To run your network, please set all the parameters in the sidebar.", "danger")
+          return;
+        }
+        addMessage("Training in progress...", "info")
+        setIsTraining(true);
+        BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
+          setMetrics(data.metrics)
+          setIsTraining(false)
+          addMessage("Training completed", "success")
+        }).catch(err => {
+          console.log(err)
+          setIsTraining(false)
+          addMessage(err, "danger")
+        })
       }
-      addMessage("Training in progress...", "info")
-      setIsTraining(true);
-      BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
-        setMetrics(data.metrics)
-        setIsTraining(false)
-        addMessage("Training completed", "success")
-      }).catch(err => {
-        console.log(err)
-        setIsTraining(false)
-        addMessage("Error while training: " + err, "danger")
-      })
     }
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+
+    debounceTimeoutRef.current = setTimeout(debounceEffect, DEBOUNCE_DELAY);
+
+    return () => {
+      clearTimeout(debounceTimeoutRef.current);
+    };
   }, [edges, nodeParams])
 
   useEffect(() => {

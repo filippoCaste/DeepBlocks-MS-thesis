@@ -318,9 +318,29 @@ export default function App() {
           if(!nodes || !edges || !params) {
             throw new Error('The file is not a valid JSON file');
           }
+          let mapping = [];
+          const newNodes = nodes.map(n => {
+            let b = new Block(n.type, n.position, n.data, n.parameters);
+            mapping.push([n.id, b.id]);
+            return b;
+          });
 
-          setNodes(nodes);
-          setEdges(edges);
+          const newEdges = edges.map(e => {
+            let newEdge = {...e };
+            for(let m of mapping) {
+              if(m[0] === e.source) {
+                newEdge = { ...newEdge, source: m[1] }
+              } else if(m[0] === e.target) {
+                newEdge = { ...newEdge, target: m[1] }
+              }
+            }
+            
+            return newEdge;
+          })
+
+
+          setNodes(newNodes);
+          setEdges(newEdges);
 
           for(let param of params) {
             if(param.key === 'learningRate') {

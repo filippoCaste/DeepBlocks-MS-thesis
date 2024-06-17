@@ -55,8 +55,6 @@
                 "name": "Addition",
                 "function": "torch.add",
                 "parameters": [
-                    { "name": "layer_type", "description": "Type of the layer", "value": null},
-                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
                     { "name": "tensor1", "description": "First tensor", "value": null },
                     { "name": "tensor2", "description": "Second tensor", "value": null }
                 ]
@@ -65,8 +63,6 @@
                 "name": "Subtraction",
                 "function": "torch.sub",
                 "parameters": [
-                    { "name": "layer_type", "description": "Type of the layer", "value": null},
-                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
                     { "name": "tensor1", "description": "First tensor", "value": null },
                     { "name": "tensor2", "description": "Second tensor", "value": null }
                 ]
@@ -75,8 +71,6 @@
                 "name": "Multiplication",
                 "function": "torch.mul",
                 "parameters": [
-                    { "name": "layer_type", "description": "Type of the layer", "value": null},
-                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
                     { "name": "tensor1", "description": "First tensor", "value": null },
                     { "name": "tensor2", "description": "Second tensor", "value": null }
                 ]
@@ -85,8 +79,6 @@
                 "name": "Division",
                 "function": "torch.div",
                 "parameters": [
-                    { "name": "layer_type", "description": "Type of the layer", "value": null},
-                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
                     { "name": "tensor1", "description": "First tensor", "value": null },
                     { "name": "tensor2", "description": "Second tensor", "value": null }
                 ]

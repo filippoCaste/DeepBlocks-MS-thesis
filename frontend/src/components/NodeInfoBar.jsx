@@ -59,7 +59,7 @@ export default function NodeInfoBar(props) {
 function ParametersTab(props) {
     const { node } = props;
     const [layerType, setLayerType] = useState(node.parameters[0].name === 'layer_type' ? node.parameters[0].value : 'null');
-    const [datasetType, setDatasetType] = useState(node.parameters[2].name === 'dataset_type' ? node.parameters[2].value : 'null');
+    const [datasetType, setDatasetType] = useState(node.parameters.length > 2 && node.parameters[2].name === 'dataset_type' ? node.parameters[2].value : 'null');
 
     const setParameterLayerType = (value) => {
         setLayerType(value)
@@ -121,7 +121,7 @@ function ParametersTab(props) {
                     }
 
 
-                    {node.parameters[2].name === 'dataset_type' && <Row className="mb-3" style={{ justifyContent: 'space-between' }}>
+                    {node.parameters.length > 2 && node.parameters[2].name === 'dataset_type' && <Row className="mb-3" style={{ justifyContent: 'space-between' }}>
                         <Col md={7}>
                             <p>DATASET TYPE</p>
                             <Form.Group>

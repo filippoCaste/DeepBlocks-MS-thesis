@@ -75,6 +75,8 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
         setNodes(nodes.map(e => children.includes(e.id) ? { ...e, data: { ...e.data, isSelected: false }, hidden: true } : e).concat(superblock));
         setNodes(prevNodes => [...prevNodes, invisibleInput, invisibleOutput])
 
+        setSheets((oldSheets) => [...oldSheets, [superblock.id, superblock.data.label]]);
+        setSelectedSheet([superblock.id, superblock.data.label])
     }
 
     const [selectedNodes, setSelectedNodes] = useState([]);

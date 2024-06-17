@@ -25,7 +25,7 @@ export default function NodeOptions({ setOpenOptions, setRename, nodeInfo }) {
             style={{ position: 'absolute', zIndex: 1000 }}
         >
             <p onClick={() => handleMenuClick('select')}>Select</p>
-            <p onClick={() => handleMenuClick('rename')}>Rename</p>
+            {nodeInfo.data.label === 'Input Dataset (from huggingface.co)' ? '' : <p onClick={() => handleMenuClick('rename')}>Rename</p>}
             <p onClick={() => handleMenuClick('delete')}>Delete</p>
 
         </div>

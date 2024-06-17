@@ -6,7 +6,7 @@ from USERS_SET import USERS_SET
 from google.protobuf.json_format import MessageToDict
 import os, requests, re
 
-stack_link = 'https://api.stackexchange.com/2.3/search/advanced?order=desc&sort=activity&accepted=True&site=stackoverflow'
+stack_link = 'https://api.stackexchange.com/2.3/search/advanced?order=desc&sort=activity&accepted=True&tagged=pytorch;deep-learning;python&site=stackoverflow'
 
 def post_all_blocks():
     data = request.get_json()
@@ -18,7 +18,7 @@ def post_all_blocks():
 
     global USERS_SET
     if session_id not in USERS_SET:
-        return jsonify({'message': 'No session found'}), 403
+        return jsonify({'message': 'Please save your network and refresh the page'}), 403
 
     transformed_blocks = transform_blocks(blocks)
     transformed_edges = transform_edges(edges)
@@ -27,13 +27,15 @@ def post_all_blocks():
     response = train_network_service(transformed_blocks, transformed_edges, transformed_params, session_id)
 
     if response.status == '200':
-        # return jsonify({'message': response.message, 'metrics': response.metrics}), 200
         metrics_list = [MessageToDict(metric) for metric in response.metrics]
         return jsonify({'message': response.message, 'metrics': metrics_list}), 200
     else:
         resp = requests.get(stack_link + '&q=' + re.sub(r'\([^)]*\)', '', response.message).strip())
         if resp.status_code == 200:
-            solution_link = resp.json()['items'][0]['link']
+            try:
+                solution_link = resp.json()['items'][0]['link']
+            except Exception as e:
+                solution_link = None
         
         if solution_link != None:
             ret_message = response.message + ' <a href=' + solution_link + '/>'

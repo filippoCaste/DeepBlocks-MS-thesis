@@ -322,9 +322,3 @@
     height: 100vh;
     overflow-y: auto;
 }
-
-plot {
-    width: 400px;
-    height: 200px;
-    margin-bottom: 20px;
-}

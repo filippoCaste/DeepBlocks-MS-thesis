@@ -30,9 +30,8 @@ def train_model(nodes, edges, params, user_id, uploads):
     for node in nodes:
         if(node.parameters[0].key == 'input_dataset'):
             ds_name = node.parameters[0].value
-            ds_split = node.parameters[1].value
-            ds_type = node.parameters[2].value
-            ds_config = node.parameters[3].value
+            ds_type = node.parameters[1].value
+            ds_config = node.parameters[2].value
             break
 
     if ds_name is None or ds_type is None:

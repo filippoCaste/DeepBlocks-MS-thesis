@@ -7,10 +7,12 @@ import torch.optim as optim
 import torch.nn.functional as F
 from datasets import load_dataset, Audio, Image, load_from_disk
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, BertTokenizer, ViTForImageClassification, ViTImageProcessor
+from transformers import Trainer, TrainingArguments, get_scheduler
 from torch.utils.data import DataLoader, default_collate
 import evaluate
 from torchvision import transforms
 from PIL import Image
+from captum.attr import IntegratedGradients
 
 from network_generation.pytorch_functions import valid_pytorch_functions
 UPLOAD_DIRECTORY = "uploads"
@@ -33,43 +35,68 @@ def train_model(nodes, edges, params, user_id, uploads):
             ds_config = node.parameters[3].value
             break
 
-    if ds_name is None or ds_type is None or ds_split is None:
+    if ds_name is None or ds_type is None:
         raise ValueError("Input dataset informations are not correct")
 
-    model = create_model(nodes, edges)
+    try: 
+        if not os.path.exists(os.path.join(UPLOAD_DIRECTORY, ds_name)):
+            if ds_config == 'None':
+                dataset = load_dataset(ds_name, trust_remote_code=True)
+            else: 
+                dataset = load_dataset(ds_name, ds_config, trust_remote_code=True)
+            
+            dataset.save_to_disk(os.path.join(UPLOAD_DIRECTORY, ds_name))
 
-    n_epochs, lr, batch_size, loss_fn, optimizer = set_parameters(params, model.parameters())
-    # print(n_epochs, lr, batch_size, loss_fn, optimizer)
-
-    # print(ds_name, ds_split, ds_type, ds_config)
-    if not os.path.exists(os.path.join(UPLOAD_DIRECTORY, ds_name)):
-        if ds_config == 'None':
-            dataset = load_dataset(ds_name, split=ds_split, trust_remote_code=True)
-        else: 
-            dataset = load_dataset(ds_name, ds_config, split=ds_split, trust_remote_code=True)
-        
-        dataset.save_to_disk(os.path.join(UPLOAD_DIRECTORY, ds_name))
-
-    else:
-        dataset = load_from_disk(os.path.join(UPLOAD_DIRECTORY, ds_name))
+        else:
+            dataset = load_from_disk(os.path.join(UPLOAD_DIRECTORY, ds_name))
+    
+    except Exception as e:
+        raise Exception(e)
 
     if dataset is None:
         raise Exception("Dataset not found")
 
     if ds_type == "text":
-        auto_model = AutoModelForSequenceClassification.from_pretrained("bert-base-uncased")
-        auto_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+        auto_tokenizer = AutoTokenizer.from_pretrained("google-bert/bert-base-cased")
+        
+        def preprocess_function(examples):
+            encoding = auto_tokenizer(examples["text"], padding="max_length", truncation=True)
+            return encoding
+
+        encoded_dataset = dataset.map(preprocess_function, batched=True)
+        encoded_dataset = encoded_dataset.remove_columns(["text"])
+        encoded_dataset = encoded_dataset.rename_column("label", "labels")
+        encoded_dataset.set_format(type='torch')
+    
     elif ds_type == "image":
-        dataset = dataset.map(resize_images, remove_columns=["image"], batch_size=batch_size, batched=True)
-        auto_model = ViTForImageClassification.from_pretrained("google/vit-base-patch16-224")
+        encoded_dataset = dataset.map(resize_images, remove_columns=["image"], batch_size=64, batched=True)
+        encoded_dataset = encoded_dataset.rename_column("label", "labels")
+
         feature_extractor = ViTImageProcessor.from_pretrained("google/vit-base-patch16-224")
+        auto_tokenizer = feature_extractor
     else:
         raise Exception("Unsupported dataset type")
 
-    auto_model.classifier = model
+    # data_loader = DataLoader(dataset, batch_size=64, shuffle=True, collate_fn=collate_fn)
+    first_batch = next(iter(encoded_dataset['train']))
+
+    if ds_type == "text":
+        input_size = first_batch['input_ids'].shape[-1]
+    elif ds_type == "image":
+        input_size = 100 * 100 * 3
+
+    model = create_model(nodes, edges, input_size)
+    
+    if model is None:
+        raise Exception("Model creation failed")
+    
+    auto_model = model
     auto_model.to(device)
 
-    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
+    try:
+        n_epochs, lr, batch_size, loss_fn, optimizer = set_parameters(params, model.parameters())
+    except Exception as e:
+        raise ValueError("Model or parameters are not correct. Be sure to provide a valid model and parameters.")
 
     accuracy_metric = evaluate.load("accuracy")
     precision_metric = evaluate.load("precision")
@@ -84,68 +111,117 @@ def train_model(nodes, edges, params, user_id, uploads):
         "f1_score": []
     }    
 
-    for epoch in range(n_epochs):
-        auto_model.train()
-        # model.train()
+    small_train_dataset = encoded_dataset["train"].shuffle(seed=42).select(range(900))
+    small_eval_dataset = encoded_dataset["test"].shuffle(seed=42).select(range(900))
+
+    if ds_type == 'text':
+        train_dataloader = DataLoader(small_train_dataset, shuffle=True, batch_size=batch_size)
+        eval_dataloader = DataLoader(small_eval_dataset, batch_size=batch_size)
+
+    elif ds_type == 'image':
+        train_dataloader = DataLoader(small_train_dataset, shuffle=True, batch_size=batch_size, collate_fn=collate_fn)
+        eval_dataloader = DataLoader(small_eval_dataset, batch_size=batch_size, collate_fn=collate_fn)
+
+
+    num_training_steps = n_epochs * len(train_dataloader)
+
+    lr_scheduler = get_scheduler(
+        name="linear", optimizer=optimizer, num_warmup_steps=0, num_training_steps=num_training_steps
+    )
+
+    # Train and evaluate the model
+    try:
+        model.train()
         total_loss = 0
-        for batch in data_loader:
-            # print(f"Batch type: {type(batch)}")
-            print("batch in execution")
-            optimizer.zero_grad()
 
-            labels_batch = batch["label"].to(device)
+        for epoch in range(n_epochs):
+            for batch in train_dataloader:
+                batch = {k: v.to(device) for k, v in batch.items()}
+                labels = batch.pop('labels')
 
-            if ds_type == 'text':
-                text_batch = batch["text"]
-                encoded_input = auto_tokenizer(text_batch, padding=True, truncation=True, return_tensors='pt')
-                input_ids = encoded_input['input_ids'].to(device)
-                attention_mask = encoded_input['attention_mask'].to(device)
-                outputs = auto_model(input_ids=input_ids, attention_mask=attention_mask)
+                if ds_type == 'text':
+                    inputs = batch['input_ids'].to(torch.float)
 
-            elif ds_type == 'image':
-                image_batch = batch["pixel_values"]
-                inputs = feature_extractor(images=image_batch, return_tensors="pt")
-                input_ids = inputs['pixel_values'].to(device)
-                outputs = auto_model(input_ids=input_ids)
+                elif ds_type == 'image':
+                    image_batch = batch["pixel_values"]
+                    inputs = image_batch.to(device).float()
 
-            #######################################################################################################
 
-            # FORWARD PASS
-            loss = loss_fn(outputs.logits, labels_batch)
-            total_loss += loss.item()
+                outputs = model(inputs)
+                loss = loss_fn(outputs, labels)
+                total_loss += loss.item()
+                loss.backward()
+                optimizer.step()
+                lr_scheduler.step()
+                optimizer.zero_grad()
 
-            # EVALUATION STEP
-            predictions = torch.argmax(outputs.logits, dim=-1)
+            model.eval()
+            for batch in eval_dataloader:
+                batch = {k: v.to(device) for k, v in batch.items()}
+                if ds_type == 'text':
+                    inputs = batch['input_ids'].to(torch.float)
+                elif ds_type == 'image':
+                    image_batch = batch["pixel_values"]
+                    inputs = image_batch.to(device).float()
 
-            accuracy_metric.add_batch(predictions=predictions, references=labels_batch)
-            precision_metric.add_batch(predictions=predictions, references=labels_batch)
-            recall_metric.add_batch(predictions=predictions, references=labels_batch)
-            f1_metric.add_batch(predictions=predictions, references=labels_batch)
+                with torch.no_grad():
+                    outputs = model(inputs)
+                logits = outputs
+                predictions = torch.argmax(logits, dim=-1)
 
-            # BACKWARD PASS
-            loss.backward()
-            optimizer.step()
+                labels_batch = batch["labels"]
 
-        # Epoch evaluation
-        accuracy = accuracy_metric.compute()
-        precision = precision_metric.compute(average='weighted')
-        recall = recall_metric.compute(average='weighted')
-        f1 = f1_metric.compute(average='weighted')
-        
-        metrics["loss"].append(total_loss / len(data_loader))
-        metrics["accuracy"].append(accuracy["accuracy"])
-        metrics["precision"].append(precision["precision"])
-        metrics["recall"].append(recall["recall"])
-        metrics["f1_score"].append(f1["f1"])
+                accuracy_metric.add_batch(predictions=predictions, references=labels_batch)
+                precision_metric.add_batch(predictions=predictions, references=labels_batch)
+                recall_metric.add_batch(predictions=predictions, references=labels_batch)
+                f1_metric.add_batch(predictions=predictions, references=labels_batch)
 
-        print(f"Epoch {epoch+1}, Loss: {total_loss / len(data_loader)}, Accuracy: {accuracy}, Precision: {precision}, Recall: {recall}, F1-Score: {f1}")
+            # Epoch evaluation
+            accuracy = accuracy_metric.compute()
+            precision = precision_metric.compute(average='weighted')
+            recall = recall_metric.compute(average='weighted')
+            f1 = f1_metric.compute(average='weighted')
+            
+            metrics["loss"].append(total_loss / len(train_dataloader))
+            metrics["accuracy"].append(accuracy["accuracy"])
+            metrics["precision"].append(precision["precision"])
+            metrics["recall"].append(recall["recall"])
+            metrics["f1_score"].append(f1["f1"])
 
-    # Final evaluation
-    print("Final Evaluation")
-    print(f"Accuracy: {metrics['accuracy'][-1]}")
-    print(f"Precision: {metrics['precision'][-1]}")
-    print(f"Recall: {metrics['recall'][-1]}")
-    print(f"F1-Score: {metrics['f1_score'][-1]}")
+    except Exception as e:
+        print(f"Error during training: {e}")
+        raise Exception("Error during training")
+    
+########################################################################################################################################################################
+########################################################################################################################################################################
+########################################################################################################################################################################
+
+    # # Integrated gradients
+    # print("Integrated gradients")
+    # ig = IntegratedGradients(auto_model)
+
+    # # Choose a batch for IG explanation
+    # batch = next(iter(data_loader))
+
+    # if ds_type == 'text':
+    #     text_batch = batch["text"]
+    #     encoded_input = auto_tokenizer(text_batch, padding=True, truncation=True, return_tensors='pt')
+    #     input_ids = encoded_input['input_ids'].to(device)
+    #     attention_mask = encoded_input['attention_mask'].to(device)
+    #     input_tuple = (input_ids.long(), attention_mask)
+    #     attr, delta = ig.attribute(inputs=input_tuple, target=0, return_convergence_delta=True)
+    # elif ds_type == 'image':
+    #     image_batch = batch["pixel_values"]
+    #     inputs = feature_extractor(images=image_batch, return_tensors="pt")
+    #     input_ids = inputs['pixel_values'].to(device)
+    #     attr, delta = ig.attribute(inputs=input_ids, target=0, return_convergence_delta=True)
+
+    # attr = attr.detach().cpu().numpy()
+    # print(attr)
+
+########################################################################################################################################################################
+########################################################################################################################################################################
+########################################################################################################################################################################    
 
     return metrics
 
@@ -218,7 +294,7 @@ def order_nodes(nodes, edges):
 
 def recursive(edges, src_node, nodes_list):
 
-    print(nodes_list)
+    # print(nodes_list)
     
     # exit conditions
     if src_node is None or len(edges) == 0:
@@ -255,7 +331,7 @@ def recursive(edges, src_node, nodes_list):
             cpy_edges = [e for e in edges if e is not None and e.source != src_node and e.target != edge.target]
             recursive(cpy_edges, res, nodes_list)
 
-def create_model(nodes, edges):
+def create_model(nodes, edges, input_shape):
 
     # list of list of nodes
     nodes_list = order_nodes(nodes, edges)
@@ -264,6 +340,8 @@ def create_model(nodes, edges):
 
     # transform string into modules
     modules = []
+    current_shape = input_shape
+
     for node in nodes_list:
         try:
             fn_name = node.function.split(".")[-1]
@@ -276,13 +354,24 @@ def create_model(nodes, edges):
 
                     if get_layer_type(node) == "2dconv":
                         conv = getattr(torch.nn, "Conv2d")
-                        modules.append(conv(int(params.get('input_tensor')), int(params.get('output_tensor')), int(params.get('kernel_size'))))
+                        in_channels = current_shape
+                        out_channels = int(params.get('output_tensor'))
+                        kernel_size = int(params.get('kernel_size'))
+                        modules.append(conv(in_channels, out_channels, kernel_size))
+                        current_shape = (current_shape, out_channels)
+                        modules.append(module_class())
+
                     elif get_layer_type(node) == "fc":
                         lin = getattr(torch.nn, "Linear")
-                        modules.append(lin(int(params.get('input_tensor')), int(params.get('output_tensor'))))
+                        input_dim = current_shape
+                        output_size = int(params.get('output_tensor'))
+                        input_size = int(params.get('input_tensor'))
+                        modules.append(nn.Flatten())
+                        modules.append(lin(input_dim, input_size))
+                        current_shape = output_size
+                        modules.append(module_class())
+                        modules.append(lin(input_size, output_size))
                     
-                    modules.append(module_class())
-
                 else:
                     print("module not found ", fn)
 
@@ -290,7 +379,6 @@ def create_model(nodes, edges):
             print("ERROR IN LAYER --> ", node.function)
             print(e)
 
-    print(modules)
     # create the corresponding model
     model = nn.Sequential(*modules)
     

@@ -24,7 +24,6 @@ USERS_ID = 100;
 
 class Executor(TrainerServicer):
     def TrainNetwork(self, request, context):       
-        print("This operation is not yet implemented")
 
         global USERS_ID
         uid = USERS_ID
@@ -57,10 +56,10 @@ class Executor(TrainerServicer):
         except ValueError as ve:
             print(ve)
             response = NetworkResult(status="400", message=str(ve))
+
         except Exception as e:
             print(e)
             response = NetworkResult(status="500", message=str(e))
-            # raise(Exception(e))
 
         return response
 

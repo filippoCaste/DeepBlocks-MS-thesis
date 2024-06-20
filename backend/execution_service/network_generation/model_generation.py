@@ -365,7 +365,6 @@ def create_model(nodes, edges, input_shape):
                         input_dim = current_shape
                         output_size = int(params.get('output_tensor'))
                         input_size = int(params.get('input_tensor'))
-                        modules.append(nn.Flatten())
                         modules.append(lin(input_dim, input_size))
                         current_shape = output_size
                         modules.append(module_class())
@@ -373,6 +372,11 @@ def create_model(nodes, edges, input_shape):
                     
                 else:
                     print("module not found ", fn)
+
+            for i, m in enumerate(modules):
+                if isinstance(m, torch.nn.Linear):
+                    modules.insert(0, torch.nn.Flatten())
+                    break
 
         except Exception as e:
             print("ERROR IN LAYER --> ", node.function)
@@ -400,19 +404,54 @@ def get_params_values(node):
 ############################################################################################################
 #                                                  EXPORT                                                  #
 ############################################################################################################
-def export_to_onnx(nodes, edges, params, file_name, uid):
+def export_to_onnx(nodes, edges, file_name, uid):
+    """
+    Export a PyTorch model to an ONNX file.
 
-    model = create_model(nodes, edges, params)
+    Args:
+        nodes (list): A list of nodes representing the layers of the model.
+        edges (list): A list of edges representing the connections between layers.
+        file_name (str): The name of the ONNX file to export the model to.
+        uid (str): A unique identifier for the request.
+
+    Returns:
+        bool: True if the model was successfully exported to an ONNX file, False otherwise.
+
+    Raises:
+        Exception: If there was an error while converting the model to an ONNX file.
+
+    You can visualize an ONNX file using: Netron (https://netron.app/)
+
+    """
+
+    model = create_model(nodes, edges, 1024)
 
     try:
         onnx_file = torch.onnx.export(model, torch.randn(1, 1, 32, 32), os.path.join(f'converted/{uid}',file_name), verbose=True)
         return True
     except Exception as e:
+        print(e)
         raise Exception("Error while converting the model to onnx")
 
-def export_to_pth(nodes, edges, params, file_name, uid):
+def export_to_pth(nodes, edges, file_name, uid):
+    """
+    Export a PyTorch model to a .pth file.
 
-    model = create_model(nodes, edges, params)
+    Args:
+        nodes (list): A list of nodes representing the layers of the model.
+        edges (list): A list of edges representing the connections between layers.
+        file_name (str): The name of the .pth file to export the model to.
+        uid (str): A unique identifier for the request.
+
+    Returns:
+        bool: True if the model was successfully exported to a .pth file, False otherwise.
+
+    Raises:
+        Exception: If there was an error while converting the model to a .pth file.
+
+    """
+
+    model = create_model(nodes, edges, 1024)
 
     try:
         torch.save(model.state_dict(), os.path.join(f'converted/{uid}',file_name))

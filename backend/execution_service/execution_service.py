@@ -42,13 +42,11 @@ class Executor(TrainerServicer):
         shutil.rmtree('uploads/' + str(uid))
         print(request.nodes)
         print(request.edges)
-        print(request.files)
         try:
             metrics_raw = train_model(request.nodes, request.edges, request.parameters, uid, file_names)
             print(metrics_raw)
             metrics = []
             for name, value in metrics_raw.items():
-                print(name, value)
                 metrics.append(Metric(name=name, value=value))
 
             response = NetworkResult(status="200", message="OK, completed", metrics=metrics)
@@ -92,19 +90,19 @@ class Executor(TrainerServicer):
 
         file_type = request.files[0].file_name.split('.')[-1]
 
-        os.makedirs('converted/' + str(uid), exist_ok=True)
+        os.makedirs(os.path.join(CONVERTED_DIRECTORY, str(uid)), exist_ok=True)
 
         if file_type == 'onnx':
-            export_to_onnx(request.nodes, request.edges, request.files[0].file_name,uid)
+            export_to_onnx(request.nodes, request.edges, request.files[0].file_name, uid)
 
         if file_type == 'pth':
             export_to_pth(request.nodes, request.edges, request.files[0].file_name, uid)
 
-        with open(os.path.join(CONVERTED_DIRECTORY+"/"+str(uid), request.files[0].file_name), 'rb') as r_file:
+        with open(os.path.join(CONVERTED_DIRECTORY, str(uid), request.files[0].file_name), 'rb') as r_file:
             ret_file = File(file_data=r_file.read(), file_name=request.files[0].file_name)
 
         # delete id folder when the operations are completed
-        shutil.rmtree('converted/' + str(uid))
+        shutil.rmtree(os.path.join(CONVERTED_DIRECTORY, str(uid)))
         
         return ret_file
 

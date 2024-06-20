@@ -67,7 +67,7 @@ const exportNetwork = async (blocks, edges, params, type, appName) => {
             body: JSON.stringify({network, type, appName, sessionId}),
         });
         if(response.ok) {
-            const data = await response.json();
+            const data = await response.blob();
             return data;
         } else {
             const message = await response.text();

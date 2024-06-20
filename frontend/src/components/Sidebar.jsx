@@ -24,6 +24,8 @@ import Spinner from 'react-bootstrap/Spinner';
 
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
+import InfoCircle from 'react-bootstrap-icons/dist/icons/info-circle';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 const Sidebar = (props) => {
 
@@ -47,27 +49,77 @@ const Sidebar = (props) => {
                     <li onClick={() => {
                             openMenu === "Network Design" ? setOpenMenu('none') : setOpenMenu('Network Design')
                         }} className={`${openMenu === 'Network Design' ? 'selected' : ''}`}>
-                        <span> <PencilFill className='sidebar-icon' /> </span>
+                        <span>
+                            <OverlayTrigger
+                                placement="right"
+                                overlay={
+                                    <Tooltip id={`tooltip-editNetwork`}>
+                                        Add blocks
+                                    </Tooltip>
+                                }> 
+                                <PencilFill className='sidebar-icon' /> 
+                            </OverlayTrigger>
+                        </span>
                     </li>
                     <li onClick={() => {
                             openMenu === "Network Details" ? setOpenMenu('none') : setOpenMenu('Network Details')
                         }} className={`${openMenu === 'Network Details' ? 'selected' : ''}`}>
-                        <span> <List className='sidebar-icon' /> </span>
+                        <span>
+                            <OverlayTrigger
+                                placement="right"
+                                overlay={
+                                    <Tooltip id={`tooltip-listNodesNetwork`}>
+                                        Nodes in the current sheet
+                                    </Tooltip>
+                                }> 
+                                    <List className='sidebar-icon' /> 
+                            </OverlayTrigger>            
+                        </span>
                     </li>
                     <li onClick={() => {
                             openMenu === "Training" ? setOpenMenu('none') : setOpenMenu('Training')
                         }} className={`${openMenu === 'Training' ? 'selected' : ''}`}>
-                        <span> <Sliders className='sidebar-icon' /> </span>
+                        <span>
+                            <OverlayTrigger
+                                placement="right"
+                                overlay={
+                                    <Tooltip id={`tooltip-parametersNetwork`}>
+                                        Set parameters: learning rate, epochs, batch size, loss and optimizer
+                                    </Tooltip>
+                                }> 
+                                    <Sliders className='sidebar-icon' /> 
+                            </OverlayTrigger>            
+                        </span>
                     </li>
                     <li onClick={() => {
                             openMenu === "Options" ? setOpenMenu('none') : setOpenMenu('Options')
                         }} className={`${openMenu === 'Options' ?  'selected' : '' }`}>
-                        <span> <Download className='sidebar-icon' /> </span>
+                        <span>
+                            <OverlayTrigger
+                                placement="right"
+                                overlay={
+                                    <Tooltip id={`tooltip-downloadNetwork`}>
+                                        Download your model
+                                    </Tooltip>
+                                }>
+                                    <Download className='sidebar-icon' /> 
+                            </OverlayTrigger>            
+                        </span>
                     </li>
                     <li onClick={() => {
                         openMenu === "Upload" ? setOpenMenu('none') : setOpenMenu('Upload')
                     }} className={`${openMenu === 'Upload' ? 'selected' : ''}`}>
-                        <span> <Upload className='sidebar-icon' /> </span>
+                        <span>
+                            <OverlayTrigger
+                                placement="right"
+                                overlay={
+                                    <Tooltip id={`tooltip-uploadNetwork`}>
+                                        Upload a model
+                                    </Tooltip>
+                                }> 
+                                    <Upload className='sidebar-icon' /> 
+                            </OverlayTrigger>            
+                        </span>
                     </li>
                 </ul>
                 <hr />
@@ -75,7 +127,17 @@ const Sidebar = (props) => {
                     <li onClick={() => {
                             openMenu === "Analysis" ? setOpenMenu('none') : setOpenMenu('Analysis')
                         }} className={`${openMenu === 'Analysis' ? 'selected' : ''}`}>
-                        <span> <Diagram3Fill className='sidebar-icon' /> </span>
+                                                <span>
+                            <OverlayTrigger
+                                placement="right"
+                                overlay={
+                                    <Tooltip id={`tooltip-editNetwork`}>
+                                        Training results
+                                    </Tooltip>
+                                }> 
+                                    <Diagram3Fill className='sidebar-icon' /> 
+                            </OverlayTrigger>            
+                        </span>
                     </li>
                 </ul>
             </div>
@@ -251,51 +313,51 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
     const [err, setErr] = useState(false);
     const [errMsg, setErrMsg] = useState('');
 
-    const handleTrain = (params, { setErr, setErrMsg }) => {
-        // controls parameters are all set and of the right type
-        if (params.learningRate !== 0 && params.epochs !== 0 && params.batchSize !== 0 && params.loss !== '' && params.optimizer !== '') {
-            if (isNaN(params.epochs) || isNaN(params.batchSize) || isNaN(params.learningRate)) {
-                let errMsg = `Error in the parameters:
-                ${isNaN(params.learningRate) ? 'Learning rate' : ''}
-                ${isNaN(params.epochs) ? ', Epochs' : ''}
-                ${isNaN(params.batchSize) ? ', Batch size' : ''}
-                must be numeric.`
-                    ;
-                setErrMsg(errMsg)
-                setErr(true)
-            } else {
-                // prepare for sending the input file(s)
-                let fileList = nodes.filter(n=> n.type==='customNode' && n.parameters[0].name === 'input_file').map(n => {
-                    return n.parameters[0].value;
-                })
+    // const handleTrain = (params, { setErr, setErrMsg }) => {
+    //     // controls parameters are all set and of the right type
+    //     if (params.learningRate !== 0 && params.epochs !== 0 && params.batchSize !== 0 && params.loss !== '' && params.optimizer !== '') {
+    //         if (isNaN(params.epochs) || isNaN(params.batchSize) || isNaN(params.learningRate)) {
+    //             let errMsg = `Error in the parameters:
+    //             ${isNaN(params.learningRate) ? 'Learning rate' : ''}
+    //             ${isNaN(params.epochs) ? ', Epochs' : ''}
+    //             ${isNaN(params.batchSize) ? ', Batch size' : ''}
+    //             must be numeric.`
+    //                 ;
+    //             setErrMsg(errMsg)
+    //             setErr(true)
+    //         } else {
+    //             // prepare for sending the input file(s)
+    //             let fileList = nodes.filter(n=> n.type==='customNode' && n.parameters[0].name === 'input_file').map(n => {
+    //                 return n.parameters[0].value;
+    //             })
 
-                const paramObj = [
-                    {"key": "learningRate", "value": params.learningRate},
-                    {"key": "epochs", "value": params.epochs},
-                    {"key": "batchSize", "value": params.batchSize},
-                    {"key": "loss", "value": params.loss},
-                    {"key": "optimizer", "value": params.optimizer}
-                ]
-                console.log("You successfully trained your network with this parameters: ", paramObj)
-                BLOCKS_API.postInputFiles(fileList).then((data) => {
-                    BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
-                        console.log(data)
-                        setMetrics(data.metrics)
-                        addMessage("Training completed", "success")
-                    }).catch((err) => {
-                        // console.log(err)
-                        addMessage("Error while training: " + err, "danger")
-                    })
-                }).catch((err) => {
-                    // console.log(err)
-                    addMessage("Error while training: " + err, "danger")
-                })
-            }
-        } else {
-            setErrMsg("Please fill all the parameters")
-            setErr(true)
-        }
-    }
+    //             const paramObj = [
+    //                 {"key": "learningRate", "value": params.learningRate},
+    //                 {"key": "epochs", "value": params.epochs},
+    //                 {"key": "batchSize", "value": params.batchSize},
+    //                 {"key": "loss", "value": params.loss},
+    //                 {"key": "optimizer", "value": params.optimizer}
+    //             ]
+    //             console.log("You successfully trained your network with this parameters: ", paramObj)
+    //             BLOCKS_API.postInputFiles(fileList).then((data) => {
+    //                 BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
+    //                     console.log(data)
+    //                     setMetrics(data.metrics)
+    //                     addMessage("Training completed", "success")
+    //                 }).catch((err) => {
+    //                     // console.log(err)
+    //                     addMessage("Error while training: " + err, "danger")
+    //                 })
+    //             }).catch((err) => {
+    //                 // console.log(err)
+    //                 addMessage("Error while training: " + err, "danger")
+    //             })
+    //         }
+    //     } else {
+    //         setErrMsg("Please fill all the parameters")
+    //         setErr(true)
+    //     }
+    // }
 
     const handleReset = ({ setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer }) => {
         setEpochs(0);
@@ -437,6 +499,8 @@ const Options = (props) => {
 
             {error && <AlertComponent variant="danger" message={errMsg} setErr={setErr} />}
 
+            <p style={{ fontStyle: 'italic', marginTop: '10px' }}> <InfoCircle /> To upload this network on DeepBlocks again, remember that you must use a JSON file.</p>
+
         </div>
     )
 }
@@ -479,7 +543,7 @@ const Analysis = (props) => {
     //     { "name": "recall", "value": [0.20161715622677717, 0.21411384727419756, 0.2310499968311835, 0.24437384445342628, 0.25927364693296583, 0.2743889330455091, 0.28900733076720464, 0.3031582935992994, 0.3187422875666092, 0.33324105171771597, 0.34881822828100305, 0.3625161213053702, 0.3773403355248817, 0.3908984287503824, 0.4054954861979864, 0.421215922679265, 0.43520188966560485, 0.4497172588888282, 0.46430391188230615, 0.4797474658020582, 0.4942273991421589, 0.5096229795264873, 0.5238943917614692, 0.5395205930911214, 0.553793236016212, 0.5698116285039454, 0.5855624082941262, 0.6004195684768787, 0.615231378936278, 0.6311505396480844, 0.6461562091858281, 0.6603726882226674, 0.675664813181783, 0.6910760102038696, 0.706207176285679, 0.7224536840567044, 0.7370955894622196, 0.7518802026848484, 0.7675207129323393, 0.7814332162745324, 0.7964486195315484, 0.8117564051051943, 0.8271735401141515, 0.8423191582313874, 0.8566302486967982, 0.8724948580514134, 0.8873258417991631, 0.901855704031421, 0.9169872469115887, 0.9312727631251588, 0.9459681283981876, 0.9606117355115866, 0.9747655861315584, 0.989141064578603, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] },
     //     { "name": "f1_score", "value": [0.10705997487559218, 0.12048279489694678, 0.135973571260244, 0.1498253244125151, 0.16467792336813073, 0.17987578419733794, 0.1943626751575466, 0.20864358204855608, 0.22419505201990296, 0.23867696404871977, 0.2532249518087977, 0.2679276322401437, 0.28251009116324726, 0.29701170589855793, 0.3113763268310842, 0.3266857043720166, 0.3411415334141465, 0.35543320550577396, 0.3699652905030488, 0.38482701322033496, 0.399529070091804, 0.4140762514844335, 0.4293256518309356, 0.4436721101861186, 0.45829586664621834, 0.4730410973632478, 0.4875102750651489, 0.5024755035192225, 0.5171166212368984, 0.5321180250845404, 0.5472815255200957, 0.5622479158852976, 0.5772856062285954, 0.5920619720119335, 0.6073356341626504, 0.6223447220453684, 0.6373321003838967, 0.6526101349736826, 0.6674686790807828, 0.6825221097559825, 0.6974054189268755, 0.7120627450228748, 0.7270116485889242, 0.742120567624124, 0.7570326282529476, 0.7720207220989242, 0.786771517054374, 0.8013707450576511, 0.8162810250712764, 0.8309673801235112, 0.846095146464368, 0.8608196355173062, 0.8757031363054794, 0.8908314304060685, 0.9055310290162064, 0.9205427710212916, 0.9351823269818026, 0.9498181073002797, 0.9645355808966507, 0.979606962137147, 0.9940903928085678, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] }
     // ];
-    // const {parameters} = props;
+    // const {parameters, isTraining} = props;
 
     return (
         <div className='analysis-container'>
@@ -488,7 +552,6 @@ const Analysis = (props) => {
                     <h3>Analysis</h3>
                 </Row>
                 <Row>
-                    {metrics.length > 0 && <Results metrics={metrics} parameters={parameters} /> }
                     <Container className="text-center my-5">
                         {isTraining && <div className="d-flex flex-column align-items-center">
                                             <Spinner animation="border" role="status" variant="secondary" style={{ width: '5rem', height: '5rem' }}>
@@ -497,11 +560,11 @@ const Analysis = (props) => {
                                             <p className="mt-3">Executing network, please wait...</p>
                                         </div>
                         }
-                            
+                        {metrics.length > 0 ? <Results metrics={metrics} parameters={parameters} /> : <>
                                 <p>No results to show:</p>
                                 <p> Add an <em>Input node</em> and set up the parameters (click on the <Sliders /> tab in the left menu) in order to start training your network</p>
-                            
-                        </Container>
+                            </>}
+                    </Container>
                 </Row>
             </Container>
         </div>
@@ -513,81 +576,103 @@ const Results = (props) => {
 
     return (
          <Col>
-            <h3>Training Results</h3>
-            <Table striped hover variant='dark'>
-                <tbody>
-                    {metrics.map((metric) => (
-                        <tr key={metric.name}>
-                            <th>{metric.name.toUpperCase()}</th>
-                            <td>{metric.value[metric.value.length-1]}</td>   
-                        </tr>
-                    ))}
-                </tbody>
-            </Table>
-
-            <h3>Parameters</h3>
-            <Table striped hover variant='dark'>
-                <tbody>
-                    {parameters.map((parameter) => (
-                        <tr key={parameter.key}>
-                            <th>{parameter.key}</th>
-                            <td>{parameter.value}</td>   
-                        </tr>
-                    ))}
-                </tbody>
-            </Table>
-            
-
+            <Row>
+                <Col md="6" className="mx-auto">
+                    <h3>Training Results</h3>
+                    <br />
+                    <Table striped hover variant='dark'>
+                        <tbody>
+                            {metrics[metrics.length-1].map((metric) => (
+                                <tr key={metric.name}>
+                                    <th>{metric.name.toUpperCase()}</th>
+                                    <td>{metric.value[metric.value.length-1]}</td>   
+                                </tr>
+                            ))}
+                        </tbody>
+                    </Table>
+                </Col>
+            </Row>
+            <br />
+            <Row>
+                <Col md="6" className="mx-auto">
+                    <h3>Parameters</h3>
+                    <br />
+                    <Table striped hover variant='dark'>
+                        <tbody>
+                            {parameters.map((parameter) => (
+                                <tr key={parameter.key}>
+                                    <th>{parameter.key}</th>
+                                    <td>{parameter.value}</td>   
+                                </tr>
+                            ))}
+                        </tbody>
+                    </Table>
+                </Col>
+            </Row>
+            <br /> <br />
             <h3>Visualization</h3>
+            <br />
             <Plots metrics={metrics} />
         </Col>
     );
 }
 
 const Plots = (props) => {
-    const {metrics} = props;
-    const metricsPaired = {};
-    metrics.forEach(item => {
-        metricsPaired[item.name] = item.value;
-    });
+    const { metrics } = props;
 
-    const epochs = Array.from({ length: metricsPaired.loss.length }, (_, i) => i + 1);
+    // Function to generate a color for each session
+    const generateColor = (index) => {
+        const colors = [
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 206, 86, 1)'
+        ];
+        return colors[index % colors.length];
+    };
+
+    const epochs = Array.from({ length: metrics[0][0].value.length }, (_, i) => i + 1);
+
+    const createDatasets = (metricName) => {
+        return metrics.map((session, index) => {
+            const metricData = session.find(item => item.name === metricName).value;
+            return {
+                label: `Session ${index + 1}`,
+                data: metricData,
+                fill: false,
+                backgroundColor: generateColor(index),
+                borderColor: generateColor(index),
+                borderWidth: 1
+            };
+        });
+    };
 
     const precisionRecallData = {
         labels: ['Precision', 'Recall'],
-        datasets: [{
-            label: 'Precision / Recall',
-            data: [metricsPaired.precision[0], metricsPaired.recall[0]],
-            backgroundColor: ['rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)'],
-            borderColor: ['rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)'],
-            borderWidth: 1
-        }]
+        datasets: metrics.map((session, index) => {
+            const precision = session.find(item => item.name === 'precision').value[0];
+            const recall = session.find(item => item.name === 'recall').value[0];
+            return {
+                label: `Session ${index + 1}`,
+                data: [precision, recall],
+                backgroundColor: ['rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)'],
+                borderColor: generateColor(index),
+                borderWidth: 1
+            };
+        })
     };
 
     const lossEpochData = {
         labels: epochs,
-        datasets: [{
-            label: 'Loss vs Epochs',
-            data: metricsPaired.loss,
-            fill: false,
-            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-            borderColor: 'rgba(255, 99, 132, 1)',
-            borderWidth: 1
-        }]
+        datasets: createDatasets('loss')
     };
 
     const accuracyEpochData = {
         labels: epochs,
-        datasets: [{
-            label: 'Accuracy vs Epochs',
-            data: metricsPaired.accuracy,
-            fill: false,
-            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-            borderColor: 'rgba(54, 162, 235, 1)',
-            borderWidth: 1
-        }]
+        datasets: createDatasets('accuracy')
     };
-    
+
     const options = {
         interaction: {
             mode: 'index',
@@ -598,25 +683,34 @@ const Plots = (props) => {
                 mode: 'nearest',
                 intersect: false,
             }
+        },
+        scales: {
+            x: {
+                beginAtZero: true
+            },
+            y: {
+                beginAtZero: true
+            }
         }
     };
 
     return (
-        <div>
-            <div className='plot'>
+        <>
+            <Col md="8" className="mx-auto">
                 <h4>Precision / Recall</h4>
                 <Line data={precisionRecallData} options={options} />
-            </div>
-            <div className='plot'>
+            </Col>
+            <br />
+            <Col md="8" className="mx-auto">
                 <h4>Loss vs Epochs</h4>
                 <Line data={lossEpochData} options={options} />
-            </div>
-            <div className='plot' >
+            </Col>
+            <br />
+            <Col md="8" className="mx-auto">
                 <h4>Accuracy vs Epochs</h4>
                 <Line data={accuracyEpochData} options={options} />
-            </div>
-        </div>
+            </Col>
+        </>
     );
 }
-
 export default Sidebar;

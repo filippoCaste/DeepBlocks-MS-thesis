@@ -54,6 +54,30 @@ window.addEventListener('beforeunload', SESSION_API.deleteSession);
 
 const nodeTypes = { customNode: CustomNode, superBlockNode: SuperBlockNode, invisibleInputNode: InvisibleInputNode, invisibleOutputNode: InvisibleOutputNode };
 
+/**
+ * A function that compares two models to check if they are different.
+ *
+ * @param {Array} model1 - The first model to compare.
+ * @param {Array} model2 - The second model to compare.
+ * @return {boolean} Returns true if the models are different, false otherwise.
+ */
+function isModelDifferent(model1, model2) {
+  console.log(model1, model2)
+  let blockIds1 = model1.map(block => block.id);
+  let blockIds2 = model2.map(block => block.id);
+  console.log(blockIds1, blockIds2)
+
+  if(isEqual(blockIds1, blockIds2)) {
+    let inpDataset1 = model1.find(b => b.parameters[0].name === 'input_dataset')?.parameters[0].value
+    let inpDataset2 = model2.find(b => b.parameters[0].name === 'input_dataset')?.parameters[0].value
+    console.log(inpDataset1, inpDataset2)
+    if(inpDataset1 !== inpDataset2) {
+      return true
+    }
+  }
+
+  return false;
+}
 
 export default function App() {
 
@@ -74,6 +98,7 @@ export default function App() {
   const [metrics, setMetrics] = useState([]);
   const [nodeParams, setNodeParams] = useState([]);
   const [isTraining, setIsTraining] = useState(false);
+  const [trainingSessions, setTrainingSessions] = useState([]);
   
   const [messages, setMessages] = useState([]);
 
@@ -113,7 +138,9 @@ export default function App() {
         addMessage("Training in progress...", "info")
         setIsTraining(true);
         BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
-          setMetrics(data.metrics)
+          let isChangedNetwork = trainingSessions.length > 0 && isModelDifferent(trainingSessions[trainingSessions.length - 1], nodes)
+          setTrainingSessions(prevTrainingSessions => [...prevTrainingSessions, nodes])
+          isChangedNetwork ? setMetrics([data.metrics]) : setMetrics(prevMetrics => [...prevMetrics, data.metrics])
           setIsTraining(false)
           addMessage("Training completed", "success")
         }).catch(err => {
@@ -132,7 +159,7 @@ export default function App() {
     return () => {
       clearTimeout(debounceTimeoutRef.current);
     };
-  }, [edges, nodeParams])
+  }, [edges, nodeParams, learningRate, epochs, batchSize, loss, optimizer])
 
   useEffect(() => {
     const newNodeParams = nodes.map(n => n.parameters).flat();
@@ -388,8 +415,8 @@ export default function App() {
                   setShowMessage={() => setMessages((prevMessages) => prevMessages.filter((msg) => msg.id !== id))} />)}
         </div>
 
-        {isTraining && <div style={{ position: 'fixed', bottom:'3em', right: '50%'}}> 
-          <p>Training... <Spinner animation="border" variant="primary" /> </p>
+        {isTraining && <div style={{ position: 'fixed', top:'7em', left: '50%', display:'inline'}}> 
+          <Spinner animation="border" variant="primary" /> <p style={{ display: 'inline' }}> Training...  </p>
           </div>}
 
         <Routes>

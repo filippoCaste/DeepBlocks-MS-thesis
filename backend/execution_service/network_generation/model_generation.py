@@ -323,6 +323,8 @@ def recursive(edges, src_node, nodes_list):
     - The function modifies the `nodes_list` in-place.
     """
 
+    print(nodes_list)
+
     # exit conditions
     if src_node is None or len(edges) == 0:
         return
@@ -339,29 +341,36 @@ def recursive(edges, src_node, nodes_list):
                     if e.source == super_node_id:
                         # add special case in which two supernodes are connected
                         if 's' in e.target:
-                            for ee in edges:
-                                if ee.source == e.target + 'i':
-                                    res = ee.target
+                            res = recursive_find_next_node(edges, e)
                         else:
                             res = e.target
                         break
 
             elif 's' in edge.target:
-                # super_node_id, = edge.target.split('s')
                 super_node_id = edge.target
                 for e in edges:
                     if e.source == super_node_id + 'i':
-                        res = e.target
-                        # nodes_list.append(res)
+                        if 's' in e.target:
+                            res = recursive_find_next_node(edges, e)
+                        else:
+                            res = e.target
                         break
 
             else:
                 res = edge.target
-                # nodes_list.append(edge.target)
     
             nodes_list.append(res)
             cpy_edges = [e for e in edges if e is not None and e.source != src_node and e.target != edge.target]
             recursive(cpy_edges, res, nodes_list)
+
+def recursive_find_next_node(edges, src_node):
+    for ee in edges:
+        if ee.source == src_node.target + 'i':
+            if 's' in ee.target:
+                res = recursive_find_next_node(edges, ee)
+            else:
+                res = ee.target
+                return res
 
 def create_model(nodes, edges, input_shape):
 

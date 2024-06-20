@@ -270,6 +270,16 @@ def set_parameters(params, model_parameters):
     return n_epochs, lr, batch_size, loss, optimizer
 
 def order_nodes(nodes, edges):
+    """
+    Orders the given nodes based on their input parameters.
+
+    Args:
+        nodes (list): A list of nodes to be ordered.
+        edges (list): A list of edges connecting the nodes.
+
+    Returns:
+        list: A list of nodes in the order determined by their input parameters.
+    """
     input_nodes = []
     for node in nodes:
         for param in node.parameters:
@@ -292,9 +302,27 @@ def order_nodes(nodes, edges):
     return ordered_nodes
 
 def recursive(edges, src_node, nodes_list):
+    """
+    Recursively traverses a directed graph represented by a list of edges.
 
-    # print(nodes_list)
-    
+    Args:
+        edges (List[Edge]): A list of Edge objects representing the edges of the graph.
+        src_node (Node): The starting node for the traversal.
+        nodes_list (List[Node]): A list to store the visited nodes.
+
+    Returns:
+        None
+
+    The function performs a depth-first search on the graph starting from the given source node.
+    It traverses the graph by following the edges and appending the target node to the `nodes_list`.
+    If the target node is a supernode, the function recursively calls itself with the updated
+    `edges` and `src_node` to continue the traversal.
+
+    Note:
+    - The function assumes that the `edges` list contains valid `Edge` objects.
+    - The function modifies the `nodes_list` in-place.
+    """
+
     # exit conditions
     if src_node is None or len(edges) == 0:
         return
@@ -307,10 +335,15 @@ def recursive(edges, src_node, nodes_list):
 
             if 'so' in edge.target:
                 super_node_id = edge.target.split('o')[0]
-                print(super_node_id)
                 for e in edges:
                     if e.source == super_node_id:
-                        res = e.target
+                        # add special case in which two supernodes are connected
+                        if 's' in e.target:
+                            for ee in edges:
+                                if ee.source == e.target + 'i':
+                                    res = ee.target
+                        else:
+                            res = e.target
                         break
 
             elif 's' in edge.target:

@@ -21,8 +21,8 @@ app.register_blueprint(session_routes)
 
 # delete upload directory on exit
 import atexit, shutil
-atexit.register(lambda: shutil.rmtree(f"./{UPLOAD_DIRECTORY}"))
-atexit.register(lambda: shutil.rmtree(f"./{CONVERTED_DIRECTORY}"))
+atexit.register(lambda: shutil.rmtree(f"{UPLOAD_DIRECTORY}"))
+atexit.register(lambda: shutil.rmtree(f"{CONVERTED_DIRECTORY}"))
 #############################################################
 
 if __name__ == "__main__":

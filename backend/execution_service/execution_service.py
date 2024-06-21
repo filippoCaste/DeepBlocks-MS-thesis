@@ -14,7 +14,7 @@ if not os.path.exists(UPLOAD_DIRECTORY):
 if not os.path.exists(CONVERTED_DIRECTORY):
     os.makedirs(CONVERTED_DIRECTORY)
 
-# delete upload directory on exit
+# delete upload and converted directories on exit
 import atexit, shutil
 atexit.register(lambda: shutil.rmtree(f"./{UPLOAD_DIRECTORY}"))
 atexit.register(lambda: shutil.rmtree(f"./{CONVERTED_DIRECTORY}"))
@@ -23,7 +23,18 @@ atexit.register(lambda: shutil.rmtree(f"./{CONVERTED_DIRECTORY}"))
 USERS_ID = 100;
 
 class Executor(TrainerServicer):
-    def TrainNetwork(self, request, context):       
+    def TrainNetwork(self, request, context):
+        """
+    	Train the neural network based on the provided request data.
+    	
+    	Parameters:
+    	    self: Executor instance
+    	    request: Request object containing network data
+    	    context: Context for gRPC communication
+    	
+    	Returns:
+    	    response: NetworkResult object with status, message, and metrics
+    	"""    
 
         global USERS_ID
         uid = USERS_ID
@@ -40,11 +51,8 @@ class Executor(TrainerServicer):
         
         # delete id folder when the operations are completed
         shutil.rmtree('uploads/' + str(uid))
-        print(request.nodes)
-        print(request.edges)
         try:
             metrics_raw = train_model(request.nodes, request.edges, request.parameters, uid, file_names)
-            print(metrics_raw)
             metrics = []
             for name, value in metrics_raw.items():
                 metrics.append(Metric(name=name, value=value))

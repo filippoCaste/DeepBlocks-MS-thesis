@@ -270,7 +270,6 @@ export default function App() {
 
       // copy the edges
       const edgesToCopy = edges.filter(e => childrenId.includes(e.source) || childrenId.includes(e.target)).map(e => {
-        // console.log(pairIds.find(e => { console.log(e, e.source) ; return e[0] == e.source}))
         return {...e, 
           source: e.source.includes('i') ? invisibleInput.id : pairIds.find(p => p[0] == e.source)[1], 
           target: e.target.includes('o') ? invisibleOutput.id : pairIds.find(p => p[0] == e.target)[1]}
@@ -328,7 +327,6 @@ export default function App() {
         addMessage("Network succesfully downloaded", "success");
 
       }).catch((error) => {
-        // console.log(error);
         addMessage("Error while exporting the network: " + error.message, "danger");
       })
     }

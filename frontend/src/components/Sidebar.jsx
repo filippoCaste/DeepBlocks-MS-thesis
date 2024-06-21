@@ -549,7 +549,8 @@ const Analysis = (props) => {
         <div className='analysis-container'>
             <Container>
                 <Row className='mt-3'>
-                    <h3>Analysis</h3>
+                    <h3 className='text-center'>Analysis</h3>
+                    <hr />
                 </Row>
                 <Row>
                     <Container className="text-center my-5">

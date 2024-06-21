@@ -322,3 +322,17 @@
     height: 100vh;
     overflow-y: auto;
 }
+
+.help-page {
+    background-color: #212529;
+    z-index: 1000;
+    position: absolute;
+    color: #fff;
+    display: flex;
+    left: 4rem;
+    flex-direction: column;
+    width: 96.33vw;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 25px;
+}

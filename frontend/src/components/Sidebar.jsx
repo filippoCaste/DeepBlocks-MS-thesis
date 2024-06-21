@@ -16,7 +16,7 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 import Form from 'react-bootstrap/Form';
 import AlertComponent from './AlertComponent';
 import Block from '../models/Block';
-import { BLOCKS_API } from '../API/blocks';
+import QuestionCircle from 'react-bootstrap-icons/dist/icons/question-circle';
 import PlusLg from 'react-bootstrap-icons/dist/icons/plus-lg';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
@@ -26,6 +26,7 @@ import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 import InfoCircle from 'react-bootstrap-icons/dist/icons/info-circle';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
+import Help from '../pages/Help';
 
 const Sidebar = (props) => {
 
@@ -140,8 +141,28 @@ const Sidebar = (props) => {
                         </span>
                     </li>
                 </ul>
+
+                <hr />
+                <ul className="sidebar-menu">
+                    <li onClick={() => {
+                        openMenu === "Help" ? setOpenMenu('none') : setOpenMenu('Help')
+                    }} className={`${openMenu === 'Help' ? 'selected' : ''}`}>
+                        <span>
+                            <OverlayTrigger
+                                placement="right"
+                                overlay={
+                                    <Tooltip id={`tooltip-editNetwork`}>
+                                        How to use DeepBlocks
+                                    </Tooltip>
+                                }>
+                                <QuestionCircle className='sidebar-icon' />
+                            </OverlayTrigger>
+                        </span>
+                    </li>
+                </ul>
+
             </div>
-            {openMenu !== 'none' && openMenu !== 'Analysis' && <Menu openMenu={openMenu} nodes={nodes} edges={edges} handleAddNode={handleAddNode}
+            {openMenu !== 'none' && openMenu !== 'Analysis' && openMenu !== 'Help' && <Menu openMenu={openMenu} nodes={nodes} edges={edges} handleAddNode={handleAddNode}
                                         learningRate={learningRate} epochs={epochs} batchSize={batchSize} loss={loss} optimizer={optimizer}
                                         setLearningRate={setLearningRate} setEpochs={setEpochs} setBatchSize={setBatchSize} setLoss={setLoss} setOptimizer={setOptimizer}
                                         handleDeleteNodes={handleDeleteNodes} handleRenameNode={handleRenameNode} handleDuplicateNode={handleDuplicateNode}
@@ -151,6 +172,8 @@ const Sidebar = (props) => {
             {openMenu === 'Analysis' && <Analysis metrics={metrics} isTraining={isTraining}
                      parameters={[{ "key": "Learning Rate", "value": learningRate}, { "key": "Epochs", "value": epochs}, { "key": "Batch size", "value": batchSize}, { "key": "Loss Function", "value": loss}, { "key": "Optimizer", "value": optimizer}]}
                     />}
+
+            {openMenu === 'Help' && <Help />}
         </>
     );
 };

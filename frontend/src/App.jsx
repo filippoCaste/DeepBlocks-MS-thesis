@@ -231,6 +231,7 @@ export default function App() {
 
   const handleRenameNode = (node, newName) => {
     const updatedNodes = nodes.map(n => n.id === node.id ? {...n, data: {...n.data, label: newName}} : n)
+    setSheets((shs) => [...shs.map(e => e[0] == node.id ? [e[0], newName] : e)])
     setNodes(() => [...updatedNodes])
   }
 

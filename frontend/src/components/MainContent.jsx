@@ -62,11 +62,21 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
         }
 
         // create a new edge between the first possible input and the first possible output
-        const superblock = new Superblock('superBlockNode', { x: 10, y: 10 }, { label: 'new superblock', isSelected: false }, children)
+        let superblock = new Superblock('superBlockNode', { x: 10, y: 10 }, { label: 'new superblock', isSelected: false }, children)
+        superblock.label = superblock.label + ' ' + superblock.id.split('s')[0]
 
         const invisibleInput = new InvisibleBlock(superblock.id + 'i', 'invisibleInputNode', { x: -250, y: 100 })
         const invisibleOutput = new InvisibleBlock(superblock.id + 'o', 'invisibleOutputNode', { x: 1400, y: 100 })
         superblock.children.push(invisibleInput.id, invisibleOutput.id)
+
+        // create a superblock inside a superblock (when the sheet is open)
+        let superBlockOpened = nodes.find(e => e.data.isOpenInSheet === true);
+        if (superBlockOpened) {
+            let cc = superBlockOpened.children.filter(e => !children.includes(e));
+            cc.push(superblock.id);
+            superBlockOpened.children = cc;
+            superblock = { ...superblock, hidden: false};
+        }
         
         setEdges(eds => [...eds.filter(e => { return !((children.includes(e.source) && !children.includes(e.target)) || (!children.includes(e.source) && children.includes(e.target))); } )])
         setEdges(eds => addEdge({ id: `e${superblock.id + '_i'}`, source: invisibleInput.id, target: inp }, eds))

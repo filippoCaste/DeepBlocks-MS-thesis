@@ -9,13 +9,22 @@ export default function ResponseMessage(props) {
     const variant = props.variant;
     const setShowMessage = props.setShowMessage;
     let link = null;
+    let suggestion = null;
+    
+    if(variant === 'danger') {
+        if(message.split('<a href=').length > 1) {
+            let split_msg = message.split('<a href=')
+            message = split_msg[0].replace("\"", " ");
+            link = split_msg[1].split(' />')[0];
+        }
 
-    if(message.split('<a href=').length > 1) {
-        let split_msg = message.split('<a href=')
-        message = split_msg[0].replace("\"", " ");
-        link = split_msg[1].split(' />')[0];
-        console.log(message, link)
+        if (message.split('Suggestion:').length > 1) {
+            let split_msg = message.split('Suggestion:');
+            message = split_msg[0];
+            suggestion = split_msg[1];
+        }
     }
+
 
     useEffect(() => {
         if(variant !== 'danger') {
@@ -35,7 +44,20 @@ export default function ResponseMessage(props) {
             {variant === 'info' && <InfoCircleFill />}
             {' '}
             {message} <br />
-            {link && <a href={link} target="_blank"> <Link45deg /> Check on StackOverflow</a>}
+            {suggestion && variant === 'danger' && (
+                <>
+                    <br />
+                    Suggestion: <br />
+                    {suggestion}
+                </>
+            )}
+            {link && variant === 'danger' && (
+                <>
+                    <br /> <br />
+                    StackOverflow response: <br />
+                    <a href={link} target="_blank"> <Link45deg /> Check on StackOverflow</a>  
+                </>
+            )}
         </Alert>
     );
 }

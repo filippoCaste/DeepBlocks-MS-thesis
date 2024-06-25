@@ -5,12 +5,12 @@ from services.block_service import train_network as train_network_service, expor
 from USERS_SET import USERS_SET
 from google.protobuf.json_format import MessageToDict
 import os, requests, re
+from utils.ERRORS_DICT import error_solutions 
 
 stack_link = 'https://api.stackexchange.com/2.3/search/advanced?order=desc&sort=activity&accepted=True&tagged=pytorch;deep-learning;python&site=stackoverflow'
 
 def post_all_blocks():
     data = request.get_json()
-    # print(data)
     params = data.get('network').get('params')
     blocks = data.get('network').get('blocks')
     edges = data.get('network').get('edges')
@@ -30,17 +30,20 @@ def post_all_blocks():
         metrics_list = [MessageToDict(metric) for metric in response.metrics]
         return jsonify({'message': response.message, 'metrics': metrics_list}), 200
     else:
-        resp = requests.get(stack_link + '&q=' + re.sub(r'\([^)]*\)', '', response.message).strip())
+        resp = requests.get(stack_link + '&title=' + re.sub(r'\([^)]*\)', '', response.message.replace("Error during training:", "")).strip())
         if resp.status_code == 200:
             try:
                 solution_link = resp.json()['items'][0]['link']
             except Exception as e:
                 solution_link = None
         
+            error_type = parse_error_message(response.message)
+
+            ret_message = response.message + " Suggestion: " + error_solutions.get(error_type, "No suggestion available for this error.")
+             
         if solution_link != None:
-            ret_message = response.message + ' <a href=' + solution_link + '/>'
-        else:
-            ret_message = response.message
+            ret_message += ' <a href=' + solution_link + '/>'
+
         return jsonify(ret_message), 500
 
 def post_input_files():
@@ -167,3 +170,15 @@ def transform_params(params):
         })
 
     return transformed_params
+
+def parse_error_message(error_message):
+    if "CUDA out of memory" in error_message:
+        return "CUDA out of memory"
+    elif "Expected object of scalar type" in error_message:
+        return "Expected object of scalar type"
+    elif "size mismatch" in error_message:
+        return "size mismatch"
+    elif "AssertionError" in error_message:
+        return "AssertionError"
+    else:
+        return error_message

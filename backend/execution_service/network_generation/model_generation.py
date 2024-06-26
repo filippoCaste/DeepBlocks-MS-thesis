@@ -1,7 +1,7 @@
 # network_generation/model.py
 
 import numpy as np
-import torch, os, packaging
+import torch, os, packaging, inspect
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
@@ -14,7 +14,7 @@ from torchvision import transforms
 from PIL import Image
 from captum.attr import IntegratedGradients
 
-from network_generation.pytorch_functions import valid_pytorch_functions
+from network_generation.pytorch_functions import valid_pytorch_functions, function_params
 UPLOAD_DIRECTORY = "uploads"
 
 ############################################################################################################
@@ -76,21 +76,21 @@ def train_model(nodes, edges, params, user_id, uploads):
     else:
         raise Exception("Unsupported dataset type")
 
-    # data_loader = DataLoader(dataset, batch_size=64, shuffle=True, collate_fn=collate_fn)
     first_batch = next(iter(encoded_dataset['train']))
 
     if ds_type == "text":
         input_size = first_batch['input_ids'].shape[-1]
+        labels = first_batch['labels']
     elif ds_type == "image":
         input_size = 100 * 100 * 3
-
+        labels = first_batch['labels']
+        
     model = create_model(nodes, edges, input_size)
     
     if model is None:
         raise Exception("Model creation failed")
     
-    auto_model = model
-    auto_model.to(device)
+    model.to(device)
 
     try:
         n_epochs, lr, batch_size, loss_fn, optimizer = set_parameters(params, model.parameters())
@@ -139,14 +139,17 @@ def train_model(nodes, edges, params, user_id, uploads):
                 labels = batch.pop('labels')
 
                 if ds_type == 'text':
-                    inputs = batch['input_ids'].to(torch.float)
+                    inputs = batch['input_ids'].to(device).float()
+                    labels = labels
 
                 elif ds_type == 'image':
                     image_batch = batch["pixel_values"]
                     inputs = image_batch.to(device).float()
 
-
                 outputs = model(inputs)
+                if outputs.shape[0] != labels.shape[0]:
+                    raise Exception(f"Shapes of outputs {outputs.shape[0]} and labels {labels.shape[0]} do not match during training.")
+
                 loss = loss_fn(outputs, labels)
                 total_loss += loss.item()
                 loss.backward()
@@ -156,29 +159,37 @@ def train_model(nodes, edges, params, user_id, uploads):
 
             model.eval()
             for batch in eval_dataloader:
+                if len(batch) == 0:
+                    continue 
                 batch = {k: v.to(device) for k, v in batch.items()}
+                labels_batch = batch.pop('labels')
+
                 if ds_type == 'text':
-                    inputs = batch['input_ids'].to(torch.float)
+                    inputs = batch['input_ids'].to(device).float()
+                    labels_batch = labels_batch
                 elif ds_type == 'image':
                     image_batch = batch["pixel_values"]
                     inputs = image_batch.to(device).float()
-
+                
                 with torch.no_grad():
                     outputs = model(inputs)
                 logits = outputs
                 predictions = torch.argmax(logits, dim=-1)
 
-                labels_batch = batch["labels"]
+                # labels_batch = torch.as_tensor(batch["labels"]).to(device)
 
-                accuracy_metric.add_batch(predictions=predictions, references=labels_batch)
-                precision_metric.add_batch(predictions=predictions, references=labels_batch)
-                recall_metric.add_batch(predictions=predictions, references=labels_batch)
-                f1_metric.add_batch(predictions=predictions, references=labels_batch)
+                if predictions.dim() != labels_batch.dim():
+                    raise Exception(f"Shapes of outputs {predictions.shape} and labels {labels_batch.shape} do not match during evaluation.")
+
+                accuracy_metric.add_batch(predictions=predictions.cpu().numpy(), references=labels_batch.cpu().numpy())
+                precision_metric.add_batch(predictions=predictions.cpu().numpy(), references=labels_batch.cpu().numpy())
+                recall_metric.add_batch(predictions=predictions.cpu().numpy(), references=labels_batch.cpu().numpy())
+                f1_metric.add_batch(predictions=predictions.cpu().numpy(), references=labels_batch.cpu().numpy())
 
             # Epoch evaluation
             accuracy = accuracy_metric.compute()
             precision = precision_metric.compute(average='weighted')
-            recall = recall_metric.compute(average='weighted')
+            recall = recall_metric.compute(average='weighted', zero_division=1)
             f1 = f1_metric.compute(average='weighted')
             
             metrics["loss"].append(total_loss / len(train_dataloader))
@@ -189,7 +200,7 @@ def train_model(nodes, edges, params, user_id, uploads):
 
     except Exception as e:
         print(f"Error during training: {e}")
-        raise Exception("Error during training")
+        raise Exception(f"Error during training: {e}")
     
 ########################################################################################################################################################################
 ########################################################################################################################################################################
@@ -221,7 +232,7 @@ def train_model(nodes, edges, params, user_id, uploads):
 ########################################################################################################################################################################
 ########################################################################################################################################################################
 ########################################################################################################################################################################    
-
+    print("Finished")
     return metrics
 
 def collate_fn(batch):
@@ -259,6 +270,8 @@ def set_parameters(params, model_parameters):
                 loss = nn.CrossEntropyLoss()
             elif param.value == "MSE":
                 loss = nn.MSELoss()
+            elif param.value == "BCE":
+                loss = nn.BCELoss()
 
         elif param.key == "optimizer":
             # can be Adam or SGD
@@ -377,11 +390,33 @@ def create_model(nodes, edges, input_shape):
     # list of list of nodes
     nodes_list = order_nodes(nodes, edges)
 
-    print(nodes_list)
-
     # transform string into modules
     modules = []
     current_shape = input_shape
+
+    def filter_params(params, fn):
+        expected_params = function_params.get(fn, {})
+
+        converted_params = {}
+        for k, v in params.items():
+            if k in expected_params and v != 'None':
+                param_type = expected_params[k]
+                try:
+                    if param_type is bool:
+                        converted_params[k] = v in ["True", "true", True]
+                    elif param_type is int:
+                        converted_params[k] = int(v)
+                    elif param_type is float:
+                        converted_params[k] = float(v)
+                    elif param_type is tuple:
+                        converted_params[k] = tuple(map(int, v.strip('()').split(',')))
+                    else:
+                        converted_params[k] = v
+                except (ValueError, TypeError):
+                    print(f"Error converting parameter {k}: {v}")
+                    # converted_params[k] = v
+
+        return converted_params
 
     for node in nodes_list:
         try:
@@ -399,33 +434,61 @@ def create_model(nodes, edges, input_shape):
                         out_channels = int(params.get('output_tensor'))
                         kernel_size = int(params.get('kernel_size'))
                         modules.append(conv(in_channels, out_channels, kernel_size))
-                        current_shape = (current_shape, out_channels)
-                        modules.append(module_class())
+                        current_shape = out_channels
+                        norm_params = filter_params(params, fn)
+                        modules.append(module_class(**norm_params))
 
                     elif get_layer_type(node) == "fc":
                         lin = getattr(torch.nn, "Linear")
                         input_dim = current_shape
-                        output_size = int(params.get('output_tensor'))
                         input_size = int(params.get('input_tensor'))
+                        output_size = int(params.get('output_tensor'))
                         modules.append(lin(input_dim, input_size))
                         current_shape = output_size
-                        modules.append(module_class())
+                        norm_params = filter_params(params, fn)
+                        modules.append(module_class(**norm_params))
                         modules.append(lin(input_size, output_size))
-                    
+
+                    else:
+                        general_params = filter_params(params, fn)
+                        modules.append(module_class(**general_params))
+
                 else:
                     print("module not found ", fn)
-
-            for i, m in enumerate(modules):
-                if isinstance(m, torch.nn.Linear):
-                    modules.insert(0, torch.nn.Flatten())
-                    break
+            else:
+                print("function not allowed for node ", node)
 
         except Exception as e:
             print("ERROR IN LAYER --> ", node.function)
             print(e)
 
+    for i, m in enumerate(modules):
+        if isinstance(m, torch.nn.Linear):
+            modules.insert(0, torch.nn.Flatten())
+            break
+        else:
+            break
+
     # create the corresponding model
+    # class CustomModel(nn.Module):
+    #     def __init__(self, model):
+    #         super(CustomModel, self).__init__()
+    #         self.model = model
+
+    #     def forward(self, x):
+    #         for layer in self.model:
+    #             if isinstance(layer, (torch.nn.RNN, torch.nn.LSTM, torch.nn.GRU)):
+    #                 x, _ = layer(x)
+    #                 try:
+    #                     x = x[:, -1, :]
+    #                 except:
+    #                     x = x[-1]
+    #             else:
+    #                 x = layer(x)
+    #         return x
+
     model = nn.Sequential(*modules)
+    # model = CustomModel(model)
     
     print("Model created --> ",model)
     

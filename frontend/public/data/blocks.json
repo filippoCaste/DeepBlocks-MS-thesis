@@ -89,8 +89,10 @@
                 "function": "torch.nn.Dropout",
                 "parameters": [
                     { "name": "layer_type", "description": "Type of the layer", "value": null},
+                    { "name": "input_tensor", "description": "Input tensor", "value": null },
+                    { "name": "output_tensor", "description": "Output tensor", "value": null },
                     { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
-                    { "name": "probability", "description": "Dropout probability", "value": null }
+                    { "name": "p", "description": "Dropout probability", "value": null }
                 ]
             }
         ],
@@ -149,14 +151,14 @@
                 "name": "Multihead Attention",
                 "function": "torch.nn.MultiheadAttention",
                 "parameters": [
-                    { "name": "layer_type", "description": "Type of the layer", "value": null},
-                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
-                    { "name": "dim", "description": "Total dimension of model input", "value": null },
-                    { "name": "parallel_attention_heads", "description": "Number of parallel attention heads", "value": null },
-                    { "name": "dropout_probability", "description": "Dropout probability", "value": null },
-                    { "name": "add_bias_to_key_value_sequences", "description": "Whether to add bias to the key and value sequences", "value": null },
-                    { "name": "check_for_others", "description": "Add more and check this attention", "value": null }
-                ]
+                    { "name": "embed_dim", "description": "Total dimension of the model input", "value": null },
+                    { "name": "num_heads", "description": "Number of parallel attention heads", "value": null },
+                    { "name": "dropout", "description": "Dropout probability", "value": null },
+                    { "name": "bias", "description": "Whether to add bias to key and value sequences", "value": null },
+                    { "name": "add_bias_kv", "description": "Whether to add bias to the key and value sequences", "value": null },
+                    { "name": "add_zero_attn", "description": "Whether to add a new batch of zeros to key and value sequences at each forward call", "value": null },
+                    { "name": "kdim", "description": "Total number of features in key", "value": null },
+                    { "name": "vdim", "description": "Total number of features in value", "value": null }                ]
             }
         ],
         "Pooling": [
@@ -168,22 +170,91 @@
                     { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
                     { "name": "input_tensor", "description": "Input tensor", "value": null },
                     { "name": "output_tensor", "description": "Output tensor", "value": null },
-                    { "name": "kernel_size", "description": "Kernel size", "value": null },
-                    { "name": "stride", "description": "Stride", "value": null },
-                    { "name": "padding", "description": "Padding", "value": null }
-                ]
+                    { "name": "dilation", "description": "A parameter that controls the stride of elements in the window", "value": null },
+                    { "name": "return_indices", "description": "Whether to return the max indices along with the outputs", "value": null },
+                    { "name": "ceil_mode", "description": "Whether to use ceil instead of floor to compute the output shape", "value": null }                ]
             },
             {
                 "name": "Average Pooling",
                 "function": "torch.nn.AvgPool2d",
                 "parameters": [
                     { "name": "layer_type", "description": "Type of the layer", "value": null},
-                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
                     { "name": "input_tensor", "description": "Input tensor", "value": null },
                     { "name": "output_tensor", "description": "Output tensor", "value": null },
                     { "name": "kernel_size", "description": "Kernel size", "value": null },
-                    { "name": "stride", "description": "Stride", "value": null },
-                    { "name": "padding", "description": "Padding", "value": null }
+                    { "name": "stride", "description": "Stride of the window", "value": null },
+                    { "name": "padding", "description": "Implicit zero padding to be added on both sides", "value": null },
+                    { "name": "ceil_mode", "description": "Whether to use ceil instead of floor to compute the output shape", "value": null },
+                    { "name": "count_include_pad", "description": "Whether to include the zero-padding in the averaging calculation", "value": null }
+                ]
+            }
+        ],
+        "Convolutional Neural Networks": [
+            {
+                "name": "Conv1d",
+                "function": "torch.nn.Conv1d",
+                "parameters": [
+                {
+                    "name": "in_channels",
+                    "description": "The number of input channels (e.g., number of word embeddings for text data)",
+                    "value": null
+                },
+                {
+                    "name": "out_channels",
+                    "description": "The number of output channels from the convolution",
+                    "value": null
+                },
+                {
+                    "name": "kernel_size",
+                    "description": "The size of the convolutional filter",
+                    "value": null
+                },
+                {
+                    "name": "stride",
+                    "description": "The stride of the convolution (step size)",
+                    "value": null
+                },
+                {
+                    "name": "padding",
+                    "description": "Padding added to the input (0 for no padding)",
+                    "value": null
+                },
+                {
+                    "name": "dilation",
+                    "description": "Spacing between elements in the filter",
+                    "value": null
+                },
+                {
+                    "name": "bias",
+                    "description": "If False, then no bias term is added",
+                    "value": null
+                }
+                ]
+            },
+            {
+                "name": "MaxPool1d",
+                "function": "torch.nn.MaxPool1d",
+                "parameters": [
+                {
+                    "name": "kernel_size",
+                    "description": "The size of the max pooling window",
+                    "value": null
+                },
+                {
+                    "name": "stride",
+                    "description": "The stride of the pooling operation",
+                    "value": null
+                },
+                {
+                    "name": "padding",
+                    "description": "Padding added to the input (0 for no padding)",
+                    "value": null
+                },
+                {
+                    "name": "ceil_mode",
+                    "description": "If True, will use ceil instead of floor to compute the output shape. This ensures that every element in the input tensor is covered by a sliding window.",
+                    "value": null
+                }
                 ]
             }
         ]

@@ -16,5 +16,86 @@ valid_pytorch_functions = {
     "Softmax": "torch.nn.Softmax",
     "MultiheadAttention": "torch.nn.MultiheadAttention",
     "MaxPool2d": "torch.nn.MaxPool2d",
-    "AvgPool2d": "torch.nn.AvgPool2d"
+    "AvgPool2d": "torch.nn.AvgPool2d",
+    "Conv1d": "torch.nn.Conv1d",
+    "MaxPool1d": "torch.nn.MaxPool1d"
+}
+
+function_params = {
+    'torch.nn.BatchNorm1d': {
+        'num_features': int,
+        'eps': float,
+        'momentum': float,
+        'affine': bool,
+        'track_running_stats': bool
+    },
+    'torch.nn.BatchNorm2d': {
+        'num_features': int,
+        'eps': float,
+        'momentum': float,
+        'affine': bool,
+        'track_running_stats': bool
+    },
+    'torch.nn.LayerNorm': {
+        'normalized_shape': tuple,
+        'eps': float,
+        'elementwise_affine': bool
+    },
+    'torch.nn.Dropout': {
+        'p': float,
+        'inplace': bool
+    },
+    'torch.nn.Sigmoid': {},
+    'torch.nn.Tanh': {},
+    'torch.nn.ReLU': {
+        'inplace': bool
+    },
+    'torch.nn.LeakyReLU': {
+        'negative_slope': float,
+        'inplace': bool
+    },
+    'torch.nn.Softmax': {
+        'dim': int
+    },
+    'torch.nn.MultiheadAttention': {
+        'embed_dim': int,
+        'num_heads': int,
+        'dropout': float,
+        'bias': bool,
+        'add_bias_kv': bool,
+        'add_zero_attn': bool,
+        'kdim': int,
+        'vdim': int
+    },
+    'torch.nn.MaxPool2d': {
+        'kernel_size': tuple,
+        'stride': tuple,
+        'padding': tuple,
+        'dilation': tuple,
+        'return_indices': bool,
+        'ceil_mode': bool
+    },
+    'torch.nn.AvgPool2d': {
+        'kernel_size': tuple,
+        'stride': tuple,
+        'padding': tuple,
+        'ceil_mode': bool,
+        'count_include_pad': bool,
+        'divisor_override': int
+    },
+    'torch.nn.Conv1d': {
+        'in_channels': int,
+        'out_channels': int,
+        'kernel_size': int,
+        'stride': int,
+        'padding': int,
+        'dilation': int,
+        'bias': bool
+    },
+    'torch.nn.MaxPool1d': {
+        'kernel_size': tuple,
+        'stride': tuple,
+        'padding': tuple,
+        'ceil_mode': bool,
+    }
 }

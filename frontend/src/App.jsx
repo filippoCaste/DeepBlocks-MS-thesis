@@ -345,11 +345,25 @@ export default function App() {
             throw new Error('The file is not a valid JSON file');
           }
           let mapping = [];
-          const newNodes = nodes.map(n => {
-            let b = new Block(n.type, n.position, n.data, n.parameters, n.fn);
-            mapping.push([n.id, b.id]);
-            return b;
+          let childrenIds = [];
+          let newNodes = nodes.map(n => {
+            if(n.type === 'customNode') {
+              let b = new Block(n.type, n.position, n.data, n.parameters, n.fn);
+              mapping.push([n.id, b.id]);
+              return b;
+            } else if(n.type === 'invisibleInputNode' || n.type === 'invisibleOutputNode') {
+              let b = new InvisibleBlock(n.id, n.type, n.position);
+              mapping.push([n.id, b.id]);
+              return b;
+            } else {
+              let b = new Superblock(n.type, n.position, n.data, n.children);
+              mapping.push([n.id, b.id]);
+              childrenIds.push(...n.children);
+              return b;
+            }
           });
+
+          newNodes = newNodes.map(n => childrenIds.find(c => c === n.id) ? {...n, hidden: true} : n);
 
           const newEdges = edges.map(e => {
             let newEdge = {...e };
@@ -365,8 +379,10 @@ export default function App() {
           })
 
 
-          setNodes(newNodes);
+          setNodes(newNodes.map(n => n.type === 'superblock' ? { ...n, children: n.children.map(c => mapping.find(m => m[0] === c)[1]) } : n));
           setEdges(newEdges);
+          setAppName(inputFile.name);
+          setSheets([['main', 'main']]);
 
           for(let param of params) {
             if(param.key === 'learningRate') {

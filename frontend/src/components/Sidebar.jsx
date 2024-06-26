@@ -217,23 +217,9 @@ const NetworkDesign = ({handleAddNode}) => {
     return (
         <div style={{textAlign: 'left'}}>
 
-            <BlockTable key="tableInput" blocks={Blocks.blocks.Input} category="Input" handleAddNode={handleAddNode} />
-
-            <BlockTable key="tableElementWise" blocks={Blocks.blocks['Element-wise']} category="Element-wise" 
-                handleAddNode={handleAddNode} />
-
-            <BlockTable key="tableActivation" blocks={Blocks.blocks.Activation} category="Activation" 
-                handleAddNode={handleAddNode}/>
-
-            <BlockTable key="tableNormalization" blocks={Blocks.blocks.Normalization} category="Normalization" 
-                handleAddNode={handleAddNode}/>
-
-            <BlockTable key="tableRegularization" blocks={Blocks.blocks.Regularization} category="Regularization" 
-                handleAddNode={handleAddNode}/>
-
-            <BlockTable key="tablePooling" blocks={Blocks.blocks.Pooling} category="Pooling" 
-                handleAddNode={handleAddNode}/>
-
+            {Object.entries(Blocks.blocks).map(([category, blocks]) => (
+                <BlockTable key={category} blocks={blocks} category={category} handleAddNode={handleAddNode} />
+            ))}
         </div>
     );
 }
@@ -249,7 +235,7 @@ const BlockTable = ({category, blocks, handleAddNode}) => {
                     return (
                         <tr key={block.id + "-" + index}>
                             <td style={{ verticalAlign: 'middle' }}>{block.name}</td>
-                            <td style={{ textAlign: 'right' }}><Button onClick={() => {handleAddBlock({block, handleAddNode})}}> <PlusLg /></Button></td>
+                            <td style={{ textAlign: 'right' }}><Button onClick={() => { handleAddBlock({ block, handleAddNode }) }}> <span style={{ margin:'0', padding:'0', fontSize: '1.3em', fontWeight: 'bold' }}><PlusLg /></span></Button></td>
                         </tr>
                     )}
                 )}
@@ -426,6 +412,7 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
                                 >
                                     <Dropdown.Item eventKey="CE">CE</Dropdown.Item>
                                     <Dropdown.Item eventKey="MSE">MSE</Dropdown.Item>
+                                    <Dropdown.Item eventKey="BCE">BCE</Dropdown.Item>
                                 </DropdownButton>
                             </td>
                         </tr>

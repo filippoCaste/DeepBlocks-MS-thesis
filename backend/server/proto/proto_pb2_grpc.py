@@ -49,6 +49,11 @@ class TrainerStub(object):
                 request_serializer=proto__pb2.Network.SerializeToString,
                 response_deserializer=proto__pb2.File.FromString,
                 _registered_method=True)
+        self.ForwardBlock = channel.unary_unary(
+                '/Trainer/ForwardBlock',
+                request_serializer=proto__pb2.Network.SerializeToString,
+                response_deserializer=proto__pb2.ForwardResult.FromString,
+                _registered_method=True)
 
 
 class TrainerServicer(object):
@@ -68,6 +73,13 @@ class TrainerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def ForwardBlock(self, request, context):
+        """Forward single block to the network
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_TrainerServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -80,6 +92,11 @@ def add_TrainerServicer_to_server(servicer, server):
                     servicer.ExportNetwork,
                     request_deserializer=proto__pb2.Network.FromString,
                     response_serializer=proto__pb2.File.SerializeToString,
+            ),
+            'ForwardBlock': grpc.unary_unary_rpc_method_handler(
+                    servicer.ForwardBlock,
+                    request_deserializer=proto__pb2.Network.FromString,
+                    response_serializer=proto__pb2.ForwardResult.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -136,6 +153,33 @@ class Trainer(object):
             '/Trainer/ExportNetwork',
             proto__pb2.Network.SerializeToString,
             proto__pb2.File.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ForwardBlock(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/Trainer/ForwardBlock',
+            proto__pb2.Network.SerializeToString,
+            proto__pb2.ForwardResult.FromString,
             options,
             channel_credentials,
             insecure,

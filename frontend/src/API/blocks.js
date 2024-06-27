@@ -3,7 +3,7 @@ import {sessionId} from "./session";
 
 const postNetwork = async (blocks, edges, params) => {
     const network = {blocks, edges, params};
-    console.log(JSON.stringify({ network, sessionId }))
+    // console.log(JSON.stringify({ network, sessionId }))
     try {
         const response = await fetch(URL + "/api/blocks", {
             method: "POST",
@@ -77,10 +77,35 @@ const exportNetwork = async (blocks, edges, params, type, appName) => {
         console.log(error)
         throw new Error(error.message);
     }
-} 
+}
+
+const forwardBlock = async (blocks, edges, params) => {
+    const network = { blocks, edges, params };
+    try {
+        const response = await fetch(URL + "/api/blocks/forward", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ network, sessionId }),
+        });
+        if (response.ok) {
+            const data = await response.json();
+            return data;
+        } else {
+            const message = await response.text();
+            throw new Error(message);
+        }
+    } catch (error) {
+        console.log(error.message)
+        throw new Error(error.message);
+    }
+
+}
 
 export const BLOCKS_API = {
     postNetwork,
     postInputFiles,
     exportNetwork,
+    forwardBlock,
 }

@@ -1,7 +1,7 @@
 # controllers/block_controller.py
 
 from flask import request, jsonify
-from services.block_service import train_network as train_network_service, export_network as export_network_service
+from services.block_service import train_network as train_network_service, export_network as export_network_service, forward_block as forward_block_service
 from USERS_SET import USERS_SET
 from google.protobuf.json_format import MessageToDict
 import os, requests, re
@@ -78,6 +78,25 @@ def export_blocks():
     
     return ret_file
 
+def forward_block():
+    data = request.get_json()
+
+    params = data.get('network').get('params')
+    blocks = data.get('network').get('blocks')
+    edges = data.get('network').get('edges')
+    session_id = data.get('sessionId')
+
+    app_name = data.get('appName')
+    transformed_blocks = transform_blocks(blocks)
+    transformed_edges = transform_edges(edges)
+    transformed_params = transform_params(params)
+
+    response = forward_block_service(transformed_blocks, transformed_edges, transformed_params)
+
+    # handle the response
+    
+
+    return response
 
 #######################################################################################
 #                                      UTILITIES

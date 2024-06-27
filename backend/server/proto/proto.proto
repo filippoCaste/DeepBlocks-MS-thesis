@@ -5,6 +5,8 @@ service Trainer {
   rpc TrainNetwork (Network) returns (NetworkResult) {}
   // Export to file (onnx or pth)
   rpc ExportNetwork (Network) returns (File) {}
+  // Forward single block to the network
+  rpc ForwardBlock (Network) returns (ForwardResult) {}
 }
 
 message Parameters {
@@ -44,4 +46,10 @@ message NetworkResult {
   string status = 1;
   string message = 2;
   repeated Metric metrics = 3;
+}
+
+message ForwardResult {
+  string status = 1;
+  string message = 2;
+  repeated Parameters parameters = 3;
 }

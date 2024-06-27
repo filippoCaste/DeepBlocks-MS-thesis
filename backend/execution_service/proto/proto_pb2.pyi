@@ -68,3 +68,13 @@ class NetworkResult(_message.Message):
     message: str
     metrics: _containers.RepeatedCompositeFieldContainer[Metric]
     def __init__(self, status: _Optional[str] = ..., message: _Optional[str] = ..., metrics: _Optional[_Iterable[_Union[Metric, _Mapping]]] = ...) -> None: ...
+
+class ForwardResult(_message.Message):
+    __slots__ = ("status", "message", "parameters")
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    MESSAGE_FIELD_NUMBER: _ClassVar[int]
+    PARAMETERS_FIELD_NUMBER: _ClassVar[int]
+    status: str
+    message: str
+    parameters: _containers.RepeatedCompositeFieldContainer[Parameters]
+    def __init__(self, status: _Optional[str] = ..., message: _Optional[str] = ..., parameters: _Optional[_Iterable[_Union[Parameters, _Mapping]]] = ...) -> None: ...

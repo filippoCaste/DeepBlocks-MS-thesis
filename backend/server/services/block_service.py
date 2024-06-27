@@ -42,3 +42,13 @@ def export_network(nodes, edges, params, file_name, session_id):
             file.write(response.file_data)
 
         return response
+
+def forward_block(nodes, edges, params):
+    with grpc.insecure_channel('localhost:50051',
+                               options=[('grpc_max_send_message_length', MAX_MESSAGE_LENGTH),
+                                        ('grpc_max_receive_message_length', MAX_MESSAGE_LENGTH)]) as channel:
+        stub = TrainerStub(channel)
+
+        response = stub.ForwardBlock(Network(nodes=nodes, edges=edges, parameters=params))
+
+        return response

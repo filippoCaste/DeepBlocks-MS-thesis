@@ -1,6 +1,6 @@
 import grpc, logging, os, shutil
 from concurrent import futures
-from proto.proto_pb2 import NetworkResult, File, Metric
+from proto.proto_pb2 import NetworkResult, File, Metric, ForwardResult
 from proto.proto_pb2_grpc import TrainerServicer, add_TrainerServicer_to_server
 
 from network_generation.model_generation import export_to_onnx, export_to_pth, train_model
@@ -113,6 +113,27 @@ class Executor(TrainerServicer):
         shutil.rmtree(os.path.join(CONVERTED_DIRECTORY, str(uid)))
         
         return ret_file
+
+    def ForwardBlock(self, request, context):
+        global USERS_ID
+        uid = USERS_ID
+        USERS_ID += 1
+
+        try:
+            result =  forward_model(request.nodes, request.edges, request.parameters, uid)
+            parameters = []
+            response = ForwardResult(status="200", message=msg, parameters=parameters)
+
+        except ValueError as ve:
+            print(ve)
+            response = ForwardResult(status="400", message=str(ve))
+
+        except Exception as e:
+            print(e)
+            response = ForwardResult(status="500", message=str(e))
+
+        return response
+
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=3), 

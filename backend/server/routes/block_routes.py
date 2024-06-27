@@ -2,7 +2,7 @@
 
 from flask import Blueprint, jsonify, send_file, request
 import os
-from controllers.block_controller import post_all_blocks, post_input_files, export_blocks
+from controllers.block_controller import post_all_blocks, post_input_files, export_blocks, forward_block
 
 block_routes = Blueprint('block_routes', __name__)
 
@@ -28,3 +28,8 @@ def api_export_blocks():
         return send_file(file_path, as_attachment=True, mimetype='application/octet-stream')
     except Exception as e:
         return jsonify(message=str(e)), 500
+
+@block_routes.route('/api/blocks/forward', methods=['POST'])
+def api_forward_block():
+    response = forward_block()
+    return response

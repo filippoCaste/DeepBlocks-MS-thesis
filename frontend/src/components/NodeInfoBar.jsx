@@ -31,7 +31,6 @@ export default function NodeInfoBar(props) {
     }
 
     const setParameterValue = (name, value) => {
-        console.log(node)
         props.setNodes(prevNodes => [...prevNodes.map(n => n.id === node.id ? {...n, parameters: n.parameters.map(e => e.name === name ? {...e, value} : e )} : n)]);
     }
 

@@ -7,7 +7,6 @@ export default function CustomNode(props) {
 
     const data = props.data
     const id = props.id
-    console.log(props)
     const [openOptions, setOpenOptions] = useState(false);
     const [rename, setRename] = useState(false);
     const [inputValue, setInputValue] = useState(data.label);

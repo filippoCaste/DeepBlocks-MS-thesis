@@ -217,8 +217,10 @@ const NetworkDesign = ({handleAddNode}) => {
     return (
         <div style={{textAlign: 'left'}}>
 
-            {Object.entries(Blocks.blocks).map(([category, blocks]) => (
+            {Object.entries(Blocks.blocks).map(([category, blocks]) => (<>
                 <BlockTable key={category} blocks={blocks} category={category} handleAddNode={handleAddNode} />
+                <br />
+            </>
             ))}
         </div>
     );
@@ -551,7 +553,7 @@ const Analysis = (props) => {
         <div className='analysis-container'>
             <Container>
                 <Row className='mt-3'>
-                    <h3 className='text-center'>Analysis</h3>
+                    <h2 className='text-center'>Analysis</h2>
                     <hr />
                 </Row>
                 <Row>
@@ -560,7 +562,7 @@ const Analysis = (props) => {
                                             <Spinner animation="border" role="status" variant="secondary" style={{ width: '5rem', height: '5rem' }}>
                                                 <span className="visually-hidden">Loading...</span>
                                             </Spinner>
-                                            <p className="mt-3">Executing network, please wait...</p>
+                                            <p className="mt-3">Training the network, please wait...</p>
                                         </div>
                         }
                         {metrics.length > 0 ? <Results metrics={metrics} parameters={parameters} /> : <>
@@ -635,7 +637,7 @@ const Plots = (props) => {
         return colors[index % colors.length];
     };
 
-    const epochs = Array.from({ length: metrics[0][0].value.length }, (_, i) => i + 1);
+    const epochs = Array.from({ length: metrics[metrics.length-1][0].value.length }, (_, i) => i + 1);
 
     const createDatasets = (metricName) => {
         return metrics.map((session, index) => {

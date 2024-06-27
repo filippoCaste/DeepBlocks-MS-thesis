@@ -85,7 +85,7 @@ def train_model(nodes, edges, params, user_id, uploads):
         input_size = 100 * 100 * 3
         labels = first_batch['labels']
         
-    model = create_model(nodes, edges, input_size)
+    model, msg = create_model(nodes, edges, input_size)
     
     if model is None:
         raise Exception("Model creation failed")
@@ -95,7 +95,7 @@ def train_model(nodes, edges, params, user_id, uploads):
     try:
         n_epochs, lr, batch_size, loss_fn, optimizer = set_parameters(params, model.parameters())
     except Exception as e:
-        raise ValueError("Model or parameters are not correct. Be sure to provide a valid model and parameters.")
+        raise ValueError(f"Model or parameters are not correct. Be sure to provide a valid model and parameters. {msg}")
 
     accuracy_metric = evaluate.load("accuracy")
     precision_metric = evaluate.load("precision")
@@ -176,8 +176,6 @@ def train_model(nodes, edges, params, user_id, uploads):
                 logits = outputs
                 predictions = torch.argmax(logits, dim=-1)
 
-                # labels_batch = torch.as_tensor(batch["labels"]).to(device)
-
                 if predictions.dim() != labels_batch.dim():
                     raise Exception(f"Shapes of outputs {predictions.shape} and labels {labels_batch.shape} do not match during evaluation.")
 
@@ -188,7 +186,7 @@ def train_model(nodes, edges, params, user_id, uploads):
 
             # Epoch evaluation
             accuracy = accuracy_metric.compute()
-            precision = precision_metric.compute(average='weighted')
+            precision = precision_metric.compute(average='weighted', zero_division=1)
             recall = recall_metric.compute(average='weighted', zero_division=1)
             f1 = f1_metric.compute(average='weighted')
             
@@ -233,7 +231,7 @@ def train_model(nodes, edges, params, user_id, uploads):
 ########################################################################################################################################################################
 ########################################################################################################################################################################    
     print("Finished")
-    return metrics
+    return metrics, msg
 
 def collate_fn(batch):
     resize_transform = transforms.Compose([
@@ -387,6 +385,8 @@ def recursive_find_next_node(edges, src_node):
 
 def create_model(nodes, edges, input_shape):
 
+    msg = ""
+
     # list of list of nodes
     nodes_list = order_nodes(nodes, edges)
 
@@ -460,6 +460,7 @@ def create_model(nodes, edges, input_shape):
 
         except Exception as e:
             print("ERROR IN LAYER --> ", node.function)
+            msg += f" {e} "
             print(e)
 
     for i, m in enumerate(modules):
@@ -492,7 +493,7 @@ def create_model(nodes, edges, input_shape):
     
     print("Model created --> ",model)
     
-    return model
+    return model, msg
 
 def get_layer_type(node):
     for param in node.parameters:
@@ -529,14 +530,19 @@ def export_to_onnx(nodes, edges, file_name, uid):
 
     """
 
-    model = create_model(nodes, edges, 1024)
+    model, msg = create_model(nodes, edges, 1024)
 
     try:
         onnx_file = torch.onnx.export(model, torch.randn(1, 1, 32, 32), os.path.join(f'converted/{uid}',file_name), verbose=True)
         return True
     except Exception as e:
-        print(e)
-        raise Exception("Error while converting the model to onnx")
+        try:
+            input_tensor = torch.randn(1, 100, 32)
+            onnx_file = torch.onnx.export(model, input_tensor, os.path.join(f'converted/{uid}',file_name), verbose=True)
+            return True
+        except Exception as e:
+            print(e)
+            raise Exception("Error while converting the model to onnx")
 
 def export_to_pth(nodes, edges, file_name, uid):
     """
@@ -556,7 +562,7 @@ def export_to_pth(nodes, edges, file_name, uid):
 
     """
 
-    model = create_model(nodes, edges, 1024)
+    model, msg = create_model(nodes, edges, 1024)
 
     try:
         torch.save(model.state_dict(), os.path.join(f'converted/{uid}',file_name))

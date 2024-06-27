@@ -19,7 +19,7 @@
                 "parameters": [
                     { "name": "layer_type", "description": "Type of the layer", "value": null},
                     { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
-                    { "name": "features", "description": "Number of features", "value": null },
+                    { "name": "num_features", "description": "Number of features", "value": null },
                     { "name": "momentum", "description": "Momentum", "value": null },
                     { "name": "eps", "description": "Epsilon", "value": null },
                     { "name": "affine", "description": "Whether to use learnable affine parameters", "value": null }
@@ -31,7 +31,7 @@
                 "parameters": [
                     { "name": "layer_type", "description": "Type of the layer", "value": null},
                     { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
-                    { "name": "features", "description": "Number of features", "value": null },
+                    { "name": "num_features", "description": "Number of features", "value": null },
                     { "name": "momentum", "description": "Momentum", "value": null },
                     { "name": "eps", "description": "Epsilon", "value": null },
                     { "name": "affine", "description": "Whether to use learnable affine parameters", "value": null }
@@ -161,35 +161,7 @@
                     { "name": "vdim", "description": "Total number of features in value", "value": null }                ]
             }
         ],
-        "Pooling": [
-            {
-                "name": "Max Pooling",
-                "function": "torch.nn.MaxPool2d",
-                "parameters": [
-                    { "name": "layer_type", "description": "Type of the layer", "value": null},
-                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
-                    { "name": "input_tensor", "description": "Input tensor", "value": null },
-                    { "name": "output_tensor", "description": "Output tensor", "value": null },
-                    { "name": "dilation", "description": "A parameter that controls the stride of elements in the window", "value": null },
-                    { "name": "return_indices", "description": "Whether to return the max indices along with the outputs", "value": null },
-                    { "name": "ceil_mode", "description": "Whether to use ceil instead of floor to compute the output shape", "value": null }                ]
-            },
-            {
-                "name": "Average Pooling",
-                "function": "torch.nn.AvgPool2d",
-                "parameters": [
-                    { "name": "layer_type", "description": "Type of the layer", "value": null},
-                    { "name": "input_tensor", "description": "Input tensor", "value": null },
-                    { "name": "output_tensor", "description": "Output tensor", "value": null },
-                    { "name": "kernel_size", "description": "Kernel size", "value": null },
-                    { "name": "stride", "description": "Stride of the window", "value": null },
-                    { "name": "padding", "description": "Implicit zero padding to be added on both sides", "value": null },
-                    { "name": "ceil_mode", "description": "Whether to use ceil instead of floor to compute the output shape", "value": null },
-                    { "name": "count_include_pad", "description": "Whether to include the zero-padding in the averaging calculation", "value": null }
-                ]
-            }
-        ],
-        "Convolutional Neural Networks": [
+        "Convolutional Layers": [
             {
                 "name": "Conv1d",
                 "function": "torch.nn.Conv1d",
@@ -232,7 +204,7 @@
                 ]
             },
             {
-                "name": "MaxPool1d",
+                "name": "Max Pooling 1d",
                 "function": "torch.nn.MaxPool1d",
                 "parameters": [
                 {
@@ -255,6 +227,77 @@
                     "description": "If True, will use ceil instead of floor to compute the output shape. This ensures that every element in the input tensor is covered by a sliding window.",
                     "value": null
                 }
+                ]
+            },
+                        {
+                "name": "Average Pooling 1d",
+                "function": "torch.nn.AvgPool1d",
+                "parameters": [
+                    { "name": "layer_type", "description": "Type of the layer", "value": null},
+                    { "name": "input_tensor", "description": "Input tensor", "value": null },
+                    { "name": "output_tensor", "description": "Output tensor", "value": null },
+                    { "name": "kernel_size", "description": "Kernel size", "value": null },
+                    { "name": "stride", "description": "Stride of the window", "value": null },
+                    { "name": "padding", "description": "Implicit zero padding to be added on both sides", "value": null },
+                    { "name": "ceil_mode", "description": "Whether to use ceil instead of floor to compute the output shape", "value": null },
+                    { "name": "count_include_pad", "description": "Whether to include the zero-padding in the averaging calculation", "value": null }
+                ]
+            },
+            {
+                "name": "Conv2d",
+                "function": "torch.nn.Conv2d",
+                "parameters": [
+                    {
+                        "name": "in_channels",
+                        "description": "The number of input channels (e.g., number of word embeddings for text data)",
+                        "value": null
+                    },
+                    {
+                        "name": "out_channels",
+                        "description": "The number of output channels from the convolution",
+                        "value": null
+                    },
+                    {
+                        "name": "kernel_size",
+                        "description": "The size of the convolutional filter",
+                        "value": null
+                    },
+                    {
+                        "name": "stride",
+                        "description": "The stride of the convolution (step size)",
+                        "value": null
+                    },
+                    {
+                        "name": "padding",
+                        "description": "Padding added to the input (0 for no padding)",
+                        "value": null
+                    }
+                ]
+            },
+            {
+                "name": "Max Pooling 2d",
+                "function": "torch.nn.MaxPool2d",
+                "parameters": [
+                    { "name": "layer_type", "description": "Type of the layer", "value": null},
+                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
+                    { "name": "input_tensor", "description": "Input tensor", "value": null },
+                    { "name": "output_tensor", "description": "Output tensor", "value": null },
+                    { "name": "dilation", "description": "A parameter that controls the stride of elements in the window", "value": null },
+                    { "name": "return_indices", "description": "Whether to return the max indices along with the outputs", "value": null },
+                    { "name": "ceil_mode", "description": "Whether to use ceil instead of floor to compute the output shape", "value": null }                ]
+            },
+            {
+                "name": "Average Pooling 2d",
+                "function": "torch.nn.AvgPool2d",
+                "parameters": [
+                    { "name": "layer_type", "description": "Type of the layer", "value": null},
+                    { "name": "input_tensor", "description": "Input tensor", "value": null },
+                    { "name": "output_tensor", "description": "Output tensor", "value": null },
+                    { "name": "kernel_size", "description": "Kernel size", "value": null },
+                    { "name": "stride", "description": "Stride of the window", "value": null },
+                    { "name": "padding", "description": "Implicit zero padding to be added on both sides", "value": null },
+                    { "name": "ceil_mode", "description": "Whether to use ceil instead of floor to compute the output shape", "value": null },
+                    { "name": "count_include_pad", "description": "Whether to include the zero-padding in the averaging calculation", "value": null }
                 ]
             }
         ]

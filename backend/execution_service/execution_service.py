@@ -52,12 +52,12 @@ class Executor(TrainerServicer):
         # delete id folder when the operations are completed
         shutil.rmtree('uploads/' + str(uid))
         try:
-            metrics_raw = train_model(request.nodes, request.edges, request.parameters, uid, file_names)
+            metrics_raw, msg = train_model(request.nodes, request.edges, request.parameters, uid, file_names)
             metrics = []
             for name, value in metrics_raw.items():
                 metrics.append(Metric(name=name, value=value))
 
-            response = NetworkResult(status="200", message="OK, completed", metrics=metrics)
+            response = NetworkResult(status="200", message=msg, metrics=metrics)
 
         except ValueError as ve:
             print(ve)

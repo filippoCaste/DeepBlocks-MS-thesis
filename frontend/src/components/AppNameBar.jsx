@@ -28,7 +28,7 @@ export default function AppNameBar(props) {
                 OK
         </Button>
                
-            : <Button variant='secondary' onClick={() => setIsRename(true)}> <Pencil /> </Button> 
+            : <Button variant='secondary' onClick={() => {setIsRename(true); setNewName(appName)}}> <Pencil /> </Button> 
         
         }
 

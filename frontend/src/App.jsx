@@ -64,6 +64,7 @@ const nodeTypes = { customNode: CustomNode, superBlockNode: SuperBlockNode, invi
 function isModelDifferent(model1, model2) {
   let blockIds1 = model1.map(block => [block.id, block.label]);
   let blockIds2 = model2.map(block => [block.id, block.label]);
+  
   if(isEqual(blockIds1, blockIds2)) {
     let inpDataset1 = model1.find(b => b.parameters[0].name === 'input_dataset')?.parameters[0].value
     let inpDataset2 = model2.find(b => b.parameters[0].name === 'input_dataset')?.parameters[0].value

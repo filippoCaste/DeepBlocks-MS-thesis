@@ -62,18 +62,16 @@ const nodeTypes = { customNode: CustomNode, superBlockNode: SuperBlockNode, invi
  * @return {boolean} Returns true if the models are different, false otherwise.
  */
 function isModelDifferent(model1, model2) {
-  console.log(model1, model2)
-  let blockIds1 = model1.map(block => block.id);
-  let blockIds2 = model2.map(block => block.id);
-  console.log(blockIds1, blockIds2)
-
+  let blockIds1 = model1.map(block => [block.id, block.label]);
+  let blockIds2 = model2.map(block => [block.id, block.label]);
   if(isEqual(blockIds1, blockIds2)) {
     let inpDataset1 = model1.find(b => b.parameters[0].name === 'input_dataset')?.parameters[0].value
     let inpDataset2 = model2.find(b => b.parameters[0].name === 'input_dataset')?.parameters[0].value
-    console.log(inpDataset1, inpDataset2)
     if(inpDataset1 !== inpDataset2) {
-      return true
+      return true;
     }
+  } else {
+    return true;
   }
 
   return false;
@@ -132,7 +130,7 @@ export default function App() {
       if (inputNode && edges.find(e => e.source === inputNode.id)) {
         const isParamsSet = learningRate !== 0 && epochs !== 0 && batchSize !== 0 && loss !== '' && optimizer !== ''
         if(!isParamsSet) {
-          addMessage("To run your network, please set all the parameters in the sidebar.", "danger")
+          addMessage("To run your network, please set all the parameters in the sidebar.", "warning")
           return;
         }
         addMessage("Training in progress...", "info")
@@ -142,9 +140,30 @@ export default function App() {
           setTrainingSessions(prevTrainingSessions => [...prevTrainingSessions, nodes])
           isChangedNetwork ? setMetrics([data.metrics]) : setMetrics(prevMetrics => [...prevMetrics, data.metrics])
           setIsTraining(false)
-          addMessage("Training completed", "success")
+          if(data.message !== "") {
+            addMessage(data.message, "warning")
+          }
+          addMessage("Training completed. Results are available in the left-side menu.", "success")
         }).catch(err => {
           console.log(err)
+          // check the dimensions of the layers to see if the error matches some of them
+          // let incorrectDim = String(err).replace(/[\[\],().]/g, "").replace("x", " ").split(" ").filter(e => e.match(/\d+/));
+          // console.log(incorrectDim)
+          // let errNodes = nodes.filter(n => n.parameters?.find(p => incorrectDim.includes(p.value)))
+          // console.log(errNodes)
+          // // if yes
+          // if(errNodes.length > 0) {
+          //   errNodes.map(n => {
+          //     return {...n, style: {
+          //       ...n.style,
+          //       border: '2px solid red'
+          //       }
+          //     }
+          //   })
+          // }
+          //// if there are more than one ?
+          //// get the adjacent nodes
+
           setIsTraining(false)
           addMessage(err, "danger")
         })
@@ -347,22 +366,30 @@ export default function App() {
           let mapping = [];
           let childrenIds = [];
           let newNodes = nodes.map(n => {
-            if(n.type === 'customNode') {
-              let b = new Block(n.type, n.position, n.data, n.parameters, n.fn);
+            if(n.type === 'superBlockNode') {
+              let b = new Superblock(n.type, n.position, n.data, n.children);
               mapping.push([n.id, b.id]);
+              childrenIds.push(...n.children);
               return b;
             } else if(n.type === 'invisibleInputNode' || n.type === 'invisibleOutputNode') {
               let b = new InvisibleBlock(n.id, n.type, n.position);
               mapping.push([n.id, b.id]);
               return b;
             } else {
-              let b = new Superblock(n.type, n.position, n.data, n.children);
+              let b = new Block(n.type, n.position, n.data, n.parameters, n.fn);
               mapping.push([n.id, b.id]);
-              childrenIds.push(...n.children);
               return b;
             }
           });
-
+          newNodes = newNodes.map(n => n.type === 'superBlockNode' ? { ...n, children: n.children.map(c => mapping.find(m => m[0] === c)[1]) } : n)
+          childrenIds = childrenIds.map(c => {
+            for(let m of mapping) {
+              if(m[0] === c) {
+                return m[1];
+              }
+            }
+            return c;
+          })
           newNodes = newNodes.map(n => childrenIds.find(c => c === n.id) ? {...n, hidden: true} : n);
 
           const newEdges = edges.map(e => {
@@ -377,9 +404,7 @@ export default function App() {
             
             return newEdge;
           })
-
-
-          setNodes(newNodes.map(n => n.type === 'superblock' ? { ...n, children: n.children.map(c => mapping.find(m => m[0] === c)[1]) } : n));
+          setNodes(newNodes);
           setEdges(newEdges);
           setAppName(inputFile.name);
           setSheets([['main', 'main']]);

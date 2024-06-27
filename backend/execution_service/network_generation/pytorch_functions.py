@@ -15,10 +15,13 @@ valid_pytorch_functions = {
     "LeakyReLU": "torch.nn.LeakyReLU",
     "Softmax": "torch.nn.Softmax",
     "MultiheadAttention": "torch.nn.MultiheadAttention",
+    "Conv1d": "torch.nn.Conv1d",
+    "MaxPool1d": "torch.nn.MaxPool1d",
+    "AvgPool1d": "torch.nn.AvgPool1d",
+    "Conv2d": "torch.nn.Conv2d",
     "MaxPool2d": "torch.nn.MaxPool2d",
     "AvgPool2d": "torch.nn.AvgPool2d",
-    "Conv1d": "torch.nn.Conv1d",
-    "MaxPool1d": "torch.nn.MaxPool1d"
+
 }
 
 function_params = {

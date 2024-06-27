@@ -54,29 +54,28 @@ window.addEventListener('beforeunload', SESSION_API.deleteSession);
 
 const nodeTypes = { customNode: CustomNode, superBlockNode: SuperBlockNode, invisibleInputNode: InvisibleInputNode, invisibleOutputNode: InvisibleOutputNode };
 
-/**
- * A function that compares two models to check if they are different.
- *
- * @param {Array} model1 - The first model to compare.
- * @param {Array} model2 - The second model to compare.
- * @return {boolean} Returns true if the models are different, false otherwise.
- */
-function isModelDifferent(model1, model2) {
-  let blockIds1 = model1.map(block => [block.id, block.label]);
-  let blockIds2 = model2.map(block => [block.id, block.label]);
-  
-  if(isEqual(blockIds1, blockIds2)) {
-    let inpDataset1 = model1.find(b => b.parameters[0].name === 'input_dataset')?.parameters[0].value
-    let inpDataset2 = model2.find(b => b.parameters[0].name === 'input_dataset')?.parameters[0].value
-    if(inpDataset1 !== inpDataset2) {
-      return true;
-    }
-  } else {
-    return true;
-  }
+// /**
+//  * A function that compares two models to check if they are different.
+//  *
+//  * @param {Array} model1 - The first model to compare.
+//  * @param {Array} model2 - The second model to compare.
+//  * @return {boolean} Returns true if the models are different, false otherwise.
+//  */
+// function isModelDifferent(model1, model2) {
+//   let blockIds1 = model1.map(block => [block.id, block.label]);
+//   let blockIds2 = model2.map(block => [block.id, block.label]);
+//   if(isEqual(blockIds1, blockIds2)) {
+//     let inpDataset1 = model1.find(b => b.parameters[0].name === 'input_dataset')?.parameters[0].value
+//     let inpDataset2 = model2.find(b => b.parameters[0].name === 'input_dataset')?.parameters[0].value
+//     if(inpDataset1 !== inpDataset2) {
+//       return true;
+//     }
+//   } else {
+//     return true;
+//   }
 
-  return false;
-}
+//   return false;
+// }
 
 export default function App() {
 
@@ -97,7 +96,6 @@ export default function App() {
   const [metrics, setMetrics] = useState([]);
   const [nodeParams, setNodeParams] = useState([]);
   const [isTraining, setIsTraining] = useState(false);
-  const [trainingSessions, setTrainingSessions] = useState([]);
   
   const [messages, setMessages] = useState([]);
 
@@ -134,40 +132,40 @@ export default function App() {
           addMessage("To run your network, please set all the parameters in the sidebar.", "warning")
           return;
         }
-        addMessage("Training in progress...", "info")
-        setIsTraining(true);
-        BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
-          let isChangedNetwork = trainingSessions.length > 0 && isModelDifferent(trainingSessions[trainingSessions.length - 1], nodes)
-          setTrainingSessions(prevTrainingSessions => [...prevTrainingSessions, nodes])
-          isChangedNetwork ? setMetrics([data.metrics]) : setMetrics(prevMetrics => [...prevMetrics, data.metrics])
-          setIsTraining(false)
-          if(data.message !== "") {
-            addMessage(data.message, "warning")
-          }
-          addMessage("Training completed. Results are available in the left-side menu.", "success")
-        }).catch(err => {
-          console.log(err)
-          // check the dimensions of the layers to see if the error matches some of them
-          // let incorrectDim = String(err).replace(/[\[\],().]/g, "").replace("x", " ").split(" ").filter(e => e.match(/\d+/));
-          // console.log(incorrectDim)
-          // let errNodes = nodes.filter(n => n.parameters?.find(p => incorrectDim.includes(p.value)))
-          // console.log(errNodes)
-          // // if yes
-          // if(errNodes.length > 0) {
-          //   errNodes.map(n => {
-          //     return {...n, style: {
-          //       ...n.style,
-          //       border: '2px solid red'
-          //       }
-          //     }
-          //   })
-          // }
-          //// if there are more than one ?
-          //// get the adjacent nodes
+        // addMessage("Training in progress...", "info")
+        // setIsTraining(true);
+        // BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
+        //   let isChangedNetwork = trainingSessions.length > 0 && isModelDifferent(trainingSessions[trainingSessions.length - 1], nodes)
+        //   setTrainingSessions(prevTrainingSessions => [...prevTrainingSessions, nodes])
+        //   isChangedNetwork ? setMetrics([data.metrics]) : setMetrics(prevMetrics => [...prevMetrics, data.metrics])
+        //   setIsTraining(false)
+        //   if(data.message !== "") {
+        //     addMessage(data.message, "warning")
+        //   }
+        //   addMessage("Training completed. Results are available in the left-side menu.", "success")
+        // }).catch(err => {
+        //   console.log(err)
+        //   // check the dimensions of the layers to see if the error matches some of them
+        //   // let incorrectDim = String(err).replace(/[\[\],().]/g, "").replace("x", " ").split(" ").filter(e => e.match(/\d+/));
+        //   // console.log(incorrectDim)
+        //   // let errNodes = nodes.filter(n => n.parameters?.find(p => incorrectDim.includes(p.value)))
+        //   // console.log(errNodes)
+        //   // // if yes
+        //   // if(errNodes.length > 0) {
+        //   //   errNodes.map(n => {
+        //   //     return {...n, style: {
+        //   //       ...n.style,
+        //   //       border: '2px solid red'
+        //   //       }
+        //   //     }
+        //   //   })
+        //   // }
+        //   //// if there are more than one ?
+        //   //// get the adjacent nodes
 
-          setIsTraining(false)
-          addMessage(err, "danger")
-        })
+        //   setIsTraining(false)
+        //   addMessage(err, "danger")
+        // })
       }
     }
     if (debounceTimeoutRef.current) {
@@ -448,7 +446,7 @@ export default function App() {
             handleDownload={handleDownload} handleUpload={handleUpload}
             learningRate={learningRate} epochs={epochs} batchSize={batchSize} loss={loss} optimizer={optimizer}
             setLearningRate={setLearningRate} setEpochs={setEpochs} setBatchSize={setBatchSize} setLoss={setLoss} setOptimizer={setOptimizer}
-            metrics={metrics} setMetrics={setMetrics} addMessage={addMessage} isTraining={isTraining}
+            metrics={metrics} setMetrics={setMetrics} addMessage={addMessage} isTraining={isTraining} setIsTraining={setIsTraining}
           />
 
         <div style={{ position: 'fixed', top: '7em', right: '1.5em', zIndex: 1000, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>

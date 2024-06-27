@@ -27,13 +27,14 @@ import 'chart.js/auto';
 import InfoCircle from 'react-bootstrap-icons/dist/icons/info-circle';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import Help from '../pages/Help';
+import { BLOCKS_API } from '../API/blocks';
 
 const Sidebar = (props) => {
 
     const [openMenu, setOpenMenu] = useState('none');
     const { nodes, edges, handleAddNode, handleDeleteNodes, handleRenameNode, handleDuplicateNode, 
             handleDownload, handleUpload, learningRate, epochs, batchSize, loss, optimizer, addMessage,
-            setLearningRate, setEpochs, setBatchSize, setLoss, setOptimizer, metrics, setMetrics, isTraining } = props;
+            setLearningRate, setEpochs, setBatchSize, setLoss, setOptimizer, metrics, setMetrics, isTraining, setIsTraining } = props;
 
     // const viewportWidth = window.innerWidth;
     const zoomLevel = window.screen.width / window.innerWidth;
@@ -166,7 +167,7 @@ const Sidebar = (props) => {
                                         learningRate={learningRate} epochs={epochs} batchSize={batchSize} loss={loss} optimizer={optimizer}
                                         setLearningRate={setLearningRate} setEpochs={setEpochs} setBatchSize={setBatchSize} setLoss={setLoss} setOptimizer={setOptimizer}
                                         handleDeleteNodes={handleDeleteNodes} handleRenameNode={handleRenameNode} handleDuplicateNode={handleDuplicateNode}
-                                        handleDownload={handleDownload} handleUpload={handleUpload} setMetrics={setMetrics} addMessage={addMessage}
+                                        handleDownload={handleDownload} handleUpload={handleUpload} setMetrics={setMetrics} addMessage={addMessage} setIsTraining={setIsTraining}
                                         />}
 
             {openMenu === 'Analysis' && <Analysis metrics={metrics} isTraining={isTraining}
@@ -193,7 +194,7 @@ const Menu = (props) => {
             {openMenu === 'Training' && <Training 
                                             learningRate={props.learningRate} epochs={props.epochs} batchSize={props.batchSize} loss={props.loss} optimizer={props.optimizer}
                                             setLearningRate={props.setLearningRate} setEpochs={props.setEpochs} setBatchSize={props.setBatchSize} setLoss={props.setLoss} setOptimizer={props.setOptimizer}
-                                            nodes={props.nodes} edges={props.edges} setMetrics={props.setMetrics} addMessage={props.addMessage}
+                                            nodes={props.nodes} edges={props.edges} setMetrics={props.setMetrics} addMessage={props.addMessage} setIsTraining={props.setIsTraining}
                                             />}
             {openMenu === 'Options' && <Options
                                             learningRate={props.learningRate} epochs={props.epochs} batchSize={props.batchSize} loss={props.loss} optimizer={props.optimizer}
@@ -319,56 +320,73 @@ const BlockDetailsAndActions = (props)  => {
 
 }
 
-const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimizer, setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer, setMetrics, addMessage }) => {
+const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimizer, setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer, setMetrics, addMessage, setIsTraining }) => {
 
     const [err, setErr] = useState(false);
     const [errMsg, setErrMsg] = useState('');
+    const [trainingSessions, setTrainingSessions] = useState([]);
 
-    // const handleTrain = (params, { setErr, setErrMsg }) => {
-    //     // controls parameters are all set and of the right type
-    //     if (params.learningRate !== 0 && params.epochs !== 0 && params.batchSize !== 0 && params.loss !== '' && params.optimizer !== '') {
-    //         if (isNaN(params.epochs) || isNaN(params.batchSize) || isNaN(params.learningRate)) {
-    //             let errMsg = `Error in the parameters:
-    //             ${isNaN(params.learningRate) ? 'Learning rate' : ''}
-    //             ${isNaN(params.epochs) ? ', Epochs' : ''}
-    //             ${isNaN(params.batchSize) ? ', Batch size' : ''}
-    //             must be numeric.`
-    //                 ;
-    //             setErrMsg(errMsg)
-    //             setErr(true)
-    //         } else {
-    //             // prepare for sending the input file(s)
-    //             let fileList = nodes.filter(n=> n.type==='customNode' && n.parameters[0].name === 'input_file').map(n => {
-    //                 return n.parameters[0].value;
-    //             })
 
-    //             const paramObj = [
-    //                 {"key": "learningRate", "value": params.learningRate},
-    //                 {"key": "epochs", "value": params.epochs},
-    //                 {"key": "batchSize", "value": params.batchSize},
-    //                 {"key": "loss", "value": params.loss},
-    //                 {"key": "optimizer", "value": params.optimizer}
-    //             ]
-    //             console.log("You successfully trained your network with this parameters: ", paramObj)
-    //             BLOCKS_API.postInputFiles(fileList).then((data) => {
-    //                 BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
-    //                     console.log(data)
-    //                     setMetrics(data.metrics)
-    //                     addMessage("Training completed", "success")
-    //                 }).catch((err) => {
-    //                     // console.log(err)
-    //                     addMessage("Error while training: " + err, "danger")
-    //                 })
-    //             }).catch((err) => {
-    //                 // console.log(err)
-    //                 addMessage("Error while training: " + err, "danger")
-    //             })
-    //         }
-    //     } else {
-    //         setErrMsg("Please fill all the parameters")
-    //         setErr(true)
-    //     }
-    // }
+    const handleTrain = (params, { setErr, setErrMsg }) => {
+        // controls parameters are all set and of the right type
+        if (params.learningRate !== 0 && params.epochs !== 0 && params.batchSize !== 0 && params.loss !== '' && params.optimizer !== '') {
+            if (isNaN(params.epochs) || isNaN(params.batchSize) || isNaN(params.learningRate)) {
+                let errMsg = `Error in the parameters:
+                ${isNaN(params.learningRate) ? 'Learning rate' : ''}
+                ${isNaN(params.epochs) ? ', Epochs' : ''}
+                ${isNaN(params.batchSize) ? ', Batch size' : ''}
+                must be numeric.`
+                    ;
+                setErrMsg(errMsg)
+                setErr(true)
+            } else {
+                const paramObj = [
+                    {"key": "learningRate", "value": params.learningRate},
+                    {"key": "epochs", "value": params.epochs},
+                    {"key": "batchSize", "value": params.batchSize},
+                    {"key": "loss", "value": params.loss},
+                    {"key": "optimizer", "value": params.optimizer}
+                ]
+                setIsTraining(true);
+                BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
+                  let isChangedNetwork = trainingSessions.length > 0 && isModelDifferent(trainingSessions[trainingSessions.length - 1], nodes)
+                  setTrainingSessions(prevTrainingSessions => [...prevTrainingSessions, nodes])
+                  isChangedNetwork ? setMetrics([data.metrics]) : setMetrics(prevMetrics => [...prevMetrics, data.metrics])
+
+                  setIsTraining(false)
+                  if(data.message !== "") {
+                    addMessage(data.message, "warning")
+                  }
+                  addMessage("Training completed. Results are available in the left-side menu.", "success")
+                }).catch(err => {
+                  console.log(err)
+                  // check the dimensions of the layers to see if the error matches some of them
+                  // let incorrectDim = String(err).replace(/[\[\],().]/g, "").replace("x", " ").split(" ").filter(e => e.match(/\d+/));
+                  // console.log(incorrectDim)
+                  // let errNodes = nodes.filter(n => n.parameters?.find(p => incorrectDim.includes(p.value)))
+                  // console.log(errNodes)
+                  // // if yes
+                  // if(errNodes.length > 0) {
+                  //   errNodes.map(n => {
+                  //     return {...n, style: {
+                  //       ...n.style,
+                  //       border: '2px solid red'
+                  //       }
+                  //     }
+                  //   })
+                  // }
+                  //// if there are more than one ?
+                  //// get the adjacent nodes
+
+                  setIsTraining(false)
+                  addMessage(err, "danger")
+                })
+            }
+        } else {
+            setErrMsg("Please fill all the parameters")
+            setErr(true)
+        }
+    }
 
     const handleReset = ({ setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer }) => {
         setEpochs(0);
@@ -438,7 +456,7 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
                 </Table>
             </Form >
 
-            {/* <Button className='left-menu-button' onClick={() => handleTrain({ epochs, learningRate, batchSize, loss, optimizer }, { setErr, setErrMsg })}> Train </Button> */}
+            <Button className='left-menu-button' onClick={() => handleTrain({ epochs, learningRate, batchSize, loss, optimizer }, { setErr, setErrMsg })}> Train </Button>
             <Button className='left-menu-button' onClick={() => handleReset({ setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer })}> Reset </Button>
 
             {err && <AlertComponent variant="danger" message={errMsg} setErr={setErr} />}
@@ -718,4 +736,32 @@ const Plots = (props) => {
         </>
     );
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+//                                          UTILS                                            //
+///////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * A function that compares two models to check if they are different.
+ *
+ * @param {Array} model1 - The first model to compare.
+ * @param {Array} model2 - The second model to compare.
+ * @return {boolean} Returns true if the models are different, false otherwise.
+ */
+function isModelDifferent(model1, model2) {
+    let blockIds1 = model1.map(block => [block.id, block.label]);
+    let blockIds2 = model2.map(block => [block.id, block.label]);
+    if (isEqual(blockIds1, blockIds2)) {
+        let inpDataset1 = model1.find(b => b.parameters[0].name === 'input_dataset')?.parameters[0].value
+        let inpDataset2 = model2.find(b => b.parameters[0].name === 'input_dataset')?.parameters[0].value
+        if (inpDataset1 !== inpDataset2) {
+            return true;
+        }
+    } else {
+        return true;
+    }
+
+    return false;
+}
+
+
 export default Sidebar;

@@ -3,7 +3,7 @@
 import Button from "react-bootstrap/Button";
 import Pencil from 'react-bootstrap-icons/dist/icons/pencil'
 import { useState } from "react";
-import { Form } from "react-bootstrap";
+import { Form, OverlayTrigger, Tooltip } from "react-bootstrap";
 
 
 export default function AppNameBar(props) {
@@ -28,7 +28,18 @@ export default function AppNameBar(props) {
                 OK
         </Button>
                
-            : <Button variant='secondary' onClick={() => {setIsRename(true); setNewName(appName)}}> <Pencil /> </Button> 
+            : <Button variant='secondary' onClick={() => {setIsRename(true); setNewName(appName)}}>
+                <OverlayTrigger
+                    placement="right"
+                    overlay={
+                        <Tooltip id={`tooltip-renameApp`}>
+                            Rename your Network
+                        </Tooltip>
+                    }>
+                    <Pencil />
+                </OverlayTrigger>
+ 
+                 </Button> 
         
         }
 

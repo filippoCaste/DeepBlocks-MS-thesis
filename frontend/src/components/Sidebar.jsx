@@ -5,9 +5,9 @@ import Table from 'react-bootstrap/Table';
 import Download from 'react-bootstrap-icons/dist/icons/download'
 import Upload from 'react-bootstrap-icons/dist/icons/upload'
 import PencilFill from 'react-bootstrap-icons/dist/icons/pencil-fill'
-import Sliders from 'react-bootstrap-icons/dist/icons/sliders'
+import PlayFill from 'react-bootstrap-icons/dist/icons/play-fill'
 import List from 'react-bootstrap-icons/dist/icons/list'
-import Diagram3Fill from 'react-bootstrap-icons/dist/icons/diagram-3-fill';
+import GraphDown from 'react-bootstrap-icons/dist/icons/graph-down';
 import TrashFill from 'react-bootstrap-icons/dist/icons/trash-fill';
 import Copy from 'react-bootstrap-icons/dist/icons/copy'
 import Blocks from '../../public/data/blocks.json'
@@ -86,10 +86,10 @@ const Sidebar = (props) => {
                                 placement="right"
                                 overlay={
                                     <Tooltip id={`tooltip-parametersNetwork`}>
-                                        Set parameters: learning rate, epochs, batch size, loss and optimizer
+                                        Set the parameters (learning rate, epochs, batch size, loss function and optimizer) and train your network.
                                     </Tooltip>
                                 }> 
-                                    <Sliders className='sidebar-icon' /> 
+                                    <PlayFill className='sidebar-icon' /> 
                             </OverlayTrigger>            
                         </span>
                     </li>
@@ -137,7 +137,7 @@ const Sidebar = (props) => {
                                         Training results
                                     </Tooltip>
                                 }> 
-                                    <Diagram3Fill className='sidebar-icon' /> 
+                                    <GraphDown className='sidebar-icon' /> 
                             </OverlayTrigger>            
                         </span>
                     </li>
@@ -585,7 +585,7 @@ const Analysis = (props) => {
                         }
                         {metrics.length > 0 ? <Results metrics={metrics} parameters={parameters} /> : <>
                                 <p>No results to show:</p>
-                                <p> Add an <em>Input node</em> and set up the parameters (click on the <Sliders /> tab in the left menu) in order to start training your network</p>
+                                <p> Add an <em>Input node</em> and set up the parameters (click on the <PlayFill /> tab in the left menu) in order to start training your network</p>
                             </>}
                     </Container>
                 </Row>

@@ -99,6 +99,22 @@ export default function App() {
   
   const [messages, setMessages] = useState([]);
 
+  const [errNode, setErrNode] = useState(null);
+
+  useEffect(() => {
+    if(errNode !== null) {
+      setNodes((prevNodes) => prevNodes.map((node) => (node.id === errNode.id ? { ...node, style: {
+        ...node.style,
+        border: "3px solid red"
+      }} : node)));
+    } else {
+      setNodes((prevNodes) => prevNodes.map((node) => {return { ...node, style: {
+        ...node.style,
+        border: "none"
+      }}}));
+      }
+  }, [errNode]);
+
   const addMessage = (message, variant) => {
     const id = new Date().getTime(); 
     setMessages((prevMessages) => [...prevMessages, { id, message, variant }]);
@@ -134,28 +150,48 @@ export default function App() {
         }
         addMessage("Checking your network...", "info")
         BLOCKS_API.forwardBlock(nodes, edges, paramObj).then((data) => {
+          setErrNode(null)
           addMessage("Check completed! You are good to go.", "success")
         }).catch(err => {
           console.log(err)
-          addMessage("There is a problem with your last block: \n\t" + err.message, "danger")
-          // change the border of the node with the error in red
-          // TODO
+          const errNodeInfo = err.message.split("Error in the node")[1].split(":")[0].split("(")
+          const errNodeFunction = errNodeInfo[0].trim()
+          const parametersValue = errNodeInfo.slice(1).join("(").trim().split(", ").map(p => p.includes("=") ? p.split("=")[1].replace(/[(),]/g, "") : p)
+          let max = -1
+          const errNodes = nodes
+            .filter(n => n.type === 'customNode' && String(n.fn?.split(".")[n.fn?.split(".").length - 1]) == String(errNodeFunction.trim())) // get nodes with that function
+              .filter(n => {
+                let parametersValueCpy = [...parametersValue]
+                let matches = n.parameters.filter(p => { 
+                  for (let i = 0; i < parametersValueCpy.length; i++) {
+                    if (p.value === parametersValueCpy[i]) {
+                      parametersValueCpy.splice(i, 1);
+                      return true;
+                    }
+                  }
+                  return false;
+                }).length
+                if(max < matches) max = matches;
+                return matches > 0
+              })
+              .filter(n => {
+                let parametersValueCpy = [...parametersValue]
+                let matches = n.parameters.filter(p => {
+                  for (let i = 0; i < parametersValueCpy.length; i++) {
+                    if (p.value === parametersValueCpy[i]) {
+                      parametersValueCpy.splice(i, 1);
+                      return true;
+                    }
+                  }
+                  return false;
+                }).length
+                if (max == matches) return true;
+                return false
+              })
+          const errNode = errNodes[0]
+          setErrNode(errNode)
+          addMessage("There is a problem with the block " + ": \n\t" + err.message, "danger")          
         })
-        // setIsTraining(true);
-        // BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
-        //   let isChangedNetwork = trainingSessions.length > 0 && isModelDifferent(trainingSessions[trainingSessions.length - 1], nodes)
-        //   setTrainingSessions(prevTrainingSessions => [...prevTrainingSessions, nodes])
-        //   isChangedNetwork ? setMetrics([data.metrics]) : setMetrics(prevMetrics => [...prevMetrics, data.metrics])
-        //   setIsTraining(false)
-        //   if(data.message !== "") {
-        //     addMessage(data.message, "warning")
-        //   }
-        //   addMessage("Training completed. Results are available in the left-side menu.", "success")
-        // }).catch(err => {
-        //   console.log(err)
-        //   setIsTraining(false)
-        //   addMessage(err, "danger")
-        // })
       }
     }
     if (debounceTimeoutRef.current) {

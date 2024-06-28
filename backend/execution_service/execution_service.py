@@ -3,7 +3,7 @@ from concurrent import futures
 from proto.proto_pb2 import NetworkResult, File, Metric, ForwardResult
 from proto.proto_pb2_grpc import TrainerServicer, add_TrainerServicer_to_server
 
-from network_generation.model_generation import export_to_onnx, export_to_pth, train_model
+from network_generation.model_generation import export_to_onnx, export_to_pth, train_model, forward_model
 
 MAX_MESSAGE_LENGTH = 100 * 1024 * 1024
 UPLOAD_DIRECTORY = 'uploads'
@@ -122,6 +122,7 @@ class Executor(TrainerServicer):
         try:
             result =  forward_model(request.nodes, request.edges, request.parameters, uid)
             parameters = []
+            msg = "OK; completed"
             response = ForwardResult(status="200", message=msg, parameters=parameters)
 
         except ValueError as ve:

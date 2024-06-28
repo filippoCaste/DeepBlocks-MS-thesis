@@ -94,9 +94,12 @@ def forward_block():
     response = forward_block_service(transformed_blocks, transformed_edges, transformed_params)
 
     # handle the response
-    
+    if response.status == '200':
+        return jsonify({'message': response.message}), 200
+    else:
+        ret_message = response.message
+        return jsonify(ret_message), int(response.status)
 
-    return response
 
 #######################################################################################
 #                                      UTILITIES

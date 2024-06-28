@@ -245,7 +245,90 @@ def collate_fn(batch):
     return default_collate(batch)
 
 def forward_model(nodes, edges, params, user_id):
-    pass
+
+    for param in params:
+        if param.key == "batchSize":
+            batch_size = int(param.value)
+
+    if batch_size is None:
+        raise ValueError("Batch size must be specified")
+
+    ds_config = None
+    for node in nodes:
+        if(node.parameters[0].key == 'input_dataset'):
+            ds_name = node.parameters[0].value
+            ds_type = node.parameters[1].value
+            ds_config = node.parameters[2].value
+            break
+
+    if ds_name is None or ds_type is None:
+        raise ValueError("Input dataset informations are not correct")
+
+    try: 
+        if not os.path.exists(os.path.join(UPLOAD_DIRECTORY, ds_name)):
+            if ds_config == 'None':
+                dataset = load_dataset(ds_name, trust_remote_code=True)
+            else: 
+                dataset = load_dataset(ds_name, ds_config, trust_remote_code=True)
+            
+            dataset.save_to_disk(os.path.join(UPLOAD_DIRECTORY, ds_name))
+
+        else:
+            dataset = load_from_disk(os.path.join(UPLOAD_DIRECTORY, ds_name))
+    
+    except Exception as e:
+        raise Exception(e)
+
+    if dataset is None:
+        raise Exception("Dataset not found")
+
+    if ds_type == "text":
+        auto_tokenizer = AutoTokenizer.from_pretrained("google-bert/bert-base-cased")
+        
+        def preprocess_function(examples):
+            encoding = auto_tokenizer(examples["text"], padding="max_length", truncation=True)
+            return encoding
+
+        encoded_dataset = dataset.map(preprocess_function, batched=True)
+        encoded_dataset = encoded_dataset.remove_columns(["text"])
+        encoded_dataset = encoded_dataset.rename_column("label", "labels")
+        encoded_dataset.set_format(type='torch')
+    
+    elif ds_type == "image":
+        encoded_dataset = dataset.map(resize_images, remove_columns=["image"], batch_size=64, batched=True)
+        encoded_dataset = encoded_dataset.rename_column("label", "labels")
+
+        feature_extractor = ViTImageProcessor.from_pretrained("google/vit-base-patch16-224")
+        auto_tokenizer = feature_extractor
+    else:
+        raise Exception("Unsupported dataset type")
+
+    first_batch = next(iter(encoded_dataset['train']))
+
+    if ds_type == "text":
+        input_size = first_batch['input_ids'].shape[-1]
+    elif ds_type == "image":
+        input_size = 100 * 100 * 3
+        
+    model, msg = create_model(nodes, edges, input_size)
+    
+    if model is None:
+        raise Exception("Model creation failed")
+
+    embedding_size = 100
+    
+    input_tensor = torch.rand((batch_size, embedding_size, input_size))
+
+    for i, m in enumerate(model):
+        print(f"Layer {i}: {m}")
+        try:
+            output = m.forward(input_tensor)
+            input_tensor = output
+        except Exception as e:
+            print(f"Error in layer {i}: {e}")
+            raise ValueError(f"Error in the node {m}: {e}")
+
+    return True
 
 
 ############################################################################################################

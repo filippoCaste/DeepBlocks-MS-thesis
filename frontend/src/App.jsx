@@ -132,7 +132,15 @@ export default function App() {
           addMessage("To run your network, please set all the parameters in the sidebar.", "warning")
           return;
         }
-        // addMessage("Training in progress...", "info")
+        addMessage("Checking your network...", "info")
+        BLOCKS_API.forwardBlock(nodes, edges, paramObj).then((data) => {
+          addMessage("Check completed! You are good to go.", "success")
+        }).catch(err => {
+          console.log(err)
+          addMessage("There is a problem with your last block: \n\t" + err.message, "danger")
+          // change the border of the node with the error in red
+          // TODO
+        })
         // setIsTraining(true);
         // BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
         //   let isChangedNetwork = trainingSessions.length > 0 && isModelDifferent(trainingSessions[trainingSessions.length - 1], nodes)
@@ -145,24 +153,6 @@ export default function App() {
         //   addMessage("Training completed. Results are available in the left-side menu.", "success")
         // }).catch(err => {
         //   console.log(err)
-        //   // check the dimensions of the layers to see if the error matches some of them
-        //   // let incorrectDim = String(err).replace(/[\[\],().]/g, "").replace("x", " ").split(" ").filter(e => e.match(/\d+/));
-        //   // console.log(incorrectDim)
-        //   // let errNodes = nodes.filter(n => n.parameters?.find(p => incorrectDim.includes(p.value)))
-        //   // console.log(errNodes)
-        //   // // if yes
-        //   // if(errNodes.length > 0) {
-        //   //   errNodes.map(n => {
-        //   //     return {...n, style: {
-        //   //       ...n.style,
-        //   //       border: '2px solid red'
-        //   //       }
-        //   //     }
-        //   //   })
-        //   // }
-        //   //// if there are more than one ?
-        //   //// get the adjacent nodes
-
         //   setIsTraining(false)
         //   addMessage(err, "danger")
         // })

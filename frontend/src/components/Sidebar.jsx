@@ -31,8 +31,7 @@ import { BLOCKS_API } from '../API/blocks';
 
 const Sidebar = (props) => {
 
-    const [openMenu, setOpenMenu] = useState('none');
-    const { nodes, edges, handleAddNode, handleDeleteNodes, handleRenameNode, handleDuplicateNode, 
+    const { openMenu, setOpenMenu, nodes, edges, handleAddNode, handleDeleteNodes, handleRenameNode, handleDuplicateNode, 
             handleDownload, handleUpload, learningRate, epochs, batchSize, loss, optimizer, addMessage,
             setLearningRate, setEpochs, setBatchSize, setLoss, setOptimizer, metrics, setMetrics, isTraining, setIsTraining } = props;
 

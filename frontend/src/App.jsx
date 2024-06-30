@@ -19,6 +19,7 @@ import { InvisibleOutputNode } from './components/InvisibleOutputNode';
 import InvisibleBlock from './models/InvisibleBlock';
 import isEqual from 'lodash.isequal';  
 import { Spinner } from 'react-bootstrap';
+import Welcome from './components/Welcome';
 
 // just for temporary use
 // let node1 = new Block('customNode', { x: 10, y: 0 }, { label: 'Leaky ReLU' }, [
@@ -89,7 +90,7 @@ export default function App() {
   const [loss, setLoss] = useState('');
   const [optimizer, setOptimizer] = useState('');
   // --------------------------------------------------
-
+  const [openMenu, setOpenMenu] = useState('none');
   const [sheets, setSheets] = useState([['main', 'main']])
   const [appName, setAppName] = useState("My DeepBlock's network")
 
@@ -470,7 +471,7 @@ export default function App() {
       <div className='app-container' style={{ display: 'flex' }}>
         <Sidebar nodes={nodes} edges={edges} setNodes={setNodes} handleAddNode={handleAddNode} 
             handleDeleteNodes={handleDeleteNodes} handleRenameNode={handleRenameNode} handleDuplicateNode={handleDuplicateNode}
-            handleDownload={handleDownload} handleUpload={handleUpload}
+            handleDownload={handleDownload} handleUpload={handleUpload} openMenu={openMenu} setOpenMenu={setOpenMenu}
             learningRate={learningRate} epochs={epochs} batchSize={batchSize} loss={loss} optimizer={optimizer}
             setLearningRate={setLearningRate} setEpochs={setEpochs} setBatchSize={setBatchSize} setLoss={setLoss} setOptimizer={setOptimizer}
             metrics={metrics} setMetrics={setMetrics} addMessage={addMessage} isTraining={isTraining} setIsTraining={setIsTraining}
@@ -480,6 +481,8 @@ export default function App() {
           {messages.map(({ id, message, variant }) => <ResponseMessage key={id} message={message} variant={variant} 
                   setShowMessage={() => setMessages((prevMessages) => prevMessages.filter((msg) => msg.id !== id))} />)}
         </div>
+
+        {nodes.length === 0 && <Welcome setOpenMenu={setOpenMenu} />}
 
         {isTraining && <div style={{ position: 'fixed', top:'7em', left: '50%', display:'inline'}}> 
           <Spinner animation="border" variant="primary" /> <p style={{ display: 'inline' }}> Training...  </p>

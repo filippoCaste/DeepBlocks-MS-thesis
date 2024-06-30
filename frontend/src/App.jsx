@@ -142,7 +142,7 @@ export default function App() {
     const debounceEffect = () => {
       // check if all the conditions are satisfied
       const inputNode = nodes.find(n => n.type === 'customNode' && n.parameters[0].name === 'input_dataset')
-      if (inputNode && edges.find(e => e.source === inputNode.id)) {
+      if (!isTraining && inputNode && edges.find(e => e.source === inputNode.id)) {
         const isParamsSet = learningRate !== 0 && epochs !== 0 && batchSize !== 0 && loss !== '' && optimizer !== ''
         if(!isParamsSet) {
           addMessage("To run your network, please set all the parameters in the sidebar.", "warning")

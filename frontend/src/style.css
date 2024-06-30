@@ -48,10 +48,9 @@
 .node{
     background-color: #212529;
     color: #fff;
-    padding-left: 5px;
-    padding-right: 5px;
+    padding: 15px;
     border-radius: 5em;
-    height: 2rem;
+    height: 2.5rem;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -77,6 +76,36 @@
     margin: 0;
     height: 90%;
     padding: 0 0.5em; 
+}
+
+.node.Element-wise {
+    background-color: mediumblue;
+    color: white;
+}
+
+.node.Normalization {
+    background-color: cornflowerblue;
+
+}
+
+.node.Regularization {
+    background-color: orange;
+    color: black;
+}
+
+.node.Activation {
+    background-color: rebeccapurple;
+    color: white;
+}
+
+.node.Convolutional.Layers {
+    background-color: darkolivegreen;
+    color: white;
+}
+
+.node.Convolutional.Layers:hover {
+    background-color: #555;
+    cursor: pointer;
 }
 
 .node:hover {

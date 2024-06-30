@@ -207,8 +207,8 @@ const Menu = (props) => {
     )
 }
 
-const handleAddBlock = ({block, handleAddNode}) => {
-    let b = new Block('customNode', { x: 200, y: 200 }, { label: block.name }, block.parameters, block.function);
+const handleAddBlock = ({block, handleAddNode, category}) => {
+    let b = new Block('customNode', { x: 200, y: 200 }, { label: block.name, category: category }, block.parameters, block.function);
     b.position = { x: 200+b.id*7, y: 200+b.id*7 };
     handleAddNode(b)
 }
@@ -238,7 +238,7 @@ const BlockTable = ({category, blocks, handleAddNode}) => {
                     return (
                         <tr key={block.id + "-" + index}>
                             <td style={{ verticalAlign: 'middle' }}>{block.name}</td>
-                            <td style={{ textAlign: 'right' }}><Button onClick={() => { handleAddBlock({ block, handleAddNode }) }}> <span style={{ margin:'0', padding:'0', fontSize: '1.3em', fontWeight: 'bold' }}><PlusLg /></span></Button></td>
+                            <td style={{ textAlign: 'right' }}><Button onClick={() => { handleAddBlock({ block, handleAddNode, category }) }}> <span style={{ margin:'0', padding:'0', fontSize: '1.3em', fontWeight: 'bold' }}><PlusLg /></span></Button></td>
                         </tr>
                     )}
                 )}

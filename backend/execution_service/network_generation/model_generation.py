@@ -111,7 +111,7 @@ def train_model(nodes, edges, params, user_id, uploads):
     }    
 
     small_train_dataset = encoded_dataset["train"].shuffle(seed=42).select(range(900))
-    small_eval_dataset = encoded_dataset["test"].shuffle(seed=42).select(range(900))
+    small_eval_dataset = encoded_dataset["test"].shuffle(seed=42).select(range(600))
 
     if ds_type == 'text':
         train_dataloader = DataLoader(small_train_dataset, shuffle=True, batch_size=batch_size)
@@ -293,6 +293,8 @@ def forward_model(nodes, edges, params, user_id):
         encoded_dataset = encoded_dataset.remove_columns(["text"])
         encoded_dataset = encoded_dataset.rename_column("label", "labels")
         encoded_dataset.set_format(type='torch')
+
+        embedding_size = auto_tokenizer.model_max_length
     
     elif ds_type == "image":
         encoded_dataset = dataset.map(resize_images, remove_columns=["image"], batch_size=64, batched=True)
@@ -315,7 +317,7 @@ def forward_model(nodes, edges, params, user_id):
     if model is None:
         raise Exception("Model creation failed")
 
-    embedding_size = 100
+    # embedding_size = 100
     
     input_tensor = torch.rand((batch_size, embedding_size, input_size))
 

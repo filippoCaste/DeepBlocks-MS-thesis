@@ -154,6 +154,7 @@ export default function App() {
           addMessage("Check completed! You are good to go.", "success")
         }).catch(err => {
           console.log(err)
+          setErrNode(null)
           const errNodeInfo = err.message.split("Error in the node")[1].split(":")[0].split("(")
           const errNodeFunction = errNodeInfo[0].trim()
           const parametersValue = errNodeInfo.slice(1).join("(").trim().split(", ").map(p => p.includes("=") ? p.split("=")[1].replace(/[(),]/g, "") : p)
@@ -190,7 +191,7 @@ export default function App() {
               })
           const errNode = errNodes[0]
           setErrNode(errNode)
-          addMessage("There is a problem with the block " + ": \n\t" + err.message, "danger")          
+          addMessage("There is a problem with the block " +errNode.label + ": \n\t" + err.message, "danger")          
         })
       }
     }
@@ -295,8 +296,8 @@ export default function App() {
 
       //// create children blocks
       copy = childrenNodes.map(n => {
-        let b = new Block(n.type, { ...n.position }, { ...n.data, label: n.data.label }, n.parameters);
-        b = {...b, hidden: true, fn: n.fn };
+        let b = new Block(n.type, { ...n.position }, { ...n.data, label: n.data.label }, n.parameters, n.fn);
+        b = {...b, hidden: true};
         pairIds.push([n.id, b.id]);
         return b;
       })
@@ -322,7 +323,7 @@ export default function App() {
       setEdges((prevEdges) => [...prevEdges, ...edgesToCopy])
 
     } else {
-      let newBlock = new Block(node.type, { ...node.position, y: node.position.y - 10 }, { ...node.data, label: "copy of " + node.data.label }, node.parameters);
+      let newBlock = new Block(node.type, { ...node.position, y: node.position.y - 10 }, { ...node.data, label: "copy of " + node.data.label }, node.parameters, node.fn);
       
       let superBlockOpened = nodes.find(n => n.data.isOpenInSheet === true);
       if(superBlockOpened) {

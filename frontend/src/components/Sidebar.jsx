@@ -309,7 +309,7 @@ const BlockDetailsAndActions = (props)  => {
                     <Button onClick={() => handleRename()}> OK </Button>
                 : <>
                     <Button size='sm' onClick={() => handleDuplicateNode()}> <Copy /> </Button> {' '}
-                    <Button size='sm' onClick={() => setIsRename(true)}> <PencilFill /> </Button> {' '}
+                    {props.node.data.label === 'Input Dataset (from huggingface.co)' ? '' : <Button size='sm' onClick={() => setIsRename(true)}> <PencilFill /> </Button>} {' '}
                     <Button size='sm' variant='danger' onClick={() => handleDelete()}> <TrashFill /> </Button>
                   </>
                 }

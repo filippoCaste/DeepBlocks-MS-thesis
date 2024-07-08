@@ -81,6 +81,27 @@
                     { "name": "tensor1", "description": "First tensor: choose a column name", "value": null },
                     { "name": "tensor2", "description": "Second tensor: choose a column name", "value": null }
                 ]
+            },
+            {
+                "name": "Linear",
+                "function": "torch.nn.Linear",
+                "parameters": [
+                    { "name": "layer_type", "description": "Type of the layer", "value": null },
+                    { "name": "in_features", "description": "Size of each input sample", "value": null },
+                    { "name": "out_features", "description": "Size of each output sample", "value": null },
+                    { "name": "bias", "description": "If set to False, the layer will not learn an additive bias", "value": null }
+                ]
+            }
+        ],
+        "Reshaping Layers": [
+            {
+                "name": "Flatten",
+                "function": "torch.nn.Flatten",
+                "parameters": [
+                    { "name": "layer_type", "description": "Type of the layer", "value": null },
+                    { "name": "start_dim", "description": "The dimension to start flattening (0-based index)", "value": null },
+                    { "name": "end_dim", "description": "The dimension to stop flattening (exclusive)", "value": null }
+                ]
             }
         ],
         "Regularization": [

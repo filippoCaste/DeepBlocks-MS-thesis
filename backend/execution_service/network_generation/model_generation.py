@@ -20,8 +20,17 @@ UPLOAD_DIRECTORY = "uploads"
 ############################################################################################################
 #                                                 TRAINING                                                 #
 ############################################################################################################
+
 def resize_images(ds_batch):
-    ds_batch["pixel_values"] = [image.convert("RGB").resize((100,100)) for image in ds_batch["image"]]
+    transform = transforms.Compose([
+        transforms.Resize((100, 100)),
+        transforms.ToTensor()
+    ])
+    try:
+        ds_batch["pixel_values"] = [transform(image.convert("RGB")) for image in ds_batch["image"]]
+        ds_batch["labels"] = torch.tensor(ds_batch["label"])
+    except:
+        pass
     return ds_batch
 
 def train_model(nodes, edges, params, user_id, uploads):
@@ -108,7 +117,7 @@ def train_model(nodes, edges, params, user_id, uploads):
         "precision": [],
         "recall": [],
         "f1_score": []
-    }    
+    }
 
     small_train_dataset = encoded_dataset["train"].shuffle(seed=42).select(range(900))
     small_eval_dataset = encoded_dataset["test"].shuffle(seed=42).select(range(600))
@@ -140,7 +149,7 @@ def train_model(nodes, edges, params, user_id, uploads):
 
                 if ds_type == 'text':
                     inputs = batch['input_ids'].to(device).float()
-                    labels = labels
+                    # labels = labels
 
                 elif ds_type == 'image':
                     image_batch = batch["pixel_values"]
@@ -149,7 +158,6 @@ def train_model(nodes, edges, params, user_id, uploads):
                 outputs = model(inputs)
                 if outputs.shape[0] != labels.shape[0]:
                     raise Exception(f"Shapes of outputs {outputs.shape[0]} and labels {labels.shape[0]} do not match during training.")
-
                 loss = loss_fn(outputs, labels)
                 total_loss += loss.item()
                 loss.backward()
@@ -199,50 +207,23 @@ def train_model(nodes, edges, params, user_id, uploads):
     except Exception as e:
         print(f"Error during training: {e}")
         raise Exception(f"Error during training: {e}")
-    
-########################################################################################################################################################################
-########################################### other measures #########################################################################################
-########################################################################################################################################################################
-
-    # # Integrated gradients
-    # print("Integrated gradients")
-    # ig = IntegratedGradients(auto_model)
-
-    # # Choose a batch for IG explanation
-    # batch = next(iter(data_loader))
-
-    # if ds_type == 'text':
-    #     text_batch = batch["text"]
-    #     encoded_input = auto_tokenizer(text_batch, padding=True, truncation=True, return_tensors='pt')
-    #     input_ids = encoded_input['input_ids'].to(device)
-    #     attention_mask = encoded_input['attention_mask'].to(device)
-    #     input_tuple = (input_ids.long(), attention_mask)
-    #     attr, delta = ig.attribute(inputs=input_tuple, target=0, return_convergence_delta=True)
-    # elif ds_type == 'image':
-    #     image_batch = batch["pixel_values"]
-    #     inputs = feature_extractor(images=image_batch, return_tensors="pt")
-    #     input_ids = inputs['pixel_values'].to(device)
-    #     attr, delta = ig.attribute(inputs=input_ids, target=0, return_convergence_delta=True)
-
-    # attr = attr.detach().cpu().numpy()
-    # print(attr)
-
-########################################################################################################################################################################
-########################################################################################################################################################################
-########################################################################################################################################################################    
+        
     print("Finished")
     return metrics, msg
 
 def collate_fn(batch):
     resize_transform = transforms.Compose([
-        # transforms.Resize((256, 256)),
+        transforms.Resize((100, 100)),
         transforms.ToTensor()
     ])
 
     for sample in batch:
         if 'pixel_values' in sample:
-            sample['pixel_values'] = resize_transform(sample['pixel_values'])
+            sample['pixel_values'] = resize_transform(sample['pixel_values'].convert("RGB"))
     return default_collate(batch)
+    # pixel_values = torch.tensor([item['pixel_values'] for item in batch])
+    # labels = torch.tensor([item['labels'] for item in batch])
+    # return {'pixel_values': pixel_values, 'labels': labels}
 
 def forward_model(nodes, edges, params, user_id):
 
@@ -302,6 +283,7 @@ def forward_model(nodes, edges, params, user_id):
 
         feature_extractor = ViTImageProcessor.from_pretrained("google/vit-base-patch16-224")
         auto_tokenizer = feature_extractor
+        embedding_size = 100
     else:
         raise Exception("Unsupported dataset type")
 
@@ -423,7 +405,7 @@ def recursive(edges, src_node, nodes_list):
     - The function modifies the `nodes_list` in-place.
     """
 
-    print(nodes_list)
+    # print(nodes_list)
 
     # exit conditions
     if src_node is None or len(edges) == 0:
@@ -551,13 +533,6 @@ def create_model(nodes, edges, input_shape):
             print("ERROR IN LAYER --> ", node.function)
             msg += f" {e} "
             print(e)
-
-    for i, m in enumerate(modules):
-        if isinstance(m, torch.nn.Linear):
-            modules.insert(0, torch.nn.Flatten())
-            break
-        else:
-            break
 
     # create the corresponding model
     # class CustomModel(nn.Module):

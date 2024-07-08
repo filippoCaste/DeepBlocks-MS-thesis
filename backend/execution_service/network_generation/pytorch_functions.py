@@ -21,7 +21,8 @@ valid_pytorch_functions = {
     "Conv2d": "torch.nn.Conv2d",
     "MaxPool2d": "torch.nn.MaxPool2d",
     "AvgPool2d": "torch.nn.AvgPool2d",
-
+    "Flatten": "torch.nn.Flatten",
+    "Linear": "torch.nn.Linear",
 }
 
 function_params = {
@@ -118,4 +119,13 @@ function_params = {
         'count_include_pad': bool,
         'divisor_override': int
     },
+    'torch.nn.Flatten': {
+        'start_dim': int,
+        'end_dim': int
+    },
+    'torch.nn.Linear': {
+        'in_features': int,
+        'out_features': int,
+        'bias': bool
+    }
 }

@@ -7,3 +7,4 @@
 execution_service/network_generation/test_model.py
 **.csv
 **/results
+execution_service/network_generation/new_test_model.py

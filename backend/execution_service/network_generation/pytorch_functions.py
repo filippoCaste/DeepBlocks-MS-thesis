@@ -70,6 +70,38 @@ function_params = {
         'kdim': int,
         'vdim': int
     },
+    'torch.nn.Conv1d': {
+        'in_channels': int,
+        'out_channels': int,
+        'kernel_size': int,
+        'stride': int,
+        'padding': int,
+        'dilation': int,
+        'bias': bool
+    },
+    'torch.nn.MaxPool1d': {
+        'kernel_size': tuple,
+        'stride': tuple,
+        'padding': tuple,
+        'ceil_mode': bool,
+    },
+        'torch.nn.AvgPool1d': {
+        'kernel_size': tuple,
+        'stride': tuple,
+        'padding': tuple,
+        'ceil_mode': bool,
+        'count_include_pad': bool,
+        'divisor_override': int
+    },
+    'torch.nn.Conv2d': {
+        'in_channels': int,
+        'out_channels': int,
+        'kernel_size': int,
+        'stride': int,
+        'padding': int,
+        'dilation': int,
+        'bias': bool
+    },
     'torch.nn.MaxPool2d': {
         'kernel_size': tuple,
         'stride': tuple,
@@ -86,19 +118,4 @@ function_params = {
         'count_include_pad': bool,
         'divisor_override': int
     },
-    'torch.nn.Conv1d': {
-        'in_channels': int,
-        'out_channels': int,
-        'kernel_size': int,
-        'stride': int,
-        'padding': int,
-        'dilation': int,
-        'bias': bool
-    },
-    'torch.nn.MaxPool1d': {
-        'kernel_size': tuple,
-        'stride': tuple,
-        'padding': tuple,
-        'ceil_mode': bool,
-    }
 }

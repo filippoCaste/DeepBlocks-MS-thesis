@@ -54,32 +54,32 @@
                 "name": "Addition",
                 "function": "torch.add",
                 "parameters": [
-                    { "name": "tensor1", "description": "First tensor", "value": null },
-                    { "name": "tensor2", "description": "Second tensor", "value": null }
+                    { "name": "tensor1", "description": "First tensor: choose a column name", "value": null },
+                    { "name": "tensor2", "description": "Second tensor: choose a column name", "value": null }
                 ]
             },
             {
                 "name": "Subtraction",
                 "function": "torch.sub",
                 "parameters": [
-                    { "name": "tensor1", "description": "First tensor", "value": null },
-                    { "name": "tensor2", "description": "Second tensor", "value": null }
+                    { "name": "tensor1", "description": "First tensor: choose a column name", "value": null },
+                    { "name": "tensor2", "description": "Second tensor: choose a column name", "value": null }
                 ]
             },
             {
                 "name": "Multiplication",
                 "function": "torch.mul",
                 "parameters": [
-                    { "name": "tensor1", "description": "First tensor", "value": null },
-                    { "name": "tensor2", "description": "Second tensor", "value": null }
+                    { "name": "tensor1", "description": "First tensor: choose a column name", "value": null },
+                    { "name": "tensor2", "description": "Second tensor: choose a column name", "value": null }
                 ]
             },
             {
                 "name": "Division",
                 "function": "torch.div",
                 "parameters": [
-                    { "name": "tensor1", "description": "First tensor", "value": null },
-                    { "name": "tensor2", "description": "Second tensor", "value": null }
+                    { "name": "tensor1", "description": "First tensor: choose a column name", "value": null },
+                    { "name": "tensor2", "description": "Second tensor: choose a column name", "value": null }
                 ]
             }
         ],

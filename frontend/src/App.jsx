@@ -101,13 +101,24 @@ export default function App() {
   const [messages, setMessages] = useState([]);
 
   const [errNode, setErrNode] = useState(null);
+  const [errSuperBlock, setErrSuperBlock] = useState(null);
 
   useEffect(() => {
     if(errNode !== null) {
       setNodes((prevNodes) => prevNodes.map((node) => (node.id === errNode.id ? { ...node, style: {
         ...node.style,
-        border: "3px solid red"
+        border: "3px dashed red",
+        borderRadius: "2em",
+        padding: '5px'
       }} : node)));
+      if(errSuperBlock !== null) {
+        setNodes((prevNodes) => prevNodes.map((node) => (node.id === errSuperBlock.id ? { ...node, style: {
+          ...node.style,
+          border: "3px dashed red",
+          borderRadius: "2em",
+          padding: '5px'
+        }} : node)));
+      }
     } else {
       setNodes((prevNodes) => prevNodes.map((node) => {return { ...node, style: {
         ...node.style,
@@ -152,47 +163,55 @@ export default function App() {
         addMessage("Checking your network...", "info")
         BLOCKS_API.forwardBlock(nodes, edges, paramObj).then((data) => {
           setErrNode(null)
+          setErrSuperBlock(null)
           addMessage("Check completed! You are good to go.", "success")
         }).catch(err => {
           console.log(err)
           setErrNode(null)
+          setErrSuperBlock(null)
           const errNodeInfo = err.message.split("Error in the node")[1].split(":")[0].split("(")
           const errNodeFunction = errNodeInfo[0].trim()
           const parametersValue = errNodeInfo.slice(1).join("(").trim().split(", ").map(p => p.includes("=") ? p.split("=")[1].replace(/[(),]/g, "") : p)
           let max = -1
           const errNodes = nodes
             .filter(n => n.type === 'customNode' && String(n.fn?.split(".")[n.fn?.split(".").length - 1]) == String(errNodeFunction.trim())) // get nodes with that function
-              .filter(n => {
-                let parametersValueCpy = [...parametersValue]
-                let matches = n.parameters.filter(p => { 
-                  for (let i = 0; i < parametersValueCpy.length; i++) {
-                    if (p.value === parametersValueCpy[i]) {
-                      parametersValueCpy.splice(i, 1);
-                      return true;
-                    }
+            .filter(n => {
+              let parametersValueCpy = [...parametersValue]
+              let matches = n.parameters.filter(p => { 
+                for (let i = 0; i < parametersValueCpy.length; i++) {
+                  if (p.value === parametersValueCpy[i]) {
+                    parametersValueCpy.splice(i, 1);
+                    return true;
                   }
-                  return false;
-                }).length
-                if(max < matches) max = matches;
-                return matches > 0
-              })
-              .filter(n => {
-                let parametersValueCpy = [...parametersValue]
-                let matches = n.parameters.filter(p => {
-                  for (let i = 0; i < parametersValueCpy.length; i++) {
-                    if (p.value === parametersValueCpy[i]) {
-                      parametersValueCpy.splice(i, 1);
-                      return true;
-                    }
+                }
+                return false;
+              }).length
+              if(max < matches) max = matches;
+              return matches > 0
+            })
+            .filter(n => {
+              let parametersValueCpy = [...parametersValue]
+              let matches = n.parameters.filter(p => {
+                for (let i = 0; i < parametersValueCpy.length; i++) {
+                  if (p.value === parametersValueCpy[i]) {
+                    parametersValueCpy.splice(i, 1);
+                    return true;
                   }
-                  return false;
-                }).length
-                if (max == matches) return true;
-                return false
-              })
+                }
+                return false;
+              }).length
+              if (max == matches) return true;
+              return false
+            })
           const errNode = errNodes[0]
+
+          // check if it is contained by a supernode
+          let errSn = nodes.filter(n => n.type === 'superBlockNode') // get supernodes
+            .filter(sn => sn.children.includes(errNode.id)) // get supernodes that contain the node
+          
+          errSn && setErrSuperBlock(errSn[0])
           setErrNode(errNode)
-          addMessage("There is a problem with the block " +errNode.label + ": \n\t" + err.message, "danger")          
+          addMessage("There is a problem with the block " + errNode.data.label + ": \n\t" + err.message, "danger")          
         })
       }
     }

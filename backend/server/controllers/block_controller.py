@@ -97,7 +97,20 @@ def forward_block():
     if response.status == '200':
         return jsonify({'message': response.message}), 200
     else:
-        ret_message = response.message
+        resp = requests.get(stack_link + '&title=' + re.sub(r'\([^)]*\)', '', response.message.replace("Error during training:", "")).strip())
+        if resp.status_code == 200:
+            error_type = parse_error_message(response.message)
+            
+            try:
+                solution_link = resp.json()['items'][0]['link']
+                ret_message = response.message + " Suggestion: " + error_solutions.get(error_type, "No suggestion available for this error.")
+            except Exception as e:
+                solution_link = None
+                ret_message = response.message
+             
+        if solution_link != None:
+            ret_message += ' <a href=' + solution_link + '/>'
+
         return jsonify(ret_message), int(response.status)
 
 

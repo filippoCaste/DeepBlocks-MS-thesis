@@ -106,6 +106,14 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
         if (tmp.length > 0) {
             let nodeFound = tmp[0]
             if (nodeFound.type == 'customNode') {
+                const updatedNode = {
+                    ...nodeFound,
+                    style: { ...nodeFound.style, padding: '2px', border: '2px solid black', borderRadius: '2em' }
+                };
+                const updatedNodes = nodes.map(node =>
+                    node.id === updatedNode.id ? updatedNode : node
+                );
+                setNodes(updatedNodes);
                 setNodeInfo(nodeFound)
                 setOpenNodeInfo(true)
             } else if (nodeFound.type == 'superBlockNode') {
@@ -121,8 +129,7 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
     }, [nodes])
 
     const handleCloseNodeInfo = () => {
-        nodes.map(n => n.data.openInfo = false)
-        // nodeInfo.data.openInfo = false;
+        setNodes(n => n.map(n => n.id === nodeInfo.id ? {...n, data: {...n.data, openInfo: false}, style: {...n.style, padding: '0px', border: 'none', borderRadius: '0em'}} : n))
         setNodeInfo(null);
         setOpenNodeInfo(false);
     }

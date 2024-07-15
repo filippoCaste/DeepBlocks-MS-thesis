@@ -54,7 +54,7 @@ export default function CustomNode(props) {
                             </span>
                             : <p>{data.label || "block"}</p>}
                     </div>
-                    <Handle type="source" position={Position.Right} id="a" />
+                    <Handle id='dataset' type="source" position={Position.Right} />
                 </div>
                 {/* {(hovering || selected) && <input style={{ flex: 1, marginLeft: 10 }} type="checkbox" onChange={() => { setSelected(!selected); data.isSelected = !selected; }} />} */}
             </div>

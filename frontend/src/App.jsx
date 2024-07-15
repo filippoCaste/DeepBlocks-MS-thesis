@@ -111,7 +111,7 @@ export default function App() {
         borderRadius: "2em",
         padding: '5px'
       }} : node)));
-      if(errSuperBlock !== null) {
+      if(errSuperBlock) {
         setNodes((prevNodes) => prevNodes.map((node) => (node.id === errSuperBlock.id ? { ...node, style: {
           ...node.style,
           border: "3px dashed red",

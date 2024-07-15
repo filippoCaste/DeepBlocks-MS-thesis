@@ -93,6 +93,16 @@
     color: black;
 }
 
+.node.Operations.on.blocks {
+    background-color: darksalmon;
+    color: black;
+}
+
+.node.Reshaping.Layers {
+    background-color: teal;
+    color: white;
+}
+
 .node.Activation {
     background-color: rebeccapurple;
     color: white;

@@ -17,8 +17,6 @@
                 "name": "Batch Normalization 1D",
                 "function": "torch.nn.BatchNorm1d",
                 "parameters": [
-                    { "name": "layer_type", "description": "Type of the layer", "value": null},
-                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
                     { "name": "num_features", "description": "Number of features", "value": null },
                     { "name": "momentum", "description": "Momentum", "value": null },
                     { "name": "eps", "description": "Epsilon", "value": null },
@@ -29,8 +27,6 @@
                 "name": "Batch Normalization 2D",
                 "function": "torch.nn.BatchNorm2d",
                 "parameters": [
-                    { "name": "layer_type", "description": "Type of the layer", "value": null},
-                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
                     { "name": "num_features", "description": "Number of features", "value": null },
                     { "name": "momentum", "description": "Momentum", "value": null },
                     { "name": "eps", "description": "Epsilon", "value": null },
@@ -41,9 +37,6 @@
                 "name": "Layer Normalization",
                 "function": "torch.nn.LayerNorm",
                 "parameters": [
-                    { "name": "layer_type", "description": "Type of the layer", "value": null},
-                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
-                    { "name": "normalized_shape", "description": "Input size or shape", "value": null },
                     { "name": "eps", "description": "Epsilon", "value": null },
                     { "name": "elementwise_affine", "description": "Whether to apply affine transformation element-wise", "value": null }
                 ]
@@ -81,15 +74,23 @@
                     { "name": "tensor1", "description": "First tensor: choose a column name", "value": null },
                     { "name": "tensor2", "description": "Second tensor: choose a column name", "value": null }
                 ]
+            }
+        ],
+        "Operations on blocks": [
+            {
+                "name": "Concatenate",
+                "function": "torch.cat",
+                "parameters": [
+                    { "name": "tensor1", "description": "First tensor: choose a column name", "value": null },
+                    { "name": "tensor2", "description": "Second tensor: choose a column name", "value": null }
+                ]
             },
             {
-                "name": "Linear",
-                "function": "torch.nn.Linear",
+                "name": "Split",
+                "function": "split",
+                "description": "Split the flow into two branches",
                 "parameters": [
-                    { "name": "layer_type", "description": "Type of the layer", "value": null },
-                    { "name": "in_features", "description": "Size of each input sample", "value": null },
-                    { "name": "out_features", "description": "Size of each output sample", "value": null },
-                    { "name": "bias", "description": "If set to False, the layer will not learn an additive bias", "value": null }
+                    { "name": "input", "description": "Input tensor: choose a column name", "value": null }
                 ]
             }
         ],
@@ -102,6 +103,16 @@
                     { "name": "start_dim", "description": "The dimension to start flattening (0-based index)", "value": null },
                     { "name": "end_dim", "description": "The dimension to stop flattening (exclusive)", "value": null }
                 ]
+            },
+            {
+                "name": "Linear",
+                "function": "torch.nn.Linear",
+                "parameters": [
+                    { "name": "layer_type", "description": "Type of the layer", "value": null },
+                    { "name": "in_features", "description": "Size of each input sample", "value": null },
+                    { "name": "out_features", "description": "Size of each output sample", "value": null },
+                    { "name": "bias", "description": "If set to False, the layer will not learn an additive bias", "value": null }
+                ]
             }
         ],
         "Regularization": [
@@ -109,9 +120,7 @@
                 "name": "Dropout",
                 "function": "torch.nn.Dropout",
                 "parameters": [
-                    { "name": "layer_type", "description": "Type of the layer", "value": null},
-                    { "name": "input_tensor", "description": "Input tensor", "value": null },
-                    { "name": "output_tensor", "description": "Output tensor", "value": null },
+                    
                     { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
                     { "name": "p", "description": "Dropout probability", "value": null }
                 ]
@@ -122,18 +131,14 @@
                 "name": "Sigmoid",
                 "function": "torch.nn.Sigmoid",
                 "parameters": [
-                    { "name": "layer_type", "description": "Type of the layer", "value": null},
-                    { "name": "input_tensor", "description": "Input tensor", "value": null },
-                    { "name": "output_tensor", "description": "Output tensor", "value": null }
+                    
                 ]
             },
             {
                 "name": "Tanh",
                 "function": "torch.nn.Tanh",
                 "parameters": [
-                    { "name": "layer_type", "description": "Type of the layer", "value": null},
-                    { "name": "input_tensor", "description": "Input tensor", "value": null },
-                    { "name": "output_tensor", "description": "Output tensor", "value": null }
+                    
 
                 ]
             },
@@ -141,19 +146,13 @@
                 "name": "ReLU",
                 "function": "torch.nn.ReLU",
                 "parameters": [
-                    { "name": "layer_type", "description": "Type of the layer", "value": null},
-                    { "name": "input_tensor", "description": "Input tensor", "value": null },
-                    { "name": "output_tensor", "description": "Output tensor", "value": null }
+                    
                 ]
             },
             {
                 "name": "Leaky ReLU",
                 "function": "torch.nn.LeakyReLU",
                 "parameters": [
-                    { "name": "layer_type", "description": "Type of the layer", "value": null},
-                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
-                    { "name": "input_tensor", "description": "Input tensor", "value": null },
-                    { "name": "output_tensor", "description": "Output tensor", "value": null },
                     { "name": "negative_slope", "description": "Negative slope", "value": null }
                 ]
             },
@@ -161,10 +160,6 @@
                 "name": "Softmax",
                 "function": "torch.nn.Softmax",
                 "parameters": [
-                    { "name": "layer_type", "description": "Type of the layer", "value": null},
-                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
-                    { "name": "input_tensor", "description": "Input tensor", "value": null },
-                    { "name": "output_tensor", "description": "Output tensor", "value": null },
                     { "name": "dim", "description": "Dimension along which softmax will be computed", "value": null }
                 ]
             },
@@ -250,13 +245,11 @@
                 }
                 ]
             },
-                        {
+            {
                 "name": "Average Pooling 1d",
                 "function": "torch.nn.AvgPool1d",
                 "parameters": [
-                    { "name": "layer_type", "description": "Type of the layer", "value": null},
-                    { "name": "input_tensor", "description": "Input tensor", "value": null },
-                    { "name": "output_tensor", "description": "Output tensor", "value": null },
+                    
                     { "name": "kernel_size", "description": "Kernel size", "value": null },
                     { "name": "stride", "description": "Stride of the window", "value": null },
                     { "name": "padding", "description": "Implicit zero padding to be added on both sides", "value": null },
@@ -298,22 +291,34 @@
             {
                 "name": "Max Pooling 2d",
                 "function": "torch.nn.MaxPool2d",
-                "parameters": [
-                    { "name": "layer_type", "description": "Type of the layer", "value": null},
-                    { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
-                    { "name": "input_tensor", "description": "Input tensor", "value": null },
-                    { "name": "output_tensor", "description": "Output tensor", "value": null },
-                    { "name": "dilation", "description": "A parameter that controls the stride of elements in the window", "value": null },
-                    { "name": "return_indices", "description": "Whether to return the max indices along with the outputs", "value": null },
-                    { "name": "ceil_mode", "description": "Whether to use ceil instead of floor to compute the output shape", "value": null }                ]
+                "parameters": [    
+                    {
+                        "name": "kernel_size",
+                        "description": "The size of the max pooling window",
+                        "value": null
+                    },
+                    {
+                        "name": "stride",
+                        "description": "The stride of the pooling operation",
+                        "value": null
+                    },
+                    {
+                        "name": "padding",
+                        "description": "Padding added to the input (0 for no padding)",
+                        "value": null
+                    },
+                    {
+                        "name": "ceil_mode",
+                        "description": "If True, will use ceil instead of floor to compute the output shape. This ensures that every element in the input tensor is covered by a sliding window.",
+                        "value": null
+                    }
+                ]
             },
             {
                 "name": "Average Pooling 2d",
                 "function": "torch.nn.AvgPool2d",
                 "parameters": [
-                    { "name": "layer_type", "description": "Type of the layer", "value": null},
-                    { "name": "input_tensor", "description": "Input tensor", "value": null },
-                    { "name": "output_tensor", "description": "Output tensor", "value": null },
+                    
                     { "name": "kernel_size", "description": "Kernel size", "value": null },
                     { "name": "stride", "description": "Stride of the window", "value": null },
                     { "name": "padding", "description": "Implicit zero padding to be added on both sides", "value": null },

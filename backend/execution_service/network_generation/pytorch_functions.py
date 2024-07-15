@@ -107,9 +107,7 @@ function_params = {
         'kernel_size': tuple,
         'stride': tuple,
         'padding': tuple,
-        'dilation': tuple,
-        'return_indices': bool,
-        'ceil_mode': bool
+        'ceil_mode': bool,
     },
     'torch.nn.AvgPool2d': {
         'kernel_size': tuple,

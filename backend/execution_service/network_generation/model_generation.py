@@ -149,7 +149,6 @@ def train_model(nodes, edges, params, user_id, uploads):
 
                 if ds_type == 'text':
                     inputs = batch['input_ids'].to(device).float()
-                    # labels = labels
 
                 elif ds_type == 'image':
                     image_batch = batch["pixel_values"]
@@ -158,9 +157,12 @@ def train_model(nodes, edges, params, user_id, uploads):
                 outputs = model(inputs)
                 if outputs.shape[0] != labels.shape[0]:
                     raise Exception(f"Shapes of outputs {outputs.shape[0]} and labels {labels.shape[0]} do not match during training.")
-                loss = loss_fn(outputs, labels)
-                total_loss += loss.item()
-                loss.backward()
+                try:
+                    loss = loss_fn(outputs, labels)
+                    total_loss += loss.item()
+                    loss.backward()
+                except Exception as e:
+                    raise Exception(f"Loss or backward function failed.")
                 optimizer.step()
                 lr_scheduler.step()
                 optimizer.zero_grad()
@@ -341,6 +343,12 @@ def set_parameters(params, model_parameters):
                 loss = nn.MSELoss()
             elif param.value == "BCE":
                 loss = nn.BCELoss()
+            else:
+                # param.value contains the name of the file containing the custom loss
+                try:
+                    loss = load_custom_loss_function(os.path.join(UPLOAD_DIRECTORY, user_id, param.value))
+                except Exception as e:
+                    raise Exception("The loss function must be defined as a function named 'custom_loss', and has to be contained in a file.")
 
         elif param.key == "optimizer":
             # can be Adam or SGD
@@ -571,6 +579,16 @@ def get_params_values(node):
         params[param.key] = param.value
     return params
 
+def load_custom_loss_function(file_path):
+    with open(file_path, 'r') as file:
+        code = file.read()
+    namespace = {}
+    exec(code, namespace)
+    # The custom loss function is defined as `custom_loss` in the file
+    if 'custom_loss' not in namespace:
+        raise ValueError("The file does not define a 'custom_loss' function.")
+
+    return namespace['custom_loss']
 ############################################################################################################
 #                                                  EXPORT                                                  #
 ############################################################################################################

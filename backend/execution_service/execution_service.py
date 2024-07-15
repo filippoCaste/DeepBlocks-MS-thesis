@@ -49,8 +49,6 @@ class Executor(TrainerServicer):
                 with open(file_path, 'wb') as w_file:
                     w_file.write(file.file_data)
         
-        # delete id folder when the operations are completed
-        shutil.rmtree('uploads/' + str(uid))
         try:
             metrics_raw, msg = train_model(request.nodes, request.edges, request.parameters, uid, file_names)
             metrics = []
@@ -66,7 +64,9 @@ class Executor(TrainerServicer):
         except Exception as e:
             print(e)
             response = NetworkResult(status="500", message=str(e))
-
+        
+        # delete id folder when the operations are completed
+        shutil.rmtree('uploads/' + str(uid))
         return response
 
     def ExportNetwork(self, request, context):

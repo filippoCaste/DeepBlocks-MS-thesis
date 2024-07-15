@@ -4,7 +4,7 @@ import grpc, os
 from proto.proto_pb2_grpc import TrainerStub
 from proto.proto_pb2 import Network
 
-MAX_MESSAGE_LENGTH = 100 * 1024 * 1024
+MAX_MESSAGE_LENGTH = 10 * 1024 * 1024
 
 def train_network(nodes, edges, params, session_id):
     with grpc.insecure_channel('localhost:50051',

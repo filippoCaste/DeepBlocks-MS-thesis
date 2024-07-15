@@ -33,7 +33,8 @@ const Sidebar = (props) => {
 
     const { openMenu, setOpenMenu, nodes, edges, handleAddNode, handleDeleteNodes, handleRenameNode, handleDuplicateNode, 
             handleDownload, handleUpload, learningRate, epochs, batchSize, loss, optimizer, addMessage,
-            setLearningRate, setEpochs, setBatchSize, setLoss, setOptimizer, metrics, setMetrics, isTraining, setIsTraining } = props;
+            setLearningRate, setEpochs, setBatchSize, setLoss, setOptimizer, metrics, setMetrics, isTraining, setIsTraining,
+            customLoss, setCustomLoss } = props;
 
     // const viewportWidth = window.innerWidth;
     const zoomLevel = window.screen.width / window.innerWidth;
@@ -163,8 +164,8 @@ const Sidebar = (props) => {
 
             </div>
             {openMenu !== 'none' && openMenu !== 'Analysis' && openMenu !== 'Help' && <Menu openMenu={openMenu} nodes={nodes} edges={edges} handleAddNode={handleAddNode}
-                                        learningRate={learningRate} epochs={epochs} batchSize={batchSize} loss={loss} optimizer={optimizer}
-                                        setLearningRate={setLearningRate} setEpochs={setEpochs} setBatchSize={setBatchSize} setLoss={setLoss} setOptimizer={setOptimizer}
+                                        learningRate={learningRate} epochs={epochs} batchSize={batchSize} loss={loss} optimizer={optimizer} customLoss={customLoss}
+                                        setLearningRate={setLearningRate} setEpochs={setEpochs} setBatchSize={setBatchSize} setLoss={setLoss} setOptimizer={setOptimizer} setCustomLoss={setCustomLoss}
                                         handleDeleteNodes={handleDeleteNodes} handleRenameNode={handleRenameNode} handleDuplicateNode={handleDuplicateNode}
                                         handleDownload={handleDownload} handleUpload={handleUpload} setMetrics={setMetrics} addMessage={addMessage} setIsTraining={setIsTraining}
                                         />}
@@ -191,8 +192,8 @@ const Menu = (props) => {
                                                     handleDuplicateNode={props.handleDuplicateNode}
                                                     />}
             {openMenu === 'Training' && <Training 
-                                            learningRate={props.learningRate} epochs={props.epochs} batchSize={props.batchSize} loss={props.loss} optimizer={props.optimizer}
-                                            setLearningRate={props.setLearningRate} setEpochs={props.setEpochs} setBatchSize={props.setBatchSize} setLoss={props.setLoss} setOptimizer={props.setOptimizer}
+                                            learningRate={props.learningRate} epochs={props.epochs} batchSize={props.batchSize} loss={props.loss} optimizer={props.optimizer} customLoss={props.customLoss}
+                                            setLearningRate={props.setLearningRate} setEpochs={props.setEpochs} setBatchSize={props.setBatchSize} setLoss={props.setLoss} setOptimizer={props.setOptimizer} setCustomLoss={props.setCustomLoss}
                                             nodes={props.nodes} edges={props.edges} setMetrics={props.setMetrics} addMessage={props.addMessage} setIsTraining={props.setIsTraining}
                                             />}
             {openMenu === 'Options' && <Options
@@ -319,7 +320,7 @@ const BlockDetailsAndActions = (props)  => {
 
 }
 
-const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimizer, setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer, setMetrics, addMessage, setIsTraining }) => {
+const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimizer, customLoss, setCustomLoss, setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer, setMetrics, addMessage, setIsTraining }) => {
 
     const [err, setErr] = useState(false);
     const [errMsg, setErrMsg] = useState('');
@@ -347,39 +348,44 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
                     {"key": "optimizer", "value": params.optimizer}
                 ]
                 setIsTraining(true);
-                BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
-                  let isChangedNetwork = trainingSessions.length > 0 && isModelDifferent(trainingSessions[trainingSessions.length - 1], nodes)
-                  setTrainingSessions(prevTrainingSessions => [...prevTrainingSessions, nodes])
-                  isChangedNetwork ? setMetrics([data.metrics]) : setMetrics(prevMetrics => [...prevMetrics, data.metrics])
+                if (customLoss) {
+                    BLOCKS_API.postInputFiles([customLoss]).then(
+                        () => {
+                            console.log("File uploaded");
+                            BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
+                                let isChangedNetwork = trainingSessions.length > 0 && isModelDifferent(trainingSessions[trainingSessions.length - 1], nodes)
+                                setTrainingSessions(prevTrainingSessions => [...prevTrainingSessions, nodes])
+                                isChangedNetwork ? setMetrics([data.metrics]) : setMetrics(prevMetrics => [...prevMetrics, data.metrics])
 
-                  setIsTraining(false)
-                  if(data.message !== "") {
-                    addMessage(data.message, "warning")
-                  }
-                  addMessage("Training completed. Results are available in the left-side menu.", "success")
-                }).catch(err => {
-                  console.log(err)
-                  // check the dimensions of the layers to see if the error matches some of them
-                  // let incorrectDim = String(err).replace(/[\[\],().]/g, "").replace("x", " ").split(" ").filter(e => e.match(/\d+/));
-                  // console.log(incorrectDim)
-                  // let errNodes = nodes.filter(n => n.parameters?.find(p => incorrectDim.includes(p.value)))
-                  // console.log(errNodes)
-                  // // if yes
-                  // if(errNodes.length > 0) {
-                  //   errNodes.map(n => {
-                  //     return {...n, style: {
-                  //       ...n.style,
-                  //       border: '2px solid red'
-                  //       }
-                  //     }
-                  //   })
-                  // }
-                  //// if there are more than one ?
-                  //// get the adjacent nodes
+                                setIsTraining(false)
+                                if (data.message !== "") {
+                                    addMessage(data.message, "warning")
+                                }
+                                addMessage("Training completed. Results are available in the left-side menu.", "success")
+                            }).catch(err => {
+                                console.log(err)
+                                setIsTraining(false)
+                                addMessage(err, "danger")
+                            })
+                        }
+                    )
+                } else {
+                    BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
+                    let isChangedNetwork = trainingSessions.length > 0 && isModelDifferent(trainingSessions[trainingSessions.length - 1], nodes)
+                    setTrainingSessions(prevTrainingSessions => [...prevTrainingSessions, nodes])
+                    isChangedNetwork ? setMetrics([data.metrics]) : setMetrics(prevMetrics => [...prevMetrics, data.metrics])
 
-                  setIsTraining(false)
-                  addMessage(err, "danger")
-                })
+                    setIsTraining(false)
+                    if(data.message !== "") {
+                        addMessage(data.message, "warning")
+                    }
+                    addMessage("Training completed. Results are available in the left-side menu.", "success")
+                    }).catch(err => {
+                    console.log(err)
+                    setIsTraining(false)
+                    addMessage(err, "danger")
+                    })
+                }
             }
         } else {
             setErrMsg("Please fill all the parameters")
@@ -393,6 +399,7 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
         setBatchSize(0);
         setLoss('');
         setOptimizer('');
+        setCustomLoss(null)
     }
 
 
@@ -432,6 +439,13 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
                                     <Dropdown.Item eventKey="CE">CE</Dropdown.Item>
                                     <Dropdown.Item eventKey="MSE">MSE</Dropdown.Item>
                                     <Dropdown.Item eventKey="BCE">BCE</Dropdown.Item>
+                                    <Form.Control
+                                        id={`custom-loss`}
+                                        type='file'
+                                        accept = '.py'
+                                        onChange={ev => { setCustomLoss(ev.target.files[0]); setLoss(ev.target.files[0].name); }}
+                                        style={{ width: '100%' }}
+                                        />
                                 </DropdownButton>
                             </td>
                         </tr>

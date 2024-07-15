@@ -88,6 +88,7 @@ export default function App() {
   const [epochs, setEpochs] = useState(0);
   const [batchSize, setBatchSize] = useState(0);
   const [loss, setLoss] = useState('');
+  const [customLoss, setCustomLoss] = useState(null);
   const [optimizer, setOptimizer] = useState('');
   // --------------------------------------------------
   const [openMenu, setOpenMenu] = useState('none');
@@ -141,7 +142,7 @@ export default function App() {
 
   const debounceTimeoutRef = useRef(null);
 
-  // training api
+  // forwarding api
   useEffect(() => {
     const paramObj = [
       { "key": "learningRate", "value": learningRate },
@@ -491,8 +492,8 @@ export default function App() {
         <Sidebar nodes={nodes} edges={edges} setNodes={setNodes} handleAddNode={handleAddNode} 
             handleDeleteNodes={handleDeleteNodes} handleRenameNode={handleRenameNode} handleDuplicateNode={handleDuplicateNode}
             handleDownload={handleDownload} handleUpload={handleUpload} openMenu={openMenu} setOpenMenu={setOpenMenu}
-            learningRate={learningRate} epochs={epochs} batchSize={batchSize} loss={loss} optimizer={optimizer}
-            setLearningRate={setLearningRate} setEpochs={setEpochs} setBatchSize={setBatchSize} setLoss={setLoss} setOptimizer={setOptimizer}
+            learningRate={learningRate} epochs={epochs} batchSize={batchSize} loss={loss} optimizer={optimizer} customLoss={customLoss}
+            setLearningRate={setLearningRate} setEpochs={setEpochs} setBatchSize={setBatchSize} setLoss={setLoss} setOptimizer={setOptimizer} setCustomLoss={setCustomLoss}
             metrics={metrics} setMetrics={setMetrics} addMessage={addMessage} isTraining={isTraining} setIsTraining={setIsTraining}
           />
 

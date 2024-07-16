@@ -34,12 +34,16 @@ def post_all_blocks():
         if resp.status_code == 200:
             try:
                 solution_link = resp.json()['items'][0]['link']
+
             except Exception as e:
                 solution_link = None
         
             error_type = parse_error_message(response.message)
 
-            ret_message = response.message + " Suggestion: " + error_solutions.get(error_type, "No suggestion available for this error.")
+            ret_message = response.message
+            sol_msg = error_solutions.get(error_type, None)
+            if sol_msg != None:
+                ret_message += " Suggestion: " + sol_msg 
              
         if solution_link != None:
             ret_message += ' <a href=' + solution_link + '/>'

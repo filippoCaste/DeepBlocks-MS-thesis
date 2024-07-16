@@ -325,11 +325,13 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
     const [err, setErr] = useState(false);
     const [errMsg, setErrMsg] = useState('');
     const [trainingSessions, setTrainingSessions] = useState([]);
+    const [isCustomLoss, setIsCustomLoss] = useState(false);
 
 
     const handleTrain = (params, { setErr, setErrMsg }) => {
         // controls parameters are all set and of the right type
-        if (params.learningRate !== 0 && params.epochs !== 0 && params.batchSize !== 0 && params.loss !== '' && params.optimizer !== '') {
+        if (params.learningRate !== 0 && params.epochs !== 0 && params.batchSize !== 0 && (params.loss !== '' && params.loss !== 'Custom')
+                 && params.optimizer !== '') {
             if (isNaN(params.epochs) || isNaN(params.batchSize) || isNaN(params.learningRate)) {
                 let errMsg = `Error in the parameters:
                 ${isNaN(params.learningRate) ? 'Learning rate' : ''}
@@ -351,7 +353,6 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
                 if (customLoss) {
                     BLOCKS_API.postInputFiles([customLoss]).then(
                         () => {
-                            console.log("File uploaded");
                             BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
                                 let isChangedNetwork = trainingSessions.length > 0 && isModelDifferent(trainingSessions[trainingSessions.length - 1], nodes)
                                 setTrainingSessions(prevTrainingSessions => [...prevTrainingSessions, nodes])
@@ -434,18 +435,12 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
                                     variant="outline-secondary"
                                     title={loss || "Select"}
                                     id="trainForm.LossFunction"
-                                    onSelect={sel => setLoss(sel)}
+                                    onSelect={sel => {sel === 'Custom' && setIsCustomLoss(true); setLoss(sel)}}
                                 >
                                     <Dropdown.Item eventKey="CE">CE</Dropdown.Item>
                                     <Dropdown.Item eventKey="MSE">MSE</Dropdown.Item>
                                     <Dropdown.Item eventKey="BCE">BCE</Dropdown.Item>
-                                    <Form.Control
-                                        id={`custom-loss`}
-                                        type='file'
-                                        accept = '.py'
-                                        onChange={ev => { setCustomLoss(ev.target.files[0]); setLoss(ev.target.files[0].name); }}
-                                        style={{ width: '100%' }}
-                                        />
+                                    <Dropdown.Item eventKey="Custom">Custom</Dropdown.Item>
                                 </DropdownButton>
                             </td>
                         </tr>
@@ -468,6 +463,31 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
                     </tbody>
                 </Table>
             </Form >
+
+            {isCustomLoss && <>
+                <br />
+                <Form.Label>Upload Custom Loss Function</Form.Label> {' '}
+                <OverlayTrigger
+                    placement="right"
+                    overlay={
+                        <Tooltip id={`tooltip-customLoss`}>
+                            Select a python file containing the custom_loss function.  
+                        </Tooltip>
+                    }>
+                    <InfoCircle />
+                </OverlayTrigger>            
+
+                <Form.Control
+                    id={`custom-loss`}
+                    type='file'
+                    accept='.py'
+                    onChange={ev => { setCustomLoss(ev.target.files[0]); setLoss(ev.target.files[0].name); }}
+                    style={{ width: '100%' }}
+                />
+
+                <br />
+                </>
+}
 
             <Button className='left-menu-button' onClick={() => handleTrain({ epochs, learningRate, batchSize, loss, optimizer }, { setErr, setErrMsg })}> Train </Button>
             <Button className='left-menu-button' onClick={() => handleReset({ setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer })}> Reset </Button>

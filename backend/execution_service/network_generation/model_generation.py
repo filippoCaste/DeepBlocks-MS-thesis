@@ -16,6 +16,7 @@ from captum.attr import IntegratedGradients
 
 from network_generation.pytorch_functions import valid_pytorch_functions, function_params
 UPLOAD_DIRECTORY = "uploads"
+CONVERTED_DIRECTORY = "converted"
 
 ############################################################################################################
 #                                                 TRAINING                                                 #
@@ -27,7 +28,7 @@ def resize_images(ds_batch):
         transforms.ToTensor()
     ])
     try:
-        ds_batch["pixel_values"] = [transform(image.convert("RGB")) for image in ds_batch["image"]]
+        ds_batch["pixel_values"] = torch.stack([transform(image.convert("RGB")) for image in ds_batch["image"]])
         ds_batch["labels"] = torch.tensor(ds_batch["label"])
     except:
         pass
@@ -47,16 +48,19 @@ def train_model(nodes, edges, params, user_id, uploads):
         raise ValueError("Input dataset informations are not correct")
 
     try: 
-        if not os.path.exists(os.path.join(UPLOAD_DIRECTORY, ds_name)):
-            if ds_config == 'None':
-                dataset = load_dataset(ds_name, trust_remote_code=True)
-            else: 
-                dataset = load_dataset(ds_name, ds_config, trust_remote_code=True)
-            
-            dataset.save_to_disk(os.path.join(UPLOAD_DIRECTORY, ds_name))
+        # if not os.path.exists(os.path.join(UPLOAD_DIRECTORY, ds_name)):
+        if ds_config == 'None':
+            dataset = load_dataset(ds_name, trust_remote_code=True)
+        else: 
+            dataset = load_dataset(ds_name, ds_config, trust_remote_code=True)
+    
+        # dataset.save_to_disk(os.path.join(UPLOAD_DIRECTORY, ds_name))
+        downloaded = True
 
-        else:
-            dataset = load_from_disk(os.path.join(UPLOAD_DIRECTORY, ds_name))
+        # else:
+        #     dataset = load_from_disk(os.path.join(UPLOAD_DIRECTORY, ds_name))
+        #     print("Dataset loaded from disk")
+        #     downloaded = False
     
     except Exception as e:
         raise Exception(e)
@@ -71,15 +75,16 @@ def train_model(nodes, edges, params, user_id, uploads):
             encoding = auto_tokenizer(examples["text"], padding="max_length", truncation=True)
             return encoding
 
-        encoded_dataset = dataset.map(preprocess_function, batched=True)
-        encoded_dataset = encoded_dataset.remove_columns(["text"])
-        encoded_dataset = encoded_dataset.rename_column("label", "labels")
-        encoded_dataset.set_format(type='torch')
-    
+        processed_dataset = dataset.map(preprocess_function, batched=True)
+        if not downloaded:
+            processed_dataset = processed_dataset.remove_columns(["labels", "text"])
+        processed_dataset = processed_dataset.rename_column("label", "labels")
+        processed_dataset.set_format(type='torch')
     elif ds_type == "image":
         encoded_dataset = dataset.map(resize_images, remove_columns=["image"], batch_size=64, batched=True)
+        if not downloaded:
+            encoded_dataset = encoded_dataset.remove_columns(["labels"])
         encoded_dataset = encoded_dataset.rename_column("label", "labels")
-
         feature_extractor = ViTImageProcessor.from_pretrained("google/vit-base-patch16-224")
         auto_tokenizer = feature_extractor
     else:
@@ -102,9 +107,9 @@ def train_model(nodes, edges, params, user_id, uploads):
     model.to(device)
 
     try:
-        n_epochs, lr, batch_size, loss_fn, optimizer = set_parameters(params, model.parameters())
+        n_epochs, lr, batch_size, loss_fn, optimizer = set_parameters(params, model.parameters(), user_id)
     except Exception as e:
-        raise ValueError(f"Model or parameters are not correct. Be sure to provide a valid model and parameters. {msg}")
+        raise ValueError(f"Model or parameters are not correct. Be sure to provide a valid model and parameters. {e}.{msg}")
 
     accuracy_metric = evaluate.load("accuracy")
     precision_metric = evaluate.load("precision")
@@ -118,9 +123,16 @@ def train_model(nodes, edges, params, user_id, uploads):
         "recall": [],
         "f1_score": []
     }
+    # print("Length: ", len(encoded_dataset['train']), " ", len(encoded_dataset['test']))
+    if len(encoded_dataset['train']) < 900:
+        small_train_dataset = encoded_dataset["train"].shuffle(seed=42).select(range(len(encoded_dataset['train'])))
+    else:
+        small_train_dataset = encoded_dataset["train"].shuffle(seed=42).select(range(900))
 
-    small_train_dataset = encoded_dataset["train"].shuffle(seed=42).select(range(900))
-    small_eval_dataset = encoded_dataset["test"].shuffle(seed=42).select(range(600))
+    if len(encoded_dataset['test']) < 600:
+        small_eval_dataset = encoded_dataset["test"].shuffle(seed=42).select(range(len(encoded_dataset['test'])))
+    else:
+        small_eval_dataset = encoded_dataset["test"].shuffle(seed=42).select(range(600))
 
     if ds_type == 'text':
         train_dataloader = DataLoader(small_train_dataset, shuffle=True, batch_size=batch_size)
@@ -143,6 +155,7 @@ def train_model(nodes, edges, params, user_id, uploads):
         total_loss = 0
 
         for epoch in range(n_epochs):
+            print("epoch ", epoch)
             for batch in train_dataloader:
                 batch = {k: v.to(device) for k, v in batch.items()}
                 labels = batch.pop('labels')
@@ -255,9 +268,11 @@ def forward_model(nodes, edges, params, user_id):
                 dataset = load_dataset(ds_name, ds_config, trust_remote_code=True)
             
             dataset.save_to_disk(os.path.join(UPLOAD_DIRECTORY, ds_name))
+            downloaded = True
 
         else:
             dataset = load_from_disk(os.path.join(UPLOAD_DIRECTORY, ds_name))
+            downloaded = False
     
     except Exception as e:
         raise Exception(e)
@@ -273,6 +288,8 @@ def forward_model(nodes, edges, params, user_id):
             return encoding
 
         encoded_dataset = dataset.map(preprocess_function, batched=True)
+        if downloaded is False:
+            encoded_dataset = encoded_dataset.remove_columns(["labels"])
         encoded_dataset = encoded_dataset.remove_columns(["text"])
         encoded_dataset = encoded_dataset.rename_column("label", "labels")
         encoded_dataset.set_format(type='torch')
@@ -281,6 +298,8 @@ def forward_model(nodes, edges, params, user_id):
     
     elif ds_type == "image":
         encoded_dataset = dataset.map(resize_images, remove_columns=["image"], batch_size=64, batched=True)
+        if downloaded is False:
+            encoded_dataset = encoded_dataset.remove_columns(["labels"])
         encoded_dataset = encoded_dataset.rename_column("label", "labels")
 
         feature_extractor = ViTImageProcessor.from_pretrained("google/vit-base-patch16-224")
@@ -300,11 +319,9 @@ def forward_model(nodes, edges, params, user_id):
     
     if model is None:
         raise Exception("Model creation failed")
-
-    # embedding_size = 100
     
     input_tensor = torch.rand((batch_size, embedding_size, input_size))
-
+    # for i, m in enumerate(model.layers):
     for i, m in enumerate(model):
         print(f"Layer {i}: {m}")
         try:
@@ -313,7 +330,6 @@ def forward_model(nodes, edges, params, user_id):
         except Exception as e:
             print(f"Error in layer {i}: {e}")
             raise ValueError(f"Error in the node {m}: {e}")
-
     return True
 
 
@@ -321,7 +337,7 @@ def forward_model(nodes, edges, params, user_id):
 #                                                  UTILS                                                   #
 ############################################################################################################
 
-def set_parameters(params, model_parameters):
+def set_parameters(params, model_parameters, user_id):
     n_epochs = 0
     lr = 0
     batch_size = 0
@@ -336,7 +352,6 @@ def set_parameters(params, model_parameters):
         elif param.key == "batchSize":
             batch_size = int(param.value)
         elif param.key == "loss":
-            # can be CE or MSE
             if param.value == "CE":
                 loss = nn.CrossEntropyLoss()
             elif param.value == "MSE":
@@ -346,8 +361,9 @@ def set_parameters(params, model_parameters):
             else:
                 # param.value contains the name of the file containing the custom loss
                 try:
-                    loss = load_custom_loss_function(os.path.join(UPLOAD_DIRECTORY, user_id, param.value))
+                    loss = load_custom_loss_function(os.path.join(UPLOAD_DIRECTORY, str(user_id), param.value))
                 except Exception as e:
+                    print(e)
                     raise Exception("The loss function must be defined as a function named 'custom_loss', and has to be contained in a file.")
 
         elif param.key == "optimizer":
@@ -356,7 +372,7 @@ def set_parameters(params, model_parameters):
                 optimizer = optim.Adam(model_parameters, lr=lr)
             elif param.value == "SGD":
                 optimizer = optim.SGD(model_parameters, lr=lr)
-
+    print(n_epochs, lr, batch_size, loss, optimizer)
     return n_epochs, lr, batch_size, loss, optimizer
 
 def order_nodes(nodes, edges):
@@ -389,6 +405,7 @@ def order_nodes(nodes, edges):
                 ordered_nodes.append(n)
                 break
 
+    print(ordered_nodes)
     return ordered_nodes
 
 def recursive(edges, src_node, nodes_list):
@@ -418,7 +435,7 @@ def recursive(edges, src_node, nodes_list):
     # exit conditions
     if src_node is None or len(edges) == 0:
         return
-    
+
     # recursive call
     for edge in edges:
         if edge.source == src_node:
@@ -448,7 +465,7 @@ def recursive(edges, src_node, nodes_list):
 
             else:
                 res = edge.target
-    
+
             nodes_list.append(res)
             cpy_edges = [e for e in edges if e is not None and e.source != src_node and e.target != edge.target]
             recursive(cpy_edges, res, nodes_list)
@@ -533,37 +550,54 @@ def create_model(nodes, edges, input_shape):
                         modules.append(module_class(**general_params))
 
                 else:
-                    print("module not found ", fn)
+                    print("module not found --> ", fn)
             else:
-                print("function not allowed for node ", node)
+                print("function not allowed for node --> ", node)
 
         except Exception as e:
             print("ERROR IN LAYER --> ", node.function)
             msg += f" {e} "
             print(e)
 
+    print("Nodes --> ", nodes_list)
+    print("Edges --> ", edges)
+
+    # print("Modules --> ", modules)
+
     # create the corresponding model
     # class CustomModel(nn.Module):
-    #     def __init__(self, model):
+    #     def __init__(self, nodes, modules):
     #         super(CustomModel, self).__init__()
-    #         self.model = model
+    #         self.nodes = nodes
+    #         self.layers = nn.ModuleList(modules)
+    #         self.outputs = {}
 
     #     def forward(self, x):
-    #         for layer in self.model:
-    #             if isinstance(layer, (torch.nn.RNN, torch.nn.LSTM, torch.nn.GRU)):
-    #                 x, _ = layer(x)
-    #                 try:
-    #                     x = x[:, -1, :]
-    #                 except:
-    #                     x = x[-1]
-    #             else:
-    #                 x = layer(x)
-    #         return x
+    #         for node in self.nodes:
+    #             if node.function == 'null':
+    #                 continue
+    #             elif node.function == 'split':
+    #                 pass
+    #             inputs = [self.outputs[edge.source] for edge in edges if edge.target == node.id]
+    #             if len(inputs) == 1:
+    #                 inputs = inputs[0]
+    #             elif len(inputs) > 1 and node.function == 'torch.cat':
+    #                 dim = int(node.parameters[2].value)
+    #                 inputs = torch.cat(inputs, dim)
+                
+    #             module_idx = [i for i, n in enumerate(self.nodes) if n.id == node.id][0]
+    #             self.outputs[node.id] = self.modules[module_idx](inputs)
+    #             print("node id --> ", node.id, " --> ", self.outputs[node.id])
+
+    #         return self.outputs[self.nodes[-1].id]
+
+    # model = CustomModel(nodes_list, modules)
 
     model = nn.Sequential(*modules)
-    # model = CustomModel(model)
     
-    print("Model created --> ",model)
+    # print("Model created --> ", model.layers)
+
+    print("Model created --> ", model)
     
     return model, msg
 
@@ -615,12 +649,12 @@ def export_to_onnx(nodes, edges, file_name, uid):
     model, msg = create_model(nodes, edges, 1024)
 
     try:
-        onnx_file = torch.onnx.export(model, torch.randn(1, 1, 32, 32), os.path.join(f'converted/{uid}',file_name), verbose=True)
+        onnx_file = torch.onnx.export(model, torch.randn(1, 1, 32, 32), os.path.join(CONVERTED_DIRECTORY, str(uid), file_name), verbose=True)
         return True
     except Exception as e:
         try:
             input_tensor = torch.randn(1, 100, 32)
-            onnx_file = torch.onnx.export(model, input_tensor, os.path.join(f'converted/{uid}',file_name), verbose=True)
+            onnx_file = torch.onnx.export(model, input_tensor, os.path.join(CONVERTED_DIRECTORY, str(uid), file_name), verbose=True)
             return True
         except Exception as e:
             print(e)
@@ -647,7 +681,7 @@ def export_to_pth(nodes, edges, file_name, uid):
     model, msg = create_model(nodes, edges, 1024)
 
     try:
-        torch.save(model.state_dict(), os.path.join(f'converted/{uid}',file_name))
+        torch.save(model.state_dict(), os.path.join(CONVERTED_DIRECTORY, str(uid), file_name))
         return True
     except Exception as e:
         print(e)

@@ -401,6 +401,7 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
         setLoss('');
         setOptimizer('');
         setCustomLoss(null)
+        setIsCustomLoss(false);
     }
 
 
@@ -410,32 +411,33 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
                 <Table striped variant={'dark'}>
                     <tbody>
                         <tr key="trainEpoch">
-                            <td style={{ textAlign: 'left', width: '40%' }}>Epoch</td>
+                            <td style={{ textAlign: 'left', width: '43%' }}>Epoch</td>
                             <td style={{ textAlign: 'right' }}>
-                                <Form.Control value={epochs || ''} type='text' style={{ width: '50%', float: 'right' }} onChange={ev => setEpochs(ev.target.value)} />
+                                <Form.Control value={epochs || ''} type='text' style={{ width: '70%', float: 'right' }} onChange={ev => setEpochs(ev.target.value)} />
                             </td>
                         </tr>
                         <tr key="trainLearningRate">
-                            <td style={{ textAlign: 'left', width: '40%' }}>Learning Rate</td>
+                            <td style={{ textAlign: 'left', width: '43%' }}>Learning Rate</td>
                             <td style={{ textAlign: 'right' }}>
-                                <Form.Control value={learningRate || ''} type='text' style={{ width: '50%', float: 'right' }} onChange={ev => setLearningRate(ev.target.value)} />
+                                <Form.Control value={learningRate || ''} type='text' style={{ width: '70%', float: 'right' }} onChange={ev => setLearningRate(ev.target.value)} />
                             </td>
                         </tr>
                         <tr key="trainBatchSize">
-                            <td style={{ textAlign: 'left', width: '40%' }}>Batch Size</td>
+                            <td style={{ textAlign: 'left', width: '43%' }}>Batch Size</td>
                             <td style={{ textAlign: 'right' }}>
-                                <Form.Control value={batchSize || ''} type='text' style={{ width: '50%', float: 'right' }} onChange={ev => setBatchSize(ev.target.value)} />
+                                <Form.Control value={batchSize || ''} type='text' style={{ width: '70%', float: 'right' }} onChange={ev => setBatchSize(ev.target.value)} />
                             </td>
                         </tr>
 
                         <tr key="trainLoss">
-                            <td style={{ textAlign: 'left', width: '40%' }}>Loss Function</td>
+                            <td style={{ textAlign: 'left', width: '43%' }}>Loss Function</td>
                             <td style={{ textAlign: 'right' }}>
                                 <DropdownButton
                                     variant="outline-secondary"
                                     title={loss || "Select"}
                                     id="trainForm.LossFunction"
                                     onSelect={sel => {sel === 'Custom' && setIsCustomLoss(true); setLoss(sel)}}
+                                    style={{ width: '70%', float: 'right' }}
                                 >
                                     <Dropdown.Item eventKey="CE">CE</Dropdown.Item>
                                     <Dropdown.Item eventKey="MSE">MSE</Dropdown.Item>
@@ -453,6 +455,7 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
                                     title={optimizer || "Select"}
                                     id="trainForm.Optimizer"
                                     onSelect={sel => {setOptimizer(sel)}}
+                                    style={{ width: '70%', float: 'right' }}
                                 >
                                     <Dropdown.Item eventKey="SGD">SGD</Dropdown.Item>
                                     <Dropdown.Item eventKey="Adam">Adam</Dropdown.Item>

@@ -111,7 +111,7 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
                     style: { ...nodeFound.style, padding: '2px', border: '2px solid black', borderRadius: '2em' }
                 };
                 const updatedNodes = nodes.map(node =>
-                    node.id === updatedNode.id ? updatedNode : node
+                    node.id === updatedNode.id ? updatedNode : {...node, style: {...node.style, padding: '0px', border: 'none', borderRadius: '0em'}}
                 );
                 setNodes(updatedNodes);
                 setNodeInfo(nodeFound)

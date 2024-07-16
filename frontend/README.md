@@ -21,6 +21,7 @@
       - [`SheetsComponent.jsx`](#sheetscomponentjsx)
       - [`Sidebar.jsx`](#sidebarjsx)
       - [`SuperBlockNode.jsx`](#superblocknodejsx)
+      - [`Welcome.jsx`](#welcomejsx)
 
 ## Data
 - blocks is a collection frontend side:
@@ -137,3 +138,6 @@ The Sidebar component has the following sub-components:
 
 #### `SuperBlockNode.jsx`
 This code defines a functional component SuperBlockNode which renders a node in a graphical interface. It uses state hooks to manage the component's state, such as openOptions, rename, and inputValue. It also defines functions like handleContextMenu, handleRename, and handleOpenInfo to handle different events. The component renders a \<div> with specific styling and content based on the component's state and props.
+
+#### `Welcome.jsx`
+This code defines a React component Welcome that renders the welcome box when a user enters in the webpage. It uses reactflow hooks to interact with the flow. The component renders a \<div> with specific content.

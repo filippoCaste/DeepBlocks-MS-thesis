@@ -16,8 +16,8 @@ if not os.path.exists(CONVERTED_DIRECTORY):
 
 # delete upload and converted directories on exit
 import atexit, shutil
-atexit.register(lambda: shutil.rmtree(f"./{UPLOAD_DIRECTORY}"))
-atexit.register(lambda: shutil.rmtree(f"./{CONVERTED_DIRECTORY}"))
+atexit.register(lambda: shutil.rmtree(f"./{UPLOAD_DIRECTORY}", ignore_errors=True))
+atexit.register(lambda: shutil.rmtree(f"./{CONVERTED_DIRECTORY}", ignore_errors=True))
 #############################################################
 
 USERS_ID = 100;
@@ -66,7 +66,7 @@ class Executor(TrainerServicer):
             response = NetworkResult(status="500", message=str(e))
         
         # delete id folder when the operations are completed
-        shutil.rmtree('uploads/' + str(uid))
+        shutil.rmtree(os.path.join(UPLOAD_DIRECTORY, str(uid)))
         return response
 
     def ExportNetwork(self, request, context):

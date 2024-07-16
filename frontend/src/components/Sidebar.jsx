@@ -597,8 +597,8 @@ const Analysis = (props) => {
                                         </div>
                         }
                         {metrics.length > 0 ? <Results metrics={metrics} parameters={parameters} /> : <>
-                                <p>No results to show:</p>
-                                <p> Add an <em>Input node</em> and set up the parameters (click on the <PlayFill /> tab in the left menu) in order to start training your network</p>
+                                {!isTraining && <p>No results to show</p>}
+                                {!isTraining && <p> Add an <em>Input node</em> and set up the parameters (click on the <PlayFill /> tab in the left menu) in order to start training your network</p>}
                             </>}
                     </Container>
                 </Row>

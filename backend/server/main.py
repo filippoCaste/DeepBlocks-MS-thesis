@@ -26,4 +26,4 @@ atexit.register(lambda: shutil.rmtree(f"{CONVERTED_DIRECTORY}"))
 #############################################################
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)

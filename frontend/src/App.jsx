@@ -98,6 +98,7 @@ export default function App() {
   const [metrics, setMetrics] = useState([]);
   const [nodeParams, setNodeParams] = useState([]);
   const [isTraining, setIsTraining] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
   
   const [messages, setMessages] = useState([]);
 
@@ -162,11 +163,14 @@ export default function App() {
           return;
         }
         addMessage("Checking your network...", "info")
+        setIsChecking(true);
         BLOCKS_API.forwardBlock(nodes, edges, paramObj).then((data) => {
+          setIsChecking(false);
           setErrNode(null)
           setErrSuperBlock(null)
           addMessage("Check completed! You are good to go.", "success")
         }).catch(err => {
+          setIsChecking(false);
           console.log(err)
           setErrNode(null)
           setErrSuperBlock(null)
@@ -504,8 +508,8 @@ export default function App() {
 
         {nodes.length === 0 && <Welcome setOpenMenu={setOpenMenu} />}
 
-        {isTraining && <div style={{ position: 'fixed', top:'7em', left: '50%', display:'inline'}}> 
-          <Spinner animation="border" variant="primary" /> <p style={{ display: 'inline' }}> Training...  </p>
+        {(isTraining || isChecking) && <div style={{ position: 'fixed', top:'7em', left: '50%', display:'inline'}}> 
+          <Spinner animation="border" variant="primary" /> <p style={{ display: 'inline' }}> {isChecking ? 'Checking...' : 'Training...'}  </p>
           </div>}
 
         <Routes>

@@ -103,7 +103,10 @@ def forward_block():
             
             try:
                 solution_link = resp.json()['items'][0]['link']
-                ret_message = response.message + " Suggestion: " + error_solutions.get(error_type, "No suggestion available for this error.")
+                sol_msg = error_solutions.get(error_type, None)
+                ret_message = response.message
+                if sol_msg != None:
+                    ret_message += " Suggestion: " + sol_msg 
             except Exception as e:
                 solution_link = None
                 ret_message = response.message

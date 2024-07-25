@@ -156,7 +156,14 @@
 }
 
 .left-menu-button {
-    background-color: #555;
+    color: #fff;
+    border: solid 1px #fff;
+    width: 9rem;
+    margin: 0.25rem;
+}
+
+.left-menu-button-secondary {
+    background-color: transparent;
     color: #fff;
     border: solid 1px #fff;
     width: 9rem;

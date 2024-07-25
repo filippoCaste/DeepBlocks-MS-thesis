@@ -493,7 +493,7 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
 }
 
             <Button className='left-menu-button' onClick={() => handleTrain({ epochs, learningRate, batchSize, loss, optimizer }, { setErr, setErrMsg })}> Train </Button>
-            <Button className='left-menu-button' onClick={() => handleReset({ setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer })}> Reset </Button>
+            <Button className='left-menu-button-secondary' onClick={() => handleReset({ setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer })}> Reset </Button>
 
             {err && <AlertComponent variant="danger" message={errMsg} setErr={setErr} />}
         </>

@@ -99,6 +99,7 @@ export default function App() {
   const [nodeParams, setNodeParams] = useState([]);
   const [isTraining, setIsTraining] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
+  const [checkingResult, setCheckingResult] = useState(null);
   
   const [messages, setMessages] = useState([]);
 
@@ -168,8 +169,10 @@ export default function App() {
           setIsChecking(false);
           setErrNode(null)
           setErrSuperBlock(null)
+          setCheckingResult(true);
           addMessage("Check completed! You are good to go.", "success")
         }).catch(err => {
+          setCheckingResult(false)
           setIsChecking(false);
           console.log(err)
           setErrNode(null)
@@ -420,11 +423,29 @@ export default function App() {
             if(n.type === 'superBlockNode') {
               let b = new Superblock(n.type, n.position, n.data, n.children);
               mapping.push([n.id, b.id]);
-              childrenIds.push(...n.children);
+              childrenIds.push(...n.children.map(c => {
+                if(c == n.id+"i") {
+                  return b.id+"i"
+              } else if(c == n.id+"o") {
+                  return b.id+"o"
+              } else {
+                return c;
+              }}));
               return b;
             } else if(n.type === 'invisibleInputNode' || n.type === 'invisibleOutputNode') {
+              let newId;
+              for(let m of mapping) {
+                if(m[0] === n.id) {
+                  newId = m[1];
+                  break;
+                }
+              }
               let b = new InvisibleBlock(n.id, n.type, n.position);
-              mapping.push([n.id, b.id]);
+              if(newId) {
+                b = {...b, id: newId};
+              } else{
+                mapping.push([n.id, b.id]);
+              }
               return b;
             } else {
               let b = new Block(n.type, n.position, n.data, n.parameters, n.fn);
@@ -517,6 +538,7 @@ export default function App() {
                                       nodeTypes={nodeTypes} nodes={nodes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onNodesDelete={onNodesDelete}
                                       appName={appName} setAppName={setAppName} handleDeleteNodes={handleDeleteNodes}
                                       handleAddNode={handleAddNode} sheets={sheets} setSheets={setSheets} addMessage={addMessage}
+                                      isChecking={isChecking} checkingResult={checkingResult}
                                   />} 
             />
           <Route path='*' element={<NotFoundPage />} />

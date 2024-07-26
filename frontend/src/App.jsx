@@ -482,6 +482,10 @@ export default function App() {
           // setNodes(newNodes);
           // setEdges(newEdges);
 
+          setErrNodeMsg(null);
+          setErrNode(null);
+          setErrSuperBlock(null);
+
           setNodes(nodes);
           setEdges(edges);
           let maxId = 0;

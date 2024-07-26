@@ -485,6 +485,8 @@ export default function App() {
           setErrNodeMsg(null);
           setErrNode(null);
           setErrSuperBlock(null);
+          setIsChecking(false);
+          setCheckingResult(null);
 
           setNodes(nodes);
           setEdges(edges);

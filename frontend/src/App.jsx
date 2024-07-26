@@ -105,6 +105,7 @@ export default function App() {
 
   const [errNode, setErrNode] = useState(null);
   const [errSuperBlock, setErrSuperBlock] = useState(null);
+  const [errNodeMsg, setErrNodeMsg] = useState(null)
 
   useEffect(() => {
     if(errNode !== null) {
@@ -169,6 +170,7 @@ export default function App() {
           setIsChecking(false);
           setErrNode(null)
           setErrSuperBlock(null)
+          setErrNodeMsg(null)
           setCheckingResult(true);
           addMessage("Check completed! You are good to go.", "success")
         }).catch(err => {
@@ -177,6 +179,7 @@ export default function App() {
           console.log(err)
           setErrNode(null)
           setErrSuperBlock(null)
+          setErrNodeMsg(err.message)
           const errNodeInfo = err.message.split("Error in the node")[1].split(":")[0].split("(")
           const errNodeFunction = errNodeInfo[0].trim()
           const parametersValue = errNodeInfo.slice(1).join("(").trim().split(", ").map(p => p.includes("=") ? p.split("=")[1].replace(/[(),]/g, "") : p)
@@ -538,7 +541,7 @@ export default function App() {
                                       nodeTypes={nodeTypes} nodes={nodes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onNodesDelete={onNodesDelete}
                                       appName={appName} setAppName={setAppName} handleDeleteNodes={handleDeleteNodes}
                                       handleAddNode={handleAddNode} sheets={sheets} setSheets={setSheets} addMessage={addMessage}
-                                      isChecking={isChecking} checkingResult={checkingResult}
+                                      isChecking={isChecking} checkingResult={checkingResult} errNode={errNode} errNodeMsg={errNodeMsg}
                                   />} 
             />
           <Route path='*' element={<NotFoundPage />} />

@@ -13,6 +13,7 @@ import AlertComponent from "./AlertComponent";
 export default function NodeInfoBar(props) {
 
     const node = props.nodeInfo;
+    const {errNode, errNodeMsg} = props;
 
     const [selectedTab, setSelectedTab] = useState('Parameters');
     const [msg, setMsg] = useState(null);
@@ -20,13 +21,17 @@ export default function NodeInfoBar(props) {
     const [showMessage, setShowMessage] = useState(false);
 
     const topBarOptions = ['Parameters', 'Info']
+    if (errNode && errNode.id == node.id) {
+        topBarOptions.push('Error')
+    }
 
     const handleTopBarClick = (e) => {
         if(e === 'Parameters') {
             setSelectedTab('Parameters');
-
         } else if(e === 'Info') {
             setSelectedTab('Info');
+        } else if(e === 'Error') {
+            setSelectedTab("Error")
         }
     }
 
@@ -49,6 +54,7 @@ export default function NodeInfoBar(props) {
             <div style={{ overflowY: 'auto' }}>
                 {selectedTab === 'Parameters' && <ParametersTab node={node} setParameterValue={setParameterValue} />}
                 {selectedTab === 'Info' && <InfoTab node={node} />}
+                {selectedTab === 'Error' && <ErrorTab errNodeMsg={errNodeMsg} />}
             </div>
             {showMessage && <AlertComponent message={msg} variant={variant} setErr={setShowMessage} />}
         </div>
@@ -57,13 +63,13 @@ export default function NodeInfoBar(props) {
 
 function ParametersTab(props) {
     const { node } = props;
-    const [layerType, setLayerType] = useState(node.parameters[0].name === 'layer_type' ? node.parameters[0].value : 'null');
+    // const [layerType, setLayerType] = useState(node.parameters[0].name === 'layer_type' ? node.parameters[0].value : 'null');
     const [datasetType, setDatasetType] = useState(node.parameters.length > 1 && node.parameters[1].name === 'dataset_type' ? node.parameters[1].value : 'null');
 
-    const setParameterLayerType = (value) => {
-        setLayerType(value)
-        props.setParameterValue("layer_type", value)
-    }
+    // const setParameterLayerType = (value) => {
+    //     setLayerType(value)
+    //     props.setParameterValue("layer_type", value)
+    // }
 
     const setParameterDatasetType = (value) => {
         setDatasetType(value)
@@ -79,7 +85,7 @@ function ParametersTab(props) {
                     })}
                 </Col>
                 <Col md={4}>
-                    {node.parameters[0].name === 'layer_type' && <Row className="mb-3" style={{ justifyContent: 'space-between' }}>
+                    {/* {node.parameters[0].name === 'layer_type' && <Row className="mb-3" style={{ justifyContent: 'space-between' }}>
                             <Col md={7}>
                                 <p>LAYER TYPE</p>
                                 <Form.Group>
@@ -117,7 +123,7 @@ function ParametersTab(props) {
         
                             </Col>
                         </Row>
-                    }
+                    } */}
 
 
                     {node.parameters.length > 1 && node.parameters[1].name === 'dataset_type' && <Row className="mb-3" style={{ justifyContent: 'space-between' }}>
@@ -191,6 +197,12 @@ function FormInput(props) {
 function InfoTab(props) {
     const { node } = props;
     return (
-        <p> This node is a {node.type} </p>
+        <Container>
+            <p> This node is a {node.type} </p>
+        </Container>
     )
+}
+
+function ErrorTab(props) {
+    return <Container><h3>Error while forwarding the block:</h3><p>{props.errNodeMsg}</p></Container>
 }

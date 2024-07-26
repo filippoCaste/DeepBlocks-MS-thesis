@@ -436,7 +436,7 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
                                     variant="outline-secondary"
                                     title={loss || "Select"}
                                     id="trainForm.LossFunction"
-                                    onSelect={sel => {sel === 'Custom' && setIsCustomLoss(true); setLoss(sel)}}
+                                    onSelect={sel => {sel === 'Custom' ? setIsCustomLoss(true) : setIsCustomLoss(false); setLoss(sel)}}
                                     style={{ width: '70%', float: 'right' }}
                                 >
                                     <Dropdown.Item eventKey="CE">CE</Dropdown.Item>

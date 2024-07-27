@@ -99,11 +99,13 @@ export default function App() {
   const [nodeParams, setNodeParams] = useState([]);
   const [isTraining, setIsTraining] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
+  const [checkingResult, setCheckingResult] = useState(null);
   
   const [messages, setMessages] = useState([]);
 
   const [errNode, setErrNode] = useState(null);
   const [errSuperBlock, setErrSuperBlock] = useState(null);
+  const [errNodeMsg, setErrNodeMsg] = useState(null)
 
   useEffect(() => {
     if(errNode !== null) {
@@ -168,12 +170,16 @@ export default function App() {
           setIsChecking(false);
           setErrNode(null)
           setErrSuperBlock(null)
+          setErrNodeMsg(null)
+          setCheckingResult(true);
           addMessage("Check completed! You are good to go.", "success")
         }).catch(err => {
+          setCheckingResult(false)
           setIsChecking(false);
           console.log(err)
           setErrNode(null)
           setErrSuperBlock(null)
+          setErrNodeMsg(err.message)
           const errNodeInfo = err.message.split("Error in the node")[1].split(":")[0].split("(")
           const errNodeFunction = errNodeInfo[0].trim()
           const parametersValue = errNodeInfo.slice(1).join("(").trim().split(", ").map(p => p.includes("=") ? p.split("=")[1].replace(/[(),]/g, "") : p)
@@ -414,49 +420,83 @@ export default function App() {
           if(!nodes || !edges || !params) {
             throw new Error('The file is not a valid JSON file');
           }
-          let mapping = [];
-          let childrenIds = [];
-          let newNodes = nodes.map(n => {
-            if(n.type === 'superBlockNode') {
-              let b = new Superblock(n.type, n.position, n.data, n.children);
-              mapping.push([n.id, b.id]);
-              childrenIds.push(...n.children);
-              return b;
-            } else if(n.type === 'invisibleInputNode' || n.type === 'invisibleOutputNode') {
-              let b = new InvisibleBlock(n.id, n.type, n.position);
-              mapping.push([n.id, b.id]);
-              return b;
-            } else {
-              let b = new Block(n.type, n.position, n.data, n.parameters, n.fn);
-              mapping.push([n.id, b.id]);
-              return b;
-            }
-          });
-          newNodes = newNodes.map(n => n.type === 'superBlockNode' ? { ...n, children: n.children.map(c => mapping.find(m => m[0] === c)[1]) } : n)
-          childrenIds = childrenIds.map(c => {
-            for(let m of mapping) {
-              if(m[0] === c) {
-                return m[1];
-              }
-            }
-            return c;
-          })
-          newNodes = newNodes.map(n => childrenIds.find(c => c === n.id) ? {...n, hidden: true} : n);
+          // let mapping = [];
+          // let childrenIds = [];
+          // let newNodes = nodes.map(n => {
+          //   if(n.type === 'superBlockNode') {
+          //     let b = new Superblock(n.type, n.position, n.data, n.children);
+          //     mapping.push([n.id, b.id]);
+          //     childrenIds.push(...n.children.map(c => {
+          //       if(c == n.id+"i") {
+          //         return b.id+"i"
+          //     } else if(c == n.id+"o") {
+          //         return b.id+"o"
+          //     } else {
+          //       return c;
+          //     }}));
+          //     return b;
+          //   } else if(n.type === 'invisibleInputNode' || n.type === 'invisibleOutputNode') {
+          //     let newId;
+          //     for(let m of mapping) {
+          //       if(m[0] === n.id) {
+          //         newId = m[1];
+          //         break;
+          //       }
+          //     }
+          //     let b = new InvisibleBlock(n.id, n.type, n.position);
+          //     if(newId) {
+          //       b = {...b, id: newId};
+          //     } else{
+          //       mapping.push([n.id, b.id]);
+          //     }
+          //     return b;
+          //   } else {
+          //     let b = new Block(n.type, n.position, n.data, n.parameters, n.fn);
+          //     mapping.push([n.id, b.id]);
+          //     return b;
+          //   }
+          // });
+          // newNodes = newNodes.map(n => n.type === 'superBlockNode' ? { ...n, children: n.children.map(c => mapping.find(m => m[0] === c)[1]) } : n)
+          // childrenIds = childrenIds.map(c => {
+          //   for(let m of mapping) {
+          //     if(m[0] === c) {
+          //       return m[1];
+          //     }
+          //   }
+          //   return c;
+          // })
+          // newNodes = newNodes.map(n => childrenIds.find(c => c === n.id) ? {...n, hidden: true} : n);
 
-          const newEdges = edges.map(e => {
-            let newEdge = {...e };
-            for(let m of mapping) {
-              if(m[0] === e.source) {
-                newEdge = { ...newEdge, source: m[1] }
-              } else if(m[0] === e.target) {
-                newEdge = { ...newEdge, target: m[1] }
-              }
-            }
+          // const newEdges = edges.map(e => {
+          //   let newEdge = {...e };
+          //   for(let m of mapping) {
+          //     if(m[0] === e.source) {
+          //       newEdge = { ...newEdge, source: m[1] }
+          //     } else if(m[0] === e.target) {
+          //       newEdge = { ...newEdge, target: m[1] }
+          //     }
+          //   }
             
-            return newEdge;
-          })
-          setNodes(newNodes);
-          setEdges(newEdges);
+          //   return newEdge;
+          // })
+          // setNodes(newNodes);
+          // setEdges(newEdges);
+
+          setErrNodeMsg(null);
+          setErrNode(null);
+          setErrSuperBlock(null);
+          setIsChecking(false);
+          setCheckingResult(null);
+
+          setNodes(nodes);
+          setEdges(edges);
+          let maxId = 0;
+          for (let nodeId of nodes.map(n => n.id)) {
+            if(parseInt(nodeId) > maxId) {
+              maxId = parseInt(nodeId);
+            }
+          }
+          Block.updateIdCounter(maxId+1)
           setAppName(inputFile.name);
           setSheets([['main', 'main']]);
 
@@ -517,6 +557,7 @@ export default function App() {
                                       nodeTypes={nodeTypes} nodes={nodes} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onNodesDelete={onNodesDelete}
                                       appName={appName} setAppName={setAppName} handleDeleteNodes={handleDeleteNodes}
                                       handleAddNode={handleAddNode} sheets={sheets} setSheets={setSheets} addMessage={addMessage}
+                                      isChecking={isChecking} checkingResult={checkingResult} errNode={errNode} errNodeMsg={errNodeMsg}
                                   />} 
             />
           <Route path='*' element={<NotFoundPage />} />

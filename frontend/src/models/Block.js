@@ -12,6 +12,10 @@ class Block {
     this.fn = fn;
   }
 
+  static updateIdCounter(newIdCounter) {
+    Block.idCounter = newIdCounter;
+  }
+
 }
 
 

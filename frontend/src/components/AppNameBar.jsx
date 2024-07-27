@@ -2,12 +2,15 @@
 
 import Button from "react-bootstrap/Button";
 import Pencil from 'react-bootstrap-icons/dist/icons/pencil'
+import Check from 'react-bootstrap-icons/dist/icons/check'
+import XCircle from 'react-bootstrap-icons/dist/icons/x-circle'
+import Clock from 'react-bootstrap-icons/dist/icons/clock'
 import { useState } from "react";
 import { Form, OverlayTrigger, Tooltip } from "react-bootstrap";
 
 
 export default function AppNameBar(props) {
-    const {appName, setAppName} = props;
+    const {appName, setAppName, isChecking, checkingResult} = props;
     const [isRename, setIsRename] = useState(false)
     const [newName, setNewName] = useState(appName)
 
@@ -42,6 +45,10 @@ export default function AppNameBar(props) {
                  </Button> 
         
         }
+
+        <span style={{right: '0.5em', position: 'fixed'}}>
+            {isChecking ? <>Checking... <Clock /></> : (checkingResult ? <>Ready <Check /></> : checkingResult === false && <>Errors <XCircle /></>)}
+        </span>
 
     </div>
 }

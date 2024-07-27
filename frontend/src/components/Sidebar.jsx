@@ -436,7 +436,7 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
                                     variant="outline-secondary"
                                     title={loss || "Select"}
                                     id="trainForm.LossFunction"
-                                    onSelect={sel => {sel === 'Custom' && setIsCustomLoss(true); setLoss(sel)}}
+                                    onSelect={sel => {sel === 'Custom' ? setIsCustomLoss(true) : setIsCustomLoss(false); setLoss(sel)}}
                                     style={{ width: '70%', float: 'right' }}
                                 >
                                     <Dropdown.Item eventKey="CE">CE</Dropdown.Item>
@@ -493,7 +493,7 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
 }
 
             <Button className='left-menu-button' onClick={() => handleTrain({ epochs, learningRate, batchSize, loss, optimizer }, { setErr, setErrMsg })}> Train </Button>
-            <Button className='left-menu-button' onClick={() => handleReset({ setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer })}> Reset </Button>
+            <Button className='left-menu-button-secondary' onClick={() => handleReset({ setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer })}> Reset </Button>
 
             {err && <AlertComponent variant="danger" message={errMsg} setErr={setErr} />}
         </>

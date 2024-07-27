@@ -9,7 +9,7 @@ import NodeInfoBar from './NodeInfoBar';
 import AppNameBar from './AppNameBar';
 import InvisibleBlock from '../models/InvisibleBlock';
 
-export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesChange, onEdgesChange, onNodesDelete, nodeTypes, appName, setAppName, handleDeleteNodes, sheets, setSheets, addMessage }) {
+export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesChange, onEdgesChange, onNodesDelete, nodeTypes, appName, setAppName, handleDeleteNodes, sheets, setSheets, addMessage, isChecking, checkingResult, errNode, errNodeMsg }) {
 
     const onConnect = useCallback(
         (params) => setEdges((eds) => addEdge(params, eds)),
@@ -160,9 +160,9 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
                                                     handleDeleteNodes={handleDelete} nodes={nodes} setNodes={setNodes}
                                                 /> }
 
-                {openNodeInfo && <NodeInfoBar setNodes={setNodes} nodeInfo={nodeInfo} handleCloseNodeInfo={handleCloseNodeInfo} /> }
+                {openNodeInfo && <NodeInfoBar setNodes={setNodes} nodeInfo={nodeInfo} handleCloseNodeInfo={handleCloseNodeInfo} errNode={errNode} errNodeMsg={errNodeMsg} /> }
 
-                <AppNameBar appName={appName} setAppName={setAppName} />
+                <AppNameBar appName={appName} setAppName={setAppName} isChecking={isChecking} checkingResult={checkingResult} />
                 <SheetsComponent nodes={nodes} selectedSheet={selectedSheet} setSelectedSheet={setSelectedSheet} 
                                     sheets={sheets} setSheets={setSheets}
                     />

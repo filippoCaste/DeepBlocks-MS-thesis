@@ -23,6 +23,7 @@ valid_pytorch_functions = {
     "AvgPool2d": "torch.nn.AvgPool2d",
     "Flatten": "torch.nn.Flatten",
     "Linear": "torch.nn.Linear",
+    "Concatenate": "torch.cat",
 }
 
 function_params = {

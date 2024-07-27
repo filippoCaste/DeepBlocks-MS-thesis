@@ -311,16 +311,18 @@ def forward_model(nodes, edges, params, user_id):
     first_batch = next(iter(encoded_dataset['train']))
 
     if ds_type == "text":
-        input_size = first_batch['input_ids'].shape[-1]
+        input_size = first_batch['input_ids'].shape[0]
+        input_tensor = torch.rand((batch_size, input_size))
     elif ds_type == "image":
         input_size = 100 * 100 * 3
+        input_tensor = torch.rand((batch_size, 3, 100, 100))
         
     model, msg = create_model(nodes, edges, input_size)
     
     if model is None:
         raise Exception("Model creation failed")
     
-    input_tensor = torch.rand((batch_size, embedding_size, input_size))
+    # input_tensor = torch.rand((batch_size, embedding_size, input_size))
     # for i, m in enumerate(model.layers):
     # # for i, m in enumerate(model):
     #     print(f"Layer {i}: {m}")
@@ -332,7 +334,11 @@ def forward_model(nodes, edges, params, user_id):
     #         raise ValueError(f"Error in the node {m}: {e}")
     # return True
     try:
-        model.forward(input_tensor)
+        outputs = {}
+        isFirst = True
+        
+        for node_id in model.topo_order:
+            outputs, isFirst = model.forward_node(node_id, input_tensor, outputs, isFirst)
     except Exception as e:
         print(f"Error in layer: {e}")
         raise ValueError(f"{e}")
@@ -581,7 +587,7 @@ def create_model(nodes, edges, input_shape):
                     # print(">>Comparison for key: ", key, " value: ", str(layer_params[key]), " != ", str(value))
                     # tent = False
                     return False
-        print(f"returning true for {node_params} - {layer_params}")
+        # print(f"returning true for {node_params} - {layer_params}")
         return True
 
     def extract_relevant_parameters(layer):
@@ -611,7 +617,7 @@ def create_model(nodes, edges, input_shape):
             node_to_layer = {}
             used = []
             for layer_id, layer in enumerate(modules):
-                print("LAYER: ", layer_id, layer)
+                # print("LAYER: ", layer_id, layer)
                 for node in nodes:
                     if node.id not in used and node.function != 'null' and node.function != 'split':
                         if str(layer).split("(")[0] == node.function.split(".")[-1]:
@@ -621,8 +627,8 @@ def create_model(nodes, edges, input_shape):
                                 node_to_layer.update({node.id: layer_id})
                                 used.append(node.id)
                                 break
-            print("used nodes --> ", used)
-            print("node to layer mapping: ", node_to_layer)
+            # print("used nodes --> ", used)
+            # print("node to layer mapping: ", node_to_layer)
             return node_to_layer
 
         def create_graph(self, nodes, edges):
@@ -657,8 +663,8 @@ def create_model(nodes, edges, input_shape):
                     dfs(node_id)
 
             topo_order.reverse()
-            print(f"Graph: {graph}")
-            print(f"Topological order: {topo_order}")
+            # print(f"Graph: {graph}")
+            # print(f"Topological order: {topo_order}")
             return graph, topo_order
 
         def find_previous_node(self, node_id):
@@ -672,93 +678,95 @@ def create_model(nodes, edges, input_shape):
                 return res
             return None
 
+        def forward_node(self, node_id, x, outputs, isFirst):
+            node = self.nodes[node_id]
+            targets = self.graph[node_id]
+
+            try:
+            
+                if (node.function is None or node.function == 'null' or 
+                    (node.parameters is not None and len(node.parameters) > 0 and node.parameters[0].key == "input_dataset")):
+                    # print("Skipping null node")
+                    return outputs, isFirst
+
+                elif ("si" in node.id or "so" in node.id):
+                    # Per i nodi con 'si' in id, propaghiamo l'output ai target senza processarlo
+                    if isFirst:
+                        return outputs, isFirst
+                    prev_node_id = self.find_previous_node(node_id)
+                    outputs[node_id] = outputs[prev_node_id]
+                    # print("Skipping si/so node...")
+                
+                elif node.id.endswith("s"):
+                    # Per i nodi con 's' in id, propaghiamo l'output ai target senza processarlo
+                    if isFirst:
+                        return outputs, isFirst
+                    # for target in targets:
+                    #     outputs[target] = outputs[node_id]
+                    prev_node_id = self.find_previous_node(node_id)
+                    outputs[node_id] = outputs[prev_node_id]
+                    # print("Skipping 's' node...")
+
+                elif isFirst:
+                    # Per il primo nodo, applichiamo direttamente il layer all'input x
+                    print("First node...")
+                    layer = self.layers[self.node_to_layer[node_id]]
+                    # print(f" >> using layer {layer} for node {node_id}")
+                    outputs[node_id] = layer(x)
+                    isFirst = False
+
+                else:
+                    # Per i nodi successivi, raccogliamo gli input dagli output dei nodi precedenti
+                    inputs = [outputs[src] for src in self.graph if src in outputs and node_id in self.graph[src]]
+                    # print(inputs)
+
+                    if node.function == 'split':
+                        # Per i nodi split, propaghiamo l'output ai target senza processarlo
+                        print("Splitting...")
+                        for target in targets:
+                            outputs[target] = inputs[0]
+                        outputs[node_id] = inputs[0]
+                    else:
+                        # Applichiamo il layer ai nodi con funzioni specifiche
+                        # print(node.function)
+
+                        if len(inputs) > 1:
+                            if node.function == 'add':
+                                outputs[node_id] = torch.add(*inputs)
+                            elif node.function == 'sub':
+                                outputs[node_id] = torch.sub(*inputs)
+                            elif node.function == 'mul':
+                                outputs[node_id] = torch.mul(*inputs)
+                            elif node.function == 'div':
+                                outputs[node_id] = torch.div(*inputs)
+                            elif node.function == 'torch.cat':
+                                print("Concatenating...")
+                                outputs[node_id] = torch.cat(inputs, dim=1)
+                            else:
+                                raise ValueError(f"Unsupported aggregation function: {node.function}")
+                        else:
+                            layer = self.layers[self.node_to_layer[node_id]]
+                            # Se c'è un solo input, lo processiamo direttamente
+                            # print("Single input...")
+                            # print(f" >> using layer {layer} for node {node_id}")
+                            # print(" >> Input: ",inputs)
+                            prev_node_id = self.find_previous_node(node_id)
+                            outputs[node_id] = layer(outputs[prev_node_id])
+                            # print(f" >> Output of {node_id}")
+            except Exception as e:
+                print(e)
+                raise Exception(f"Error in the node {model.layers[self.node_to_layer[node_id]]}: {e}")
+            # print(" >> Output: ",outputs.keys())
+            return outputs, isFirst
+
+
         def forward(self, x):
             outputs = {}
             isFirst = True
             
             for node_id in self.topo_order:
-                print(f"Node: {node_id}")
-                node = self.nodes[node_id]
-                targets = self.graph[node_id]
-
-                try:
-                
-                    if (node.function is None or node.function == 'null' or 
-                        (node.parameters is not None and len(node.parameters) > 0 and node.parameters[0].key == "input_dataset")):
-                        print("Skipping null node")
-                        continue
-
-                    elif ("si" in node.id or "so" in node.id):
-                        # Per i nodi con 'si' in id, propaghiamo l'output ai target senza processarlo
-                        if isFirst:
-                            continue
-                        prev_node_id = self.find_previous_node(node_id)
-                        outputs[node_id] = outputs[prev_node_id]
-                        # print(f"Skipping si/so node {node_id}, using output from {prev_node_id}")
-                        print("Skipping si/so node...")
-                        # outputs[node_id] = 
-                    
-                    elif node.id.endswith("s"):
-                        # Per i nodi con 's' in id, propaghiamo l'output ai target senza processarlo
-                        if isFirst:
-                            continue
-                        # for target in targets:
-                        #     outputs[target] = outputs[node_id]
-                        prev_node_id = self.find_previous_node(node_id)
-                        outputs[node_id] = outputs[prev_node_id]
-                        print("Skipping 's' node...")
-                        # outputs[node_id] =
-
-                    elif isFirst:
-                        # Per il primo nodo, applichiamo direttamente il layer all'input x
-                        print("First node...")
-                        layer = self.layers[self.node_to_layer[node_id]]
-                        print(f" >> using layer {layer} for node {node_id}")
-                        outputs[node_id] = layer(x)
-                        isFirst = False
-
-                    else:
-                        # Per i nodi successivi, raccogliamo gli input dagli output dei nodi precedenti
-                        inputs = [outputs[src] for src in self.graph if src in outputs and node_id in self.graph[src]]
-                        # print(inputs)
-
-                        if node.function == 'split':
-                            # Per i nodi split, propaghiamo l'output ai target senza processarlo
-                            print("Splitting...")
-                            for target in targets:
-                                outputs[target] = inputs[0]
-                            outputs[node_id] = inputs[0]
-                        else:
-                            # Applichiamo il layer ai nodi con funzioni specifiche
-                            print(node.function)
-
-                            if len(inputs) > 1:
-                                if node.function == 'add':
-                                    outputs[node_id] = torch.add(*inputs)
-                                elif node.function == 'sub':
-                                    outputs[node_id] = torch.sub(*inputs)
-                                elif node.function == 'mul':
-                                    outputs[node_id] = torch.mul(*inputs)
-                                elif node.function == 'div':
-                                    outputs[node_id] = torch.div(*inputs)
-                                elif node.function == 'torch.cat':
-                                    print("Concatenating...")
-                                    outputs[node_id] = torch.cat(inputs, dim=1)
-                                else:
-                                    raise ValueError(f"Unsupported aggregation function: {node.function}")
-                            else:
-                                layer = self.layers[self.node_to_layer[node_id]]
-                                # Se c'è un solo input, lo processiamo direttamente
-                                print("Single input...")
-                                print(f" >> using layer {layer} for node {node_id}")
-                                # print(" >> Input: ",inputs)
-                                prev_node_id = self.find_previous_node(node_id)
-                                outputs[node_id] = layer(outputs[prev_node_id])
-                                # print(f" >> Output of {node_id}")
-                except Exception as e:
-                    print(e)
-                    raise Exception(f"Error in the node {model.layers[self.node_to_layer[node_id]]}: {e}")
-                # print(" >> Output: ",outputs.keys())
+                outputs, isFirst = self.forward_node(node_id, x, outputs, isFirst)
+                # print(f"Node: {node_id}")
             return outputs[self.topo_order[-1]]
     # create the corresponding model
     # class CustomModel(nn.Module):

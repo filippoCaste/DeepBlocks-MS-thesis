@@ -76,14 +76,21 @@ function ParametersTab(props) {
         props.setParameterValue("dataset_type", value)
     }
 
+    const special = ["torch.add", "torch.mul", "torch.div", "torch.sub", "torch.cat", "split"]
+
     return (
         <Container>
             <Row style={{justifyContent: 'space-between'}}>
+                {node.parameters.length === 0 && special.includes(node.fn) ? <Col md={4}> 
+                    <p>You can connect up to 2 blocks to this node.</p>
+                </Col> 
+                :
                 <Col md={4}>
                     {node.parameters.filter(e => e.name !== 'layer_type' && e.name !== 'dataset_type').map(e => {
                         return <FormInput key={"node-"+node.id+"-"+e.name} node={node} name={e.name} value={e.value} description={e.description} setParameterValue={props.setParameterValue}/>
                     })}
                 </Col>
+                }
                 <Col md={4}>
                     {/* {node.parameters[0].name === 'layer_type' && <Row className="mb-3" style={{ justifyContent: 'space-between' }}>
                             <Col md={7}>

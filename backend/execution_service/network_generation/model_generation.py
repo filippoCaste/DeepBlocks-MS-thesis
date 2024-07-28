@@ -38,7 +38,7 @@ def train_model(nodes, edges, params, user_id, uploads):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     ds_config = None
     for node in nodes:
-        if(node.parameters[0].key == 'input_dataset'):
+        if(len(node.parameters)>0 and node.parameters[0].key == 'input_dataset'):
             ds_name = node.parameters[0].value
             ds_type = node.parameters[1].value
             ds_config = node.parameters[2].value
@@ -165,6 +165,8 @@ def train_model(nodes, edges, params, user_id, uploads):
                 elif ds_type == 'image':
                     image_batch = batch["pixel_values"]
                     inputs = image_batch.to(device).float()
+                    labels = labels.to(torch.long)
+
 
                 outputs = model(inputs)
                 if outputs.shape[0] != labels.shape[0]:
@@ -251,7 +253,7 @@ def forward_model(nodes, edges, params, user_id):
 
     ds_config = None
     for node in nodes:
-        if(node.parameters[0].key == 'input_dataset'):
+        if(len(node.parameters)>0 and node.parameters[0].key == 'input_dataset'):
             ds_name = node.parameters[0].value
             ds_type = node.parameters[1].value
             ds_config = node.parameters[2].value
@@ -261,18 +263,19 @@ def forward_model(nodes, edges, params, user_id):
         raise ValueError("Input dataset informations are not correct")
 
     try: 
-        if not os.path.exists(os.path.join(UPLOAD_DIRECTORY, ds_name)):
-            if ds_config == 'None':
-                dataset = load_dataset(ds_name, trust_remote_code=True)
-            else: 
-                dataset = load_dataset(ds_name, ds_config, trust_remote_code=True)
-            
-            dataset.save_to_disk(os.path.join(UPLOAD_DIRECTORY, ds_name))
-            downloaded = True
+        # if not os.path.exists(os.path.join(UPLOAD_DIRECTORY, ds_name)):
+        if ds_config == 'None':
+            dataset = load_dataset(ds_name, trust_remote_code=True)
+        else: 
+            dataset = load_dataset(ds_name, ds_config, trust_remote_code=True)
+    
+        # dataset.save_to_disk(os.path.join(UPLOAD_DIRECTORY, ds_name))
+        downloaded = True
 
-        else:
-            dataset = load_from_disk(os.path.join(UPLOAD_DIRECTORY, ds_name))
-            downloaded = False
+        # else:
+        #     dataset = load_from_disk(os.path.join(UPLOAD_DIRECTORY, ds_name))
+        #     print("Dataset loaded from disk")
+        #     downloaded = False
     
     except Exception as e:
         raise Exception(e)
@@ -582,8 +585,11 @@ def create_model(nodes, edges, input_shape):
         for param in node_params:
             key = param.key
             value = param.value
+            layer_value = layer_params.get(key)
+            if type(layer_value) == tuple:
+                layer_value = layer_value[0]
             if key in layer_params:
-                if value != 'None' and str(layer_params[key]) != "None" and str(layer_params[key]) != str(value):
+                if value != 'None' and str(layer_value) != "None" and str(layer_value) != str(value):
                     # print(">>Comparison for key: ", key, " value: ", str(layer_params[key]), " != ", str(value))
                     # tent = False
                     return False
@@ -597,7 +603,7 @@ def create_model(nodes, edges, input_shape):
         relevant_params = {param_name: getattr(layer, param_name, None) 
                         for param_name in init_signature.parameters.keys() 
                         # necesario porque hay que evitar los valores que son predefinidos
-                        if param_name not in {'self', 'p', 'inplace', 'bias', 'stride', 'padding', 'kernel_size'}
+                        if param_name not in {'self', 'p', 'inplace', 'bias', 'stride', 'padding', 'kernel_size', 'elementwise_affine', 'eps'}
                     }
         # print(f"Relevant params for {layer} --> {relevant_params}")
         return relevant_params
@@ -608,7 +614,6 @@ def create_model(nodes, edges, input_shape):
             super(CustomModel, self).__init__()
             self.nodes = {node.id: node for node in nodes}
             self.layers = nn.ModuleList(modules)
-            self.branches = {}
             self.graph, self.topo_order = self.create_graph(nodes, edges)
             self.node_to_layer = self.create_node_to_layer_mapping(nodes, modules)
             self.outputs = {}
@@ -627,8 +632,13 @@ def create_model(nodes, edges, input_shape):
                                 node_to_layer.update({node.id: layer_id})
                                 used.append(node.id)
                                 break
-            # print("used nodes --> ", used)
-            # print("node to layer mapping: ", node_to_layer)
+            print("used nodes --> ", used)
+            notused = []
+            for node in nodes:
+                if node.id not in used:
+                    notused.append({node.id, node.function})
+            print("not used nodes --> ", notused)
+            print("node to layer mapping: ", node_to_layer)
             return node_to_layer
 
         def create_graph(self, nodes, edges):
@@ -708,12 +718,19 @@ def create_model(nodes, edges, input_shape):
                     # print("Skipping 's' node...")
 
                 elif isFirst:
-                    # Per il primo nodo, applichiamo direttamente il layer all'input x
-                    print("First node...")
-                    layer = self.layers[self.node_to_layer[node_id]]
-                    # print(f" >> using layer {layer} for node {node_id}")
-                    outputs[node_id] = layer(x)
+                    print("First node...", node.function)
+                    if node.function.split(".")[-1] == 'MultiheadAttention':
+                        # Inicializamos la entrada de MultiheadAttention directamente desde x
+                        if x.dim() == 4:
+                            x = x.view(x.size(0), -1, x.size(3))
+                        query = key = value = x
+                        layer = self.layers[self.node_to_layer[node_id]]
+                        outputs[node_id], _ = layer(query, key, value)
+                    else:
+                        layer = self.layers[self.node_to_layer[node_id]]
+                        outputs[node_id] = layer(x)
                     isFirst = False
+                    # print("...finished first node")
 
                 else:
                     # Per i nodi successivi, raccogliamo gli input dagli output dei nodi precedenti
@@ -726,6 +743,22 @@ def create_model(nodes, edges, input_shape):
                         for target in targets:
                             outputs[target] = inputs[0]
                         outputs[node_id] = inputs[0]
+
+                    elif node.function.split(".")[-1] == 'MultiheadAttention':
+                        # Aquí, asumimos que `query`, `key`, y `value` son iguales en muchos casos
+                        print("Executing...", node.function)
+                        # if len(inputs) < 3:
+                            # raise ValueError(f"Not enough inputs for MultiheadAttention node {node_id}")
+
+                        # for i in range(3):
+                        #     if inputs[i].dim() == 4:
+                        #         inputs[i] = inputs[i].view(inputs[i].size(0), -1, inputs[i].size(3))  # Asume (batch_size, seq_length, embed_dim)
+
+                        prev_node_id = self.find_previous_node(node_id)
+                        query = key = value = outputs[prev_node_id]
+                        layer = self.layers[self.node_to_layer[node_id]]
+                        outputs[node_id], _ = layer(query, key, value)
+                    
                     else:
                         # Applichiamo il layer ai nodi con funzioni specifiche
                         # print(node.function)

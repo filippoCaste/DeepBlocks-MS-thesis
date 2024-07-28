@@ -37,6 +37,7 @@
                 "name": "Layer Normalization",
                 "function": "torch.nn.LayerNorm",
                 "parameters": [
+                    { "name": "normalized_shape", "description": "Shape of the tensor to be normalized", "value": null},
                     { "name": "eps", "description": "Epsilon", "value": null },
                     { "name": "elementwise_affine", "description": "Whether to apply affine transformation element-wise", "value": null }
                 ]

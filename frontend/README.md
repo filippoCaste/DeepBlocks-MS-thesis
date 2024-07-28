@@ -34,6 +34,7 @@
 It returns a JSX layout for a 404 error page, displaying a message indicating that the requested page was not found.
 
 #### `Help.jsx`
+This page includes several sections that explain how to use the platform, including how to create a network, train it, visualize the results, export and upload networks, and more. The page also includes a section about the Pytorch implementation used by the backend and an "About" section with information about the development team and the project. 
 
 ### `App.jsx`
 This is a functional component named App that serves as the main entry point for the web application. It uses several hooks to manage state and side effects.

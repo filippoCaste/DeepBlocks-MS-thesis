@@ -28,6 +28,7 @@ import InfoCircle from 'react-bootstrap-icons/dist/icons/info-circle';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import Help from '../pages/Help';
 import { BLOCKS_API } from '../API/blocks';
+import isEqual from 'lodash.isequal';
 
 const Sidebar = (props) => {
 
@@ -35,6 +36,8 @@ const Sidebar = (props) => {
             handleDownload, handleUpload, learningRate, epochs, batchSize, loss, optimizer, addMessage,
             setLearningRate, setEpochs, setBatchSize, setLoss, setOptimizer, metrics, setMetrics, isTraining, setIsTraining,
             customLoss, setCustomLoss } = props;
+
+    const [trainingSessions, setTrainingSessions] = useState([]);
 
     // const viewportWidth = window.innerWidth;
     const zoomLevel = window.screen.width / window.innerWidth;
@@ -168,9 +171,10 @@ const Sidebar = (props) => {
                                         setLearningRate={setLearningRate} setEpochs={setEpochs} setBatchSize={setBatchSize} setLoss={setLoss} setOptimizer={setOptimizer} setCustomLoss={setCustomLoss}
                                         handleDeleteNodes={handleDeleteNodes} handleRenameNode={handleRenameNode} handleDuplicateNode={handleDuplicateNode}
                                         handleDownload={handleDownload} handleUpload={handleUpload} setMetrics={setMetrics} addMessage={addMessage} setIsTraining={setIsTraining}
+                                        trainingSessions={trainingSessions} setTrainingSessions={setTrainingSessions}
                                         />}
 
-            {openMenu === 'Analysis' && <Analysis metrics={metrics} isTraining={isTraining}
+            {openMenu === 'Analysis' && <Analysis metrics={metrics} isTraining={isTraining} trainingSessions={trainingSessions}
                      parameters={[{ "key": "Learning Rate", "value": learningRate}, { "key": "Epochs", "value": epochs}, { "key": "Batch size", "value": batchSize}, { "key": "Loss Function", "value": loss}, { "key": "Optimizer", "value": optimizer}]}
                     />}
 
@@ -195,6 +199,7 @@ const Menu = (props) => {
                                             learningRate={props.learningRate} epochs={props.epochs} batchSize={props.batchSize} loss={props.loss} optimizer={props.optimizer} customLoss={props.customLoss}
                                             setLearningRate={props.setLearningRate} setEpochs={props.setEpochs} setBatchSize={props.setBatchSize} setLoss={props.setLoss} setOptimizer={props.setOptimizer} setCustomLoss={props.setCustomLoss}
                                             nodes={props.nodes} edges={props.edges} setMetrics={props.setMetrics} addMessage={props.addMessage} setIsTraining={props.setIsTraining}
+                                            trainingSessions={props.trainingSessions} setTrainingSessions={props.setTrainingSessions}
                                             />}
             {openMenu === 'Options' && <Options
                                             learningRate={props.learningRate} epochs={props.epochs} batchSize={props.batchSize} loss={props.loss} optimizer={props.optimizer}
@@ -320,11 +325,10 @@ const BlockDetailsAndActions = (props)  => {
 
 }
 
-const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimizer, customLoss, setCustomLoss, setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer, setMetrics, addMessage, setIsTraining }) => {
+const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimizer, customLoss, setCustomLoss, setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer, setMetrics, addMessage, setIsTraining, trainingSessions, setTrainingSessions }) => {
 
     const [err, setErr] = useState(false);
     const [errMsg, setErrMsg] = useState('');
-    const [trainingSessions, setTrainingSessions] = useState([]);
     const [isCustomLoss, setIsCustomLoss] = useState(false);
 
 
@@ -355,7 +359,8 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
                         () => {
                             BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
                                 let isChangedNetwork = trainingSessions.length > 0 && isModelDifferent(trainingSessions[trainingSessions.length - 1], nodes)
-                                setTrainingSessions(prevTrainingSessions => [...prevTrainingSessions, nodes])
+                                isChangedNetwork && console.log("The models are different")
+                                isChangedNetwork ? setTrainingSessions([nodes]) : setTrainingSessions(prevTrainingSessions => [...prevTrainingSessions, nodes])
                                 isChangedNetwork ? setMetrics([data.metrics]) : setMetrics(prevMetrics => [...prevMetrics, data.metrics])
 
                                 setIsTraining(false)
@@ -369,22 +374,37 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
                                 addMessage(err, "danger")
                             })
                         }
-                    )
+                    ).catch(err => {
+                        console.log(err)
+                        setIsTraining(false)
+                        addMessage(err, "danger")
+                    })
                 } else {
                     BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
-                    let isChangedNetwork = trainingSessions.length > 0 && isModelDifferent(trainingSessions[trainingSessions.length - 1], nodes)
-                    setTrainingSessions(prevTrainingSessions => [...prevTrainingSessions, nodes])
-                    isChangedNetwork ? setMetrics([data.metrics]) : setMetrics(prevMetrics => [...prevMetrics, data.metrics])
+                        console.log(trainingSessions)
+                        if(trainingSessions.length === 0) {
+                            setTrainingSessions([nodes])
+                            setMetrics([data.metrics])
+                        }
+                        else if(isModelDifferent(trainingSessions[trainingSessions.length - 1], nodes)) {
+                            console.log("The models are different: ", isModelDifferent(trainingSessions[trainingSessions.length - 1], nodes))
+                            setTrainingSessions([nodes])
+                            setMetrics([data.metrics])
+                        } else {
+                            console.log("The models are the same")
+                            setTrainingSessions(prevTrainingSessions => [...prevTrainingSessions, nodes])
+                            setMetrics(prevMetrics => [...prevMetrics, data.metrics])
+                        }
 
-                    setIsTraining(false)
-                    if(data.message !== "") {
-                        addMessage(data.message, "warning")
-                    }
-                    addMessage("Training completed. Results are available in the left-side menu.", "success")
+                        setIsTraining(false)
+                        if(data.message !== "") {
+                            addMessage(data.message, "warning")
+                        }
+                        addMessage("Training completed. Results are available in the left-side menu.", "success")
                     }).catch(err => {
-                    console.log(err)
-                    setIsTraining(false)
-                    addMessage(err, "danger")
+                        console.log(err)
+                        setIsTraining(false)
+                        addMessage(err, "danger")
                     })
                 }
             }
@@ -784,11 +804,24 @@ const Plots = (props) => {
  * @return {boolean} Returns true if the models are different, false otherwise.
  */
 function isModelDifferent(model1, model2) {
-    let blockIds1 = model1.map(block => [block.id, block.label]);
-    let blockIds2 = model2.map(block => [block.id, block.label]);
-    if (isEqual(blockIds1, blockIds2)) {
-        let inpDataset1 = model1.find(b => b.parameters[0].name === 'input_dataset')?.parameters[0].value
-        let inpDataset2 = model2.find(b => b.parameters[0].name === 'input_dataset')?.parameters[0].value
+    let blockIds1 = model1.map(block => [block.id, block.data.label]);
+    let blockIds2 = model2.map(block => [block.id, block.data.label]);
+    console.log(blockIds1, blockIds2)
+
+    let differentBlocks = blockIds1.some(block1 =>
+        !blockIds2.some(block2 => block2[0] === block1[0] && block2[1] === block1[1])
+    );
+
+    if (differentBlocks) {
+        return true;
+    }
+
+    console.log(JSON.stringify(blockIds1) === JSON.stringify(blockIds2))
+
+    if (JSON.stringify(blockIds1) === JSON.stringify(blockIds2)) {
+        let inpDataset1 = model1.find(b => b.parameters && b.parameters[0] && b.parameters[0].name === 'input_dataset')?.parameters[0].value;
+        let inpDataset2 = model2.find(b => b.parameters && b.parameters[0] && b.parameters[0].name === 'input_dataset')?.parameters[0].value;
+
         if (inpDataset1 !== inpDataset2) {
             return true;
         }

@@ -157,7 +157,7 @@ export default function App() {
 
     const debounceEffect = () => {
       // check if all the conditions are satisfied
-      const inputNode = nodes.find(n => n.type === 'customNode' && n.parameters[0].name === 'input_dataset')
+      const inputNode = nodes.find(n => n.type === 'customNode' && n.parameters.length>0 && n.parameters[0].name === 'input_dataset')
       if (!isTraining && inputNode && edges.find(e => e.source === inputNode.id)) {
         const isParamsSet = learningRate !== 0 && epochs !== 0 && batchSize !== 0 && loss !== '' && optimizer !== ''
         if(!isParamsSet) {

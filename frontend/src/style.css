@@ -358,6 +358,7 @@
 
 .analysis-container {
     background-color: #212529;
+    border-left: solid 1px #555;
     z-index: 1000;
     position: absolute;
     color: #fff;

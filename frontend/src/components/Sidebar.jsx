@@ -28,14 +28,13 @@ import InfoCircle from 'react-bootstrap-icons/dist/icons/info-circle';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import Help from '../pages/Help';
 import { BLOCKS_API } from '../API/blocks';
-import isEqual from 'lodash.isequal';
 
 const Sidebar = (props) => {
 
     const { openMenu, setOpenMenu, nodes, edges, handleAddNode, handleDeleteNodes, handleRenameNode, handleDuplicateNode, 
-            handleDownload, handleUpload, learningRate, epochs, batchSize, loss, optimizer, addMessage,
+            handleDownload, handleUpload, learningRate, epochs, batchSize, loss, optimizer, addMessage, isChecking,
             setLearningRate, setEpochs, setBatchSize, setLoss, setOptimizer, metrics, setMetrics, isTraining, setIsTraining,
-            customLoss, setCustomLoss } = props;
+            customLoss, setCustomLoss, setIsChecking, errNodeMsg, checkingResult } = props;
 
     const [trainingSessions, setTrainingSessions] = useState([]);
 
@@ -169,9 +168,10 @@ const Sidebar = (props) => {
             {openMenu !== 'none' && openMenu !== 'Analysis' && openMenu !== 'Help' && <Menu openMenu={openMenu} nodes={nodes} edges={edges} handleAddNode={handleAddNode}
                                         learningRate={learningRate} epochs={epochs} batchSize={batchSize} loss={loss} optimizer={optimizer} customLoss={customLoss}
                                         setLearningRate={setLearningRate} setEpochs={setEpochs} setBatchSize={setBatchSize} setLoss={setLoss} setOptimizer={setOptimizer} setCustomLoss={setCustomLoss}
-                                        handleDeleteNodes={handleDeleteNodes} handleRenameNode={handleRenameNode} handleDuplicateNode={handleDuplicateNode}
+                                        handleDeleteNodes={handleDeleteNodes} handleRenameNode={handleRenameNode} handleDuplicateNode={handleDuplicateNode} errNodeMsg={errNodeMsg}
                                         handleDownload={handleDownload} handleUpload={handleUpload} setMetrics={setMetrics} addMessage={addMessage} setIsTraining={setIsTraining}
-                                        trainingSessions={trainingSessions} setTrainingSessions={setTrainingSessions}
+                                        trainingSessions={trainingSessions} setTrainingSessions={setTrainingSessions} isChecking={isChecking} isTraining={isTraining} setIsChecking={setIsChecking}
+                                        checkingResult={checkingResult}
                                         />}
 
             {openMenu === 'Analysis' && <Analysis metrics={metrics} isTraining={isTraining} trainingSessions={trainingSessions}
@@ -199,7 +199,8 @@ const Menu = (props) => {
                                             learningRate={props.learningRate} epochs={props.epochs} batchSize={props.batchSize} loss={props.loss} optimizer={props.optimizer} customLoss={props.customLoss}
                                             setLearningRate={props.setLearningRate} setEpochs={props.setEpochs} setBatchSize={props.setBatchSize} setLoss={props.setLoss} setOptimizer={props.setOptimizer} setCustomLoss={props.setCustomLoss}
                                             nodes={props.nodes} edges={props.edges} setMetrics={props.setMetrics} addMessage={props.addMessage} setIsTraining={props.setIsTraining}
-                                            trainingSessions={props.trainingSessions} setTrainingSessions={props.setTrainingSessions}
+                                            trainingSessions={props.trainingSessions} setTrainingSessions={props.setTrainingSessions} checkingResult={props.checkingResult}
+                                            isChecking={props.isChecking} isTraining={props.isTraining} setIsChecking={props.setIsChecking} errNodeMsg={props.errNodeMsg}
                                             />}
             {openMenu === 'Options' && <Options
                                             learningRate={props.learningRate} epochs={props.epochs} batchSize={props.batchSize} loss={props.loss} optimizer={props.optimizer}
@@ -325,7 +326,9 @@ const BlockDetailsAndActions = (props)  => {
 
 }
 
-const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimizer, customLoss, setCustomLoss, setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer, setMetrics, addMessage, setIsTraining, trainingSessions, setTrainingSessions }) => {
+const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimizer, customLoss, setCustomLoss, setEpochs, setLearningRate, 
+    setBatchSize, setLoss, setOptimizer, setMetrics, addMessage, setIsTraining, trainingSessions, setTrainingSessions, isChecking, 
+    setIsChecking, isTraining, errNodeMsg, checkingResult }) => {
 
     const [err, setErr] = useState(false);
     const [errMsg, setErrMsg] = useState('');
@@ -353,59 +356,70 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
                     {"key": "loss", "value": params.loss},
                     {"key": "optimizer", "value": params.optimizer}
                 ]
-                setIsTraining(true);
-                if (customLoss) {
-                    BLOCKS_API.postInputFiles([customLoss]).then(
-                        () => {
-                            BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
-                                let isChangedNetwork = trainingSessions.length > 0 && isModelDifferent(trainingSessions[trainingSessions.length - 1], nodes)
-                                isChangedNetwork && console.log("The models are different")
-                                isChangedNetwork ? setTrainingSessions([nodes]) : setTrainingSessions(prevTrainingSessions => [...prevTrainingSessions, nodes])
-                                isChangedNetwork ? setMetrics([data.metrics]) : setMetrics(prevMetrics => [...prevMetrics, data.metrics])
+                // if(!isChecking) setIsChecking(true)
+                // const checkInterval = setInterval(() => {
+                //     if (!isChecking) {
+                //         clearInterval(checkInterval);
+                //     }
+                // }, 1000);
+                if(checkingResult) {
+                    setIsTraining(true);
+                    if (customLoss) {
+                        BLOCKS_API.postInputFiles([customLoss]).then(
+                            () => {
+                                BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
+                                    let isChangedNetwork = trainingSessions.length > 0 && isModelDifferent(trainingSessions[trainingSessions.length - 1], nodes)
+                                    isChangedNetwork && console.log("The models are different")
+                                    isChangedNetwork ? setTrainingSessions([nodes]) : setTrainingSessions(prevTrainingSessions => [...prevTrainingSessions, nodes])
+                                    isChangedNetwork ? setMetrics([data.metrics]) : setMetrics(prevMetrics => [...prevMetrics, data.metrics])
 
-                                setIsTraining(false)
-                                if (data.message !== "") {
-                                    addMessage(data.message, "warning")
-                                }
-                                addMessage("Training completed. Results are available in the left-side menu.", "success")
-                            }).catch(err => {
-                                console.log(err)
-                                setIsTraining(false)
-                                addMessage(err, "danger")
-                            })
-                        }
-                    ).catch(err => {
-                        console.log(err)
-                        setIsTraining(false)
-                        addMessage(err, "danger")
-                    })
+                                    setIsTraining(false)
+                                    if (data.message !== "") {
+                                        addMessage(data.message, "warning")
+                                    }
+                                    addMessage("Training completed. Results are available in the left-side menu.", "success")
+                                }).catch(err => {
+                                    console.log(err)
+                                    setIsTraining(false)
+                                    addMessage(err, "danger")
+                                })
+                            }
+                        ).catch(err => {
+                            console.log(err)
+                            setIsTraining(false)
+                            addMessage(err, "danger")
+                        })
+                    } else {
+                        BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
+                            console.log(trainingSessions)
+                            if(trainingSessions.length === 0) {
+                                setTrainingSessions([nodes])
+                                setMetrics([data.metrics])
+                            }
+                            else if(isModelDifferent(trainingSessions[trainingSessions.length - 1], nodes)) {
+                                console.log("The models are different: ", isModelDifferent(trainingSessions[trainingSessions.length - 1], nodes))
+                                setTrainingSessions([nodes])
+                                setMetrics([data.metrics])
+                            } else {
+                                console.log("The models are the same")
+                                setTrainingSessions(prevTrainingSessions => [...prevTrainingSessions, nodes])
+                                setMetrics(prevMetrics => [...prevMetrics, data.metrics])
+                            }
+
+                            setIsTraining(false)
+                            if(data.message !== "") {
+                                addMessage(data.message, "warning")
+                            }
+                            addMessage("Training completed. Results are available in the left-side menu.", "success")
+                        }).catch(err => {
+                            console.log(err)
+                            setIsTraining(false)
+                            addMessage(err, "danger")
+                        })
+                    }
                 } else {
-                    BLOCKS_API.postNetwork(nodes, edges, paramObj).then((data) => {
-                        console.log(trainingSessions)
-                        if(trainingSessions.length === 0) {
-                            setTrainingSessions([nodes])
-                            setMetrics([data.metrics])
-                        }
-                        else if(isModelDifferent(trainingSessions[trainingSessions.length - 1], nodes)) {
-                            console.log("The models are different: ", isModelDifferent(trainingSessions[trainingSessions.length - 1], nodes))
-                            setTrainingSessions([nodes])
-                            setMetrics([data.metrics])
-                        } else {
-                            console.log("The models are the same")
-                            setTrainingSessions(prevTrainingSessions => [...prevTrainingSessions, nodes])
-                            setMetrics(prevMetrics => [...prevMetrics, data.metrics])
-                        }
-
-                        setIsTraining(false)
-                        if(data.message !== "") {
-                            addMessage(data.message, "warning")
-                        }
-                        addMessage("Training completed. Results are available in the left-side menu.", "success")
-                    }).catch(err => {
-                        console.log(err)
-                        setIsTraining(false)
-                        addMessage(err, "danger")
-                    })
+                    setErrMsg("Please fix the errors before training.")
+                    setErr(true)
                 }
             }
         } else {
@@ -512,7 +526,28 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
                 </>
 }
 
-            <Button className='left-menu-button' onClick={() => handleTrain({ epochs, learningRate, batchSize, loss, optimizer }, { setErr, setErrMsg })}> Train </Button>
+            <OverlayTrigger
+                placement="top"
+                overlay={
+                    <Tooltip>
+                        {!checkingResult
+                        ? 'The network has not been checked yet or has some errors.'
+                        : isChecking
+                        ? 'The network is being checked.'
+                        : isTraining
+                        ? 'The network is being trained.'
+                        : ''}
+                    </Tooltip>
+                }
+                show={!checkingResult || isChecking || isTraining}
+            >
+                <Button className='left-menu-button' disabled={!checkingResult || isChecking || isTraining}
+                    onClick={() => handleTrain({ epochs, learningRate, batchSize, loss, optimizer }, { setErr, setErrMsg })}
+                >
+                    Train
+                </Button>
+            </OverlayTrigger>
+
             <Button className='left-menu-button-secondary' onClick={() => handleReset({ setEpochs, setLearningRate, setBatchSize, setLoss, setOptimizer })}> Reset </Button>
 
             {err && <AlertComponent variant="danger" message={errMsg} setErr={setErr} />}

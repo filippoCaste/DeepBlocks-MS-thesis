@@ -18,65 +18,18 @@ import InvisibleInputNode from './components/InvisibleInputNode';
 import { InvisibleOutputNode } from './components/InvisibleOutputNode';
 import InvisibleBlock from './models/InvisibleBlock';
 import isEqual from 'lodash.isequal';  
-import { Spinner } from 'react-bootstrap';
+import Spinner from 'react-bootstrap/Spinner';
 import Welcome from './components/Welcome';
-
-// just for temporary use
-// let node1 = new Block('customNode', { x: 10, y: 0 }, { label: 'Leaky ReLU' }, [
-//   { "name": "layer_type", "description": "Type of the layer", "value": null },
-//   { "name": "input_tensor", "description": "Input tensor", "value": null },
-//   { "name": "output_tensor", "description": "Output tensor", "value": null },
-//   { "name": "negative_slope", "description": "Negative slope", "value": null }
-//   ], 'torch.nn.functional.leaky_relu');
-
-// let node2 = new Block('customNode', { x: 10, y: 100 }, { label: 'ReLU' }, [
-//   { "name": "layer_type", "description": "Type of the layer", "value": null },
-//   { "name": "input_tensor", "description": "Input tensor", "value": null },
-//   { "name": "output_tensor", "description": "Output tensor", "value": null }
-// ], 'torch.relu');
-
-// node1.hidden = true;
-// node2.hidden = true;
-
-// let superNode1 = new Superblock('superBlockNode', { x: 10, y: 200 }, { label: 'sb1', isSelected: false }, [node1.id, node2.id]);
-// superNode1.hidden = false;
-
-// const initialNodes = [node1, node2, superNode1]
-// const initialEdges = [{ id: 'e1-2', source: '0', target: '1' }];
-// -----------------------------------------------------------------------------------------------------
 
 const initialEdges = [];
 const initialNodes = [];
 
-const DEBOUNCE_DELAY = 10000; // 10 seconds
+const DEBOUNCE_DELAY = 4000; // 4 seconds
 
 export const sessionId = await SESSION_API.getSession();
 window.addEventListener('beforeunload', SESSION_API.deleteSession);
 
 const nodeTypes = { customNode: CustomNode, superBlockNode: SuperBlockNode, invisibleInputNode: InvisibleInputNode, invisibleOutputNode: InvisibleOutputNode };
-
-// /**
-//  * A function that compares two models to check if they are different.
-//  *
-//  * @param {Array} model1 - The first model to compare.
-//  * @param {Array} model2 - The second model to compare.
-//  * @return {boolean} Returns true if the models are different, false otherwise.
-//  */
-// function isModelDifferent(model1, model2) {
-//   let blockIds1 = model1.map(block => [block.id, block.label]);
-//   let blockIds2 = model2.map(block => [block.id, block.label]);
-//   if(isEqual(blockIds1, blockIds2)) {
-//     let inpDataset1 = model1.find(b => b.parameters[0].name === 'input_dataset')?.parameters[0].value
-//     let inpDataset2 = model2.find(b => b.parameters[0].name === 'input_dataset')?.parameters[0].value
-//     if(inpDataset1 !== inpDataset2) {
-//       return true;
-//     }
-//   } else {
-//     return true;
-//   }
-
-//   return false;
-// }
 
 export default function App() {
 
@@ -538,7 +491,8 @@ export default function App() {
             handleDownload={handleDownload} handleUpload={handleUpload} openMenu={openMenu} setOpenMenu={setOpenMenu}
             learningRate={learningRate} epochs={epochs} batchSize={batchSize} loss={loss} optimizer={optimizer} customLoss={customLoss}
             setLearningRate={setLearningRate} setEpochs={setEpochs} setBatchSize={setBatchSize} setLoss={setLoss} setOptimizer={setOptimizer} setCustomLoss={setCustomLoss}
-            metrics={metrics} setMetrics={setMetrics} addMessage={addMessage} isTraining={isTraining} setIsTraining={setIsTraining}
+            metrics={metrics} setMetrics={setMetrics} addMessage={addMessage} isTraining={isTraining} setIsTraining={setIsTraining} isChecking={isChecking} errNodeMsg={errNodeMsg}
+            setIsChecking={setIsChecking} checkingResult={checkingResult}
           />
 
         <div style={{ position: 'fixed', top: '7em', right: '1.5em', zIndex: 1000, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>

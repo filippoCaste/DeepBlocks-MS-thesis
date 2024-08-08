@@ -741,6 +741,7 @@ def create_model(nodes, edges, input_shape):
                 # print(f"Node: {node_id}")
             return outputs[self.topo_order[-1]]
 
+    model = CustomModel(nodes, edges, modules)
     print("Model created --> ", model)
     
     return model, msg

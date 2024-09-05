@@ -247,7 +247,7 @@ def forward_model(nodes, edges, params, user_id):
             break
 
     if ds_name is None or ds_type is None:
-        raise ValueError("Input dataset informations are not correct")
+        raise ValueError("Input dataset parameters are not correct")
 
     try: 
         if ds_config == 'None':
@@ -304,16 +304,17 @@ def forward_model(nodes, edges, params, user_id):
     
     if model is None:
         raise Exception("Model creation failed")
-    
+    last_node_id = None
     try:
         outputs = {}
         isFirst = True
         
         for node_id in model.topo_order:
+            last_node_id = node_id
             outputs, isFirst = model.forward_node(node_id, input_tensor, outputs, isFirst)
     except Exception as e:
-        print(f"Error in layer: {e}")
-        raise ValueError(f"{e}")
+        print(f"Error in layer with id {last_node_id}: {e}")
+        raise ValueError(f"ID: {last_node_id}, Error: {e}")
     return True
 
 

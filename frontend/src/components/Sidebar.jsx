@@ -315,9 +315,40 @@ const BlockDetailsAndActions = (props)  => {
                 { isRename ?
                     <Button onClick={() => handleRename()}> OK </Button>
                 : <>
-                    <Button size='sm' onClick={() => handleDuplicateNode()}> <Copy /> </Button> {' '}
-                    {props.node.data.label === 'Input Dataset (from huggingface.co)' ? '' : <Button size='sm' onClick={() => setIsRename(true)}> <PencilFill /> </Button>} {' '}
-                    <Button size='sm' variant='danger' onClick={() => handleDelete()}> <TrashFill /> </Button>
+                    <OverlayTrigger
+                        placement="top-start"
+                        delay={{ show: 250, hide: 400 }}
+                        overlay={
+                            <Tooltip id={`tooltip-${props.node.id}`}>
+                                Duplicate
+                            </Tooltip>
+                        }
+                    >
+                        <Button size='sm' onClick={() => handleDuplicateNode()}> <Copy /> </Button> 
+                    </OverlayTrigger>
+                    {' '}
+                    {props.node.data.label === 'Input Dataset (from huggingface.co)' ? '' 
+                        : <OverlayTrigger
+                            placement="top-start"
+                            delay={{ show: 250, hide: 400 }}
+                            overlay={
+                                <Tooltip id={`tooltip-${props.node.id}`}>
+                                    Rename
+                                </Tooltip>
+                            }>
+                            <Button size='sm' onClick={() => setIsRename(true)}> <PencilFill /> </Button>
+                            </OverlayTrigger> } {' '} 
+                    <OverlayTrigger
+                            placement="top-start"
+                            delay={{ show: 250, hide: 400 }}
+                            overlay={
+                                <Tooltip id={`tooltip-${props.node.id}`}>
+                                    Delete
+                                </Tooltip>
+                            }
+                    >
+                            <Button size='sm' variant='danger' onClick={() => handleDelete()}> <TrashFill /> </Button>
+                    </OverlayTrigger>
                   </>
                 }
             </td>
@@ -527,7 +558,7 @@ const Training = ({ nodes, edges, epochs, learningRate, batchSize, loss, optimiz
 }
 
             <OverlayTrigger
-                placement="top"
+                placement="right"
                 overlay={
                     <Tooltip>
                         {!checkingResult

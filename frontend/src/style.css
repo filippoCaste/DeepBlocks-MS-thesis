@@ -48,7 +48,7 @@
 .node{
     background-color: #212529;
     color: #fff;
-    padding: 15px;
+    padding: 20px;
     border-radius: 5em;
     height: 2.5rem;
     display: flex;
@@ -190,7 +190,7 @@
 }
 
 .selection-box{
-    background-color: #212529;
+    background-color: #333;
     color: white;
     border-radius: 0.5em;
     text-align: center;
@@ -199,12 +199,12 @@
     display: flex;
     position: fixed;
     align-items: center;
-    bottom: 1em;
+    bottom: 2em;
     left: 50%;
     transform: translate(-50%, -50%);
     width: fit-content;
     padding: 10px;
-    z-index: 1000;
+    z-index: 9999;
 }
 
 .selection-box p{

@@ -119,6 +119,7 @@ export default function App() {
         }
         addMessage("Checking your network...", "info")
         setIsChecking(true);
+        setNodes(nodes.map(n => { return { ...n, style: { ...n.style, border: "none", padding: '0' } }}))
         BLOCKS_API.forwardBlock(nodes, edges, paramObj).then((data) => {
           setIsChecking(false);
           setErrNode(null)
@@ -132,42 +133,44 @@ export default function App() {
           console.log(err)
           setErrNode(null)
           setErrSuperBlock(null)
-          setErrNodeMsg(err.message)
-          const errNodeInfo = err.message.split("Error in the node")[1].split(":")[0].split("(")
-          const errNodeFunction = errNodeInfo[0].trim()
-          const parametersValue = errNodeInfo.slice(1).join("(").trim().split(", ").map(p => p.includes("=") ? p.split("=")[1].replace(/[(),]/g, "") : p)
-          let max = -1
-          const errNodes = nodes
-            .filter(n => n.type === 'customNode' && String(n.fn?.split(".")[n.fn?.split(".").length - 1]) == String(errNodeFunction.trim())) // get nodes with that function
-            .filter(n => {
-              let parametersValueCpy = [...parametersValue]
-              let matches = n.parameters.filter(p => { 
-                for (let i = 0; i < parametersValueCpy.length; i++) {
-                  if (p.value === parametersValueCpy[i]) {
-                    parametersValueCpy.splice(i, 1);
-                    return true;
-                  }
-                }
-                return false;
-              }).length
-              if(max < matches) max = matches;
-              return matches > 0
-            })
-            .filter(n => {
-              let parametersValueCpy = [...parametersValue]
-              let matches = n.parameters.filter(p => {
-                for (let i = 0; i < parametersValueCpy.length; i++) {
-                  if (p.value === parametersValueCpy[i]) {
-                    parametersValueCpy.splice(i, 1);
-                    return true;
-                  }
-                }
-                return false;
-              }).length
-              if (max == matches) return true;
-              return false
-            })
-          const errNode = errNodes[0]
+          setErrNodeMsg(err.message.split("Error:")[1])
+          const errNodeId = err.message.split("ID: ")[1].split(",")[0]
+          // const errNodeInfo = err.message.split("Error in the node")[1].split(":")[0].split("(")
+          // const errNodeFunction = errNodeInfo[0].trim()
+          // const parametersValue = errNodeInfo.slice(1).join("(").trim().split(", ").map(p => p.includes("=") ? p.split("=")[1].replace(/[(),]/g, "") : p)
+          // let max = -1
+          // const errNodes = nodes
+          //   .filter(n => n.type === 'customNode' && String(n.fn?.split(".")[n.fn?.split(".").length - 1]) == String(errNodeFunction.trim())) // get nodes with that function
+          //   .filter(n => {
+          //     let parametersValueCpy = [...parametersValue]
+          //     let matches = n.parameters.filter(p => { 
+          //       for (let i = 0; i < parametersValueCpy.length; i++) {
+          //         if (p.value === parametersValueCpy[i]) {
+          //           parametersValueCpy.splice(i, 1);
+          //           return true;
+          //         }
+          //       }
+          //       return false;
+          //     }).length
+          //     if(max < matches) max = matches;
+          //     return matches > 0
+          //   })
+          //   .filter(n => {
+          //     let parametersValueCpy = [...parametersValue]
+          //     let matches = n.parameters.filter(p => {
+          //       for (let i = 0; i < parametersValueCpy.length; i++) {
+          //         if (p.value === parametersValueCpy[i]) {
+          //           parametersValueCpy.splice(i, 1);
+          //           return true;
+          //         }
+          //       }
+          //       return false;
+          //     }).length
+          //     if (max == matches) return true;
+          //     return false
+          //   })
+          // const errNode = errNodes[0]
+          const errNode = nodes.filter(n => n.id === errNodeId)[0]
 
           // check if it is contained by a supernode
           let errSn = nodes.filter(n => n.type === 'superBlockNode') // get supernodes
@@ -175,7 +178,7 @@ export default function App() {
           
           errSn && setErrSuperBlock(errSn[0])
           setErrNode(errNode)
-          addMessage("There is a problem with the block " + errNode.data.label + ": \n\t" + err.message, "danger")          
+          addMessage("There is a problem with the block " + errNode.data.label + ": \n\t" + err.message.split("Error:")[1].replace(/\"/,""), "danger")          
         })
       }
     }

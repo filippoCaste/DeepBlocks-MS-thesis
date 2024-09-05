@@ -40,7 +40,7 @@ export default function CustomNode(props) {
                     onContextMenu={handleContextMenu}
                     onClick={() => rename === false && handleOpenInfo()}
                     >
-                    {data.label === 'Input Dataset (from huggingface.co)' ? '' : <Handle type="target" position={Position.Left} />}
+                    {data.label === 'Input Dataset (from huggingface.co)' ? '' : <Handle type="target" position={Position.Left} style={{height: '0.7rem', width: '0.7rem'}} />}
                     <div>
                         {rename ?
                             <span>
@@ -54,7 +54,7 @@ export default function CustomNode(props) {
                             </span>
                             : <p>{data.label || "block"}</p>}
                     </div>
-                    <Handle id='dataset' type="source" position={Position.Right} />
+                    <Handle id='dataset' type="source" position={Position.Right} style={{height: '0.7rem', width: '0.7rem'}} />
                 </div>
                 {/* {(hovering || selected) && <input style={{ flex: 1, marginLeft: 10 }} type="checkbox" onChange={() => { setSelected(!selected); data.isSelected = !selected; }} />} */}
             </div>

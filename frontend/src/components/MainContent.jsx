@@ -108,10 +108,10 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
             if (nodeFound.type == 'customNode') {
                 const updatedNode = {
                     ...nodeFound,
-                    style: { ...nodeFound.style, padding: '2px', border: '2px solid black', borderRadius: '2em' }
+                    style: { ...nodeFound.style, filter: 'drop-shadow(0 8px 10px rgba(0, 0, 0, 0.9))' }
                 };
                 const updatedNodes = nodes.map(node =>
-                    node.id === updatedNode.id ? updatedNode : {...node, style: {...node.style, padding: '0px', border: 'none', borderRadius: '0em'}}
+                    node.id === updatedNode.id ? updatedNode : { ...node, style: { ...node.style, filter: 'none' }}
                 );
                 setNodes(updatedNodes);
                 setNodeInfo(nodeFound)
@@ -129,7 +129,7 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
     }, [nodes])
 
     const handleCloseNodeInfo = () => {
-        setNodes(n => n.map(n => n.id === nodeInfo.id ? {...n, data: {...n.data, openInfo: false}, style: {...n.style, padding: '0px', border: 'none', borderRadius: '0em'}} : n))
+        setNodes(n => n.map(n => n.id === nodeInfo.id ? { ...n, data: { ...n.data, openInfo: false }, style: { ...n.style, filter: 'none' }} : n))
         setNodeInfo(null);
         setOpenNodeInfo(false);
     }

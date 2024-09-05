@@ -31,22 +31,22 @@ def post_all_blocks():
         return jsonify({'message': response.message, 'metrics': metrics_list}), 200
     else:
         resp = requests.get(stack_link + '&title=' + re.sub(r'\([^)]*\)', '', response.message.replace("Error during training:", "")).strip())
+        error_type = parse_error_message(response.message)
+
+        ret_message = response.message
+        sol_msg = get_solution(error_type)
+        if sol_msg != None:
+            ret_message += " Suggestion: " + sol_msg 
+
+
         if resp.status_code == 200:
             try:
                 solution_link = resp.json()['items'][0]['link']
-
             except Exception as e:
                 solution_link = None
-        
-            error_type = parse_error_message(response.message)
-
-            ret_message = response.message
-            sol_msg = error_solutions.get(error_type, None)
-            if sol_msg != None:
-                ret_message += " Suggestion: " + sol_msg 
-             
-        if solution_link != None:
-            ret_message += ' <a href=' + solution_link + '/>'
+                    
+            if solution_link != None:
+                ret_message += ' <a href=' + solution_link + '/>'
 
         return jsonify(ret_message), 500
 
@@ -102,21 +102,24 @@ def forward_block():
         return jsonify({'message': response.message}), 200
     else:
         resp = requests.get(stack_link + '&title=' + re.sub(r'\([^)]*\)', '', response.message.replace("Error during training:", "")).strip())
-        if resp.status_code == 200:
-            error_type = parse_error_message(response.message)
-            
+        error_type = parse_error_message(response.message)
+
+        sol_msg = get_solution(error_type)
+        ret_message = response.message
+        if sol_msg != None:
+            ret_message += " Suggestion: " + sol_msg 
+
+        
+        if resp.status_code == 200:           
             try:
                 solution_link = resp.json()['items'][0]['link']
-                sol_msg = error_solutions.get(error_type, None)
-                ret_message = response.message
-                if sol_msg != None:
-                    ret_message += " Suggestion: " + sol_msg 
             except Exception as e:
                 solution_link = None
-                ret_message = response.message
-             
-        if solution_link != None:
-            ret_message += ' <a href=' + solution_link + '/>'
+                # ret_message = response.message
+        
+
+            if solution_link != None:
+                ret_message += ' <a href=' + solution_link + '/>'
 
         return jsonify(ret_message), int(response.status)
 
@@ -224,3 +227,18 @@ def parse_error_message(error_message):
         return "AssertionError"
     else:
         return error_message
+
+
+def get_solution(error_type):
+    """
+    Given an error type (as a string), this function returns a link to a relevant stack overflow question if one exists.
+    
+    :param error_type: a string representing the type of the error
+    :return: a string representing the possible solution to the error
+    """
+    for pattern, solution in error_solutions.items():
+        print(pattern, solution)
+        print(re.search(pattern, error_type))
+        if re.search(pattern, error_type):
+            return solution
+    return None

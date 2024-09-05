@@ -41,7 +41,7 @@ export default function SuperBlockNode(props) {
                 style={{
                     background: 'linear-gradient(217deg, rgba(255,0,0,.8), rgba(255,0,0,0) 70.71%), linear-gradient(127deg, rgba(0,255,0,.8), rgba(0,255,0,0) 70.71%), linear-gradient(336deg, rgba(0,0,255,.8), rgba(0,0,255,0) 70.71%)', color: 'black' }}
                 >
-                <Handle type="target" position={Position.Left} />
+                <Handle type="target" position={Position.Left} style={{ height: '0.7rem', width: '0.7rem' }} />
                 <div>
                     {rename ? 
                         <span>
@@ -55,7 +55,7 @@ export default function SuperBlockNode(props) {
                         </span>
                         : <p>{data.label || "sb"}</p>}
                 </div>
-                <Handle type="source" position={Position.Right} id="a" />
+                <Handle type="source" position={Position.Right} id="a" style={{ height: '0.7rem', width: '0.7rem' }} />
                 {/* {(hovering || selected) && <input style={{ flex: 1, marginLeft: 10 }} type="checkbox" onChange={() => { setSelected(!selected); data.isSelected = !selected; }} />} */}
 
             </div>

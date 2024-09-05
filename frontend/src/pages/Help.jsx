@@ -15,7 +15,7 @@ export default function Help() {
         <div className='help-page'>
             <h1>Welcome to DeepBlocks</h1>
             <hr />
-            <p>DeepBlocks is a platform to help you practice with deep learning. It allows you to create your own network, train it, and visualize the results.</p>
+            <p>DeepBlocks is a platform to help you practice with Deep Learning. It allows you to create your own network, train it, and visualize the results.</p>
 
             <br />
             <h2>How to Use DeepBlocks</h2>
@@ -24,6 +24,8 @@ export default function Help() {
             <p>Open the <PencilFill /> menu on the left, choose and add your blocks, and then connect them to create your network.</p>
             <Image src="./src/pages/imgs/help-add-block.png" rounded alt="Add blocks" style={{ height: '700px', width: '800px' }} />
 
+            <br />
+            <h4>Superblock creation</h4>
             <p>You can also create your own custom superblocks by right-clicking on a block, selecting it, and then pressing "Group".</p>
             <Image src="./src/pages/imgs/help-blocks-selection.png" rounded alt="Select blocks" style={{ height: '700px', width: '800px' }} />
 
@@ -34,7 +36,7 @@ export default function Help() {
 
             <br />
             <h3>Check Your Network</h3>
-            <p>DeepBlocks will check your network automatically (after 10 seconds without any change). You will receive a message indicating if there is any error and which node caused the error, if any.</p>
+            <p>DeepBlocks will check your network automatically (after 4 seconds without any change). You will receive a message indicating if there is any error and which node caused the error, if any.</p>
             <Image src="./src/pages/imgs/help-forwarding-message.png" rounded alt="Error message" style={{ height: '700px', width: '800px' }} />
 
             <br />

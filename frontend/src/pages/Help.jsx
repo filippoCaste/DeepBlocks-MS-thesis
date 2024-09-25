@@ -26,17 +26,18 @@ export default function Help() {
 
             <br />
             <h4>Superblock creation</h4>
-            <p>You can also create your own custom superblocks by right-clicking on a block, selecting it, and then pressing "Group".</p>
+            <p>You can also create your own custom superblocks by right-clicking on a block, selecting it, and then pressing <em>Group</em>.</p>
             <Image src="./src/pages/imgs/help-blocks-selection.png" rounded alt="Select blocks" style={{ height: '700px', width: '800px' }} />
 
             <br />
             <h3>List of Blocks</h3>
             <p>By clicking on the <List /> button, you can see the list of blocks in the current sheet.</p>
+            <p>You can also perform actions like <em>duplicating</em>, <em>renaming</em> and <em>deleting</em> blocks or superblocks.</p>
             <Image src="./src/pages/imgs/help-blocks-list.png" rounded alt="List of blocks" style={{ height: '700px', width: '800px' }} />
 
             <br />
             <h3>Check Your Network</h3>
-            <p>DeepBlocks will check your network automatically (after 4 seconds without any change). You will receive a message indicating if there is any error and which node caused the error, if any.</p>
+            <p>DeepBlocks will check your network automatically (after 4 seconds without any change). You will receive a message indicating an error and the node causing the error will be highlighted, if any.</p>
             <Image src="./src/pages/imgs/help-forwarding-message.png" rounded alt="Error message" style={{ height: '700px', width: '800px' }} />
 
             <br />

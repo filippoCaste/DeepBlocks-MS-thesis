@@ -37,7 +37,7 @@ export default function CustomNode(props) {
             
             <div style={{ display: 'flex', zIndex: 1 }}>
                 <div className={`node ${data.isSelected ? "selected" : ""} ${data.category}`} 
-                    onContextMenu={handleContextMenu}
+                    onContextMenu={data.label !== 'Input Dataset (from huggingface.co)' && handleContextMenu}
                     onClick={() => rename === false && handleOpenInfo()}
                     >
                     {data.label === 'Input Dataset (from huggingface.co)' ? '' : <Handle type="target" position={Position.Left} style={{height: '0.7rem', width: '0.7rem'}} />}

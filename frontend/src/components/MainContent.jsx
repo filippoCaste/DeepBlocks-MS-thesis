@@ -9,7 +9,8 @@ import NodeInfoBar from './NodeInfoBar';
 import AppNameBar from './AppNameBar';
 import InvisibleBlock from '../models/InvisibleBlock';
 
-export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesChange, onEdgesChange, onNodesDelete, nodeTypes, appName, setAppName, handleDeleteNodes, sheets, setSheets, addMessage, isChecking, checkingResult, errNode, errNodeMsg }) {
+export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesChange, onEdgesChange, onNodesDelete, nodeTypes, appName, setAppName, handleDeleteNodes, 
+            sheets, setSheets, addMessage, isChecking, checkingResult, errNode, errNodeMsg, nodeInfo, setOpenNodeInfo, setNodeInfo, openNodeInfo }) {
 
     const onConnect = useCallback(
         (params) => setEdges((eds) => addEdge(params, eds)),
@@ -90,8 +91,6 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
     }
 
     const [selectedNodes, setSelectedNodes] = useState([]);
-    const [openNodeInfo, setOpenNodeInfo] = useState(false);
-    const [nodeInfo, setNodeInfo] = useState(null);
     const [selectedSheet, setSelectedSheet] = useState(['main', 'main']);
 
     useEffect(() => {
@@ -99,7 +98,7 @@ export default function MainContent({ nodes, edges, setEdges, setNodes, onNodesC
         setSelectedNodes(nodes.filter(node => node.data.isSelected === true));
 
         // check if there is an open info node
-        if(nodeInfo !== null) {
+        if(nodeInfo) {
             nodeInfo.data.openInfo = false;
         }
         const tmp = nodes.filter(node => node.data.openInfo === true && (node.type === 'customNode' || (node.type === 'superBlockNode' && node.data.hasSheet === false)))

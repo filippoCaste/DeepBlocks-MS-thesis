@@ -60,6 +60,10 @@ export default function App() {
   const [errSuperBlock, setErrSuperBlock] = useState(null);
   const [errNodeMsg, setErrNodeMsg] = useState(null)
 
+  const [openNodeInfo, setOpenNodeInfo] = useState(false);
+  const [nodeInfo, setNodeInfo] = useState(null);
+
+
   useEffect(() => {
     if(errNode !== null) {
       setNodes((prevNodes) => prevNodes.map((node) => (node.id === errNode.id ? { ...node, style: {
@@ -119,8 +123,10 @@ export default function App() {
         }
         addMessage("Checking your network...", "info")
         setIsChecking(true);
-        setNodes(nodes.map(n => { return { ...n, style: { ...n.style, border: "none", padding: '0' } }}))
-        BLOCKS_API.forwardBlock(nodes, edges, paramObj).then((data) => {
+        // setNodes(nodes.map(n => { return { ...n, style: { ...n.style, border: "none", padding: '0' } }}))
+        setNodes((currentNodes) => currentNodes.map(n => n.style?.border !== 'none' ? { ...n, style: { ...n.style, border: "none", padding: '0' } } : n))
+        const connectedNodes = nodes.filter(n => edges.find(e => e.target==n.id || e.source==n.id))
+        BLOCKS_API.forwardBlock(connectedNodes, edges, paramObj).then(() => {
           setIsChecking(false);
           setErrNode(null)
           setErrSuperBlock(null)
@@ -254,6 +260,10 @@ export default function App() {
 
         updatedEdges = [...updatedEdges.filter(n => n.source != node.id && n.target != node.id)];
         updatedNodes = [...updatedNodes.filter(n => n.id != node.id)]
+
+        if(nodeInfo !== null && nodeInfo.id === node.id) {
+          closeNodeParameters();
+        }
       }
     }
 
@@ -486,6 +496,12 @@ export default function App() {
     }
   }
 
+  function closeNodeParameters() {
+    setNodes(n => n.map(n => n.id === nodeInfo?.id ? { ...n, data: { ...n.data, openInfo: false }, style: { ...n.style, filter: 'none' } } : n))
+    setNodeInfo(null);
+    setOpenNodeInfo(false);
+  }
+
   return (
     <BrowserRouter>
       <div className='app-container' style={{ display: 'flex' }}>
@@ -515,6 +531,7 @@ export default function App() {
                                       appName={appName} setAppName={setAppName} handleDeleteNodes={handleDeleteNodes}
                                       handleAddNode={handleAddNode} sheets={sheets} setSheets={setSheets} addMessage={addMessage}
                                       isChecking={isChecking} checkingResult={checkingResult} errNode={errNode} errNodeMsg={errNodeMsg}
+                                      nodeInfo={nodeInfo} setNodeInfo={setNodeInfo} openNodeInfo={openNodeInfo} setOpenNodeInfo={setOpenNodeInfo}
                                   />} 
             />
           <Route path='*' element={<NotFoundPage />} />

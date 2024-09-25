@@ -361,116 +361,12 @@ def set_parameters(params, model_parameters, user_id):
     # print(n_epochs, lr, batch_size, loss, optimizer)
     return n_epochs, lr, batch_size, loss, optimizer
 
-def order_nodes(nodes, edges):
-    """
-    Orders the given nodes based on their input parameters.
-
-    Args:
-        nodes (list): A list of nodes to be ordered.
-        edges (list): A list of edges connecting the nodes.
-
-    Returns:
-        list: A list of nodes in the order determined by their input parameters.
-    """
-    input_nodes = []
-    for node in nodes:
-        for param in node.parameters:
-            if param.key == "input_file" or param.key == "input_dataset":
-                input_nodes.append(node)
-                break
-
-    nodes_list = []
-    for node in input_nodes:
-        nodes_list.append(node.id)
-        recursive(edges=edges, src_node=node.id, nodes_list=nodes_list)
-
-    ordered_nodes = []
-    for id in nodes_list:
-        for n in nodes:
-            if n.id == id:
-                ordered_nodes.append(n)
-                break
-
-    print(nodes_list)
-    return ordered_nodes
-
-def recursive(edges, src_node, nodes_list):
-    """
-    Recursively traverses a directed graph represented by a list of edges.
-
-    Args:
-        edges (List[Edge]): A list of Edge objects representing the edges of the graph.
-        src_node (Node): The starting node for the traversal.
-        nodes_list (List[Node]): A list to store the visited nodes.
-
-    Returns:
-        None
-
-    The function performs a depth-first search on the graph starting from the given source node.
-    It traverses the graph by following the edges and appending the target node to the `nodes_list`.
-    If the target node is a supernode, the function recursively calls itself with the updated
-    `edges` and `src_node` to continue the traversal.
-
-    Note:
-    - The function assumes that the `edges` list contains valid `Edge` objects.
-    - The function modifies the `nodes_list` in-place.
-    """
-
-    # print(nodes_list)
-
-    # exit conditions
-    if src_node is None or len(edges) == 0:
-        return
-
-    # recursive call
-    for edge in edges:
-        if edge.source == src_node:
-
-            res = None
-
-            if 'so' in edge.target:
-                super_node_id = edge.target.split('o')[0]
-                for e in edges:
-                    if e.source == super_node_id:
-                        # add special case in which two supernodes are connected
-                        if 's' in e.target:
-                            res = recursive_find_next_node(edges, e)
-                        else:
-                            res = e.target
-                        break
-
-            elif 's' in edge.target:
-                super_node_id = edge.target
-                for e in edges:
-                    if e.source == super_node_id + 'i':
-                        if 's' in e.target:
-                            res = recursive_find_next_node(edges, e)
-                        else:
-                            res = e.target
-                        break
-
-            else:
-                res = edge.target
-
-            nodes_list.append(res)
-            cpy_edges = [e for e in edges if e is not None and e.source != src_node and e.target != edge.target]
-            recursive(cpy_edges, res, nodes_list)
-
-def recursive_find_next_node(edges, src_node):
-    for ee in edges:
-        if ee.source == src_node.target + 'i':
-            if 's' in ee.target:
-                res = recursive_find_next_node(edges, ee)
-            else:
-                res = ee.target
-                return res
 
 def create_model(nodes, edges, input_shape):
 
     msg = ""
 
     # list of list of nodes
-    # nodes_list = order_nodes(nodes, edges)
     nodes_list = nodes
 
     # transform string into modules
@@ -497,7 +393,6 @@ def create_model(nodes, edges, input_shape):
                         converted_params[k] = v
                 except (ValueError, TypeError):
                     print(f"Error converting parameter {k}: {v}")
-                    # converted_params[k] = v
 
         return converted_params
 

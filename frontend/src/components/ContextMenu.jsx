@@ -12,7 +12,9 @@ export default function NodeOptions({ setOpenOptions, setRename, nodeInfo }) {
             reactflow.getNode(nodeId).data.isSelected = true;
         } else if (type === 'rename') {
             setRename(true)
-        } 
+        } else if (type === 'unselect') {
+            reactflow.getNode(nodeId).data.isSelected = false;
+        }
         // else if (type === 'delete') {
         //     let nodes = reactflow.getNodes().filter(node => node.id !== nodeId);
         //     let edges = reactflow.getEdges().filter(edge => !edge.source.includes(nodeId) && !edge.target.includes(nodeId));
@@ -27,7 +29,7 @@ export default function NodeOptions({ setOpenOptions, setRename, nodeInfo }) {
             className="context-menu"
             style={{ position: 'absolute', zIndex: 1000 }}
         >
-            <p onClick={() => handleMenuClick('select')}>Select</p>
+            {nodeInfo.data.isSelected ? <p onClick={() => handleMenuClick('unselect')}>Unselect</p> : <p onClick={() => handleMenuClick('select')}>Select</p>}
             {(nodeInfo.data.label === 'Input Dataset (from huggingface.co)' || nodeInfo.type == 'superBlockNode') ? '' : <p onClick={() => handleMenuClick('rename')}>Rename</p>}
             {/* <p onClick={() => handleMenuClick('delete')}>Delete</p> */}
 

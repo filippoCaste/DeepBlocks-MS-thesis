@@ -63,13 +63,7 @@ export default function NodeInfoBar(props) {
 
 function ParametersTab(props) {
     const { node } = props;
-    // const [layerType, setLayerType] = useState(node.parameters[0].name === 'layer_type' ? node.parameters[0].value : 'null');
     const [datasetType, setDatasetType] = useState(node.parameters.length > 1 && node.parameters[1].name === 'dataset_type' ? node.parameters[1].value : 'null');
-
-    // const setParameterLayerType = (value) => {
-    //     setLayerType(value)
-    //     props.setParameterValue("layer_type", value)
-    // }
 
     const setParameterDatasetType = (value) => {
         setDatasetType(value)
@@ -92,47 +86,6 @@ function ParametersTab(props) {
                 </Col>
                 }
                 <Col md={4}>
-                    {/* {node.parameters[0].name === 'layer_type' && <Row className="mb-3" style={{ justifyContent: 'space-between' }}>
-                            <Col md={7}>
-                                <p>LAYER TYPE</p>
-                                <Form.Group>
-                                    <Form.Check
-                                        type='radio'
-                                        id={`2dconv-${node.id}`}
-                                        label='2D Convolution'
-                                        name='layerType'
-                                        value='2dconv'
-                                        checked={layerType === '2dconv'}
-                                        onChange={(e) => setParameterLayerType(e.target.value)}
-                                    />
-
-                                    <Form.Check
-                                        type='radio'
-                                        id={`fc-${node.id}`}
-                                        label='Fully Connected'
-                                        name='layerType'
-                                        value='fc'
-                                        checked={layerType === 'fc'}
-                                        onChange={(e) => setParameterLayerType(e.target.value)}
-                                    />
-
-                                    <Form.Check
-                                        type='radio'
-                                        id={`none-${node.id}`}
-                                        label='None'
-                                        name='layerType'
-                                        value={'null'}
-                                        checked={layerType !== 'fc' && layerType !== '2dconv'}
-                                        onChange={(e) => setParameterLayerType(null)}
-                                    />
-                                </Form.Group>
-                                {layerType === '2dconv' && <div className="mt-3"> <FormInput key={"node-" + node.id + "-kernel_size"} node={node} name="kernel_size" value={null} description="Size of the convolving kernel" setParameterValue={props.setParameterValue} /> </div>}
-        
-                            </Col>
-                        </Row>
-                    } */}
-
-
                     {node.parameters.length > 1 && node.parameters[1].name === 'dataset_type' && <Row className="mb-3" style={{ justifyContent: 'space-between' }}>
                         <Col md={7}>
                             <p>DATASET TYPE</p>
@@ -173,7 +126,6 @@ function FormInput(props) {
             <Col md={1}>
                 <Form.Label>{name}</Form.Label>
             </Col>
-            {/* <Col md={`${name==='input_file' ? 4 : 3}`}> */}
             <Col md={5}>
                 <Form.Group >
                     <Form.Control
@@ -205,7 +157,7 @@ function InfoTab(props) {
     const { node } = props;
     return (
         <Container>
-            <p> This node is a {node.type} </p>
+            <p>{node.description} </p>
         </Container>
     )
 }

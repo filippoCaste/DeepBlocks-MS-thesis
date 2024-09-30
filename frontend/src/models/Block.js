@@ -2,7 +2,7 @@
 
 class Block {
     static idCounter = 0;
-  constructor(type, position, data, parameters, fn) {
+  constructor(type, position, data, parameters, fn, description) {
     this.id = (Block.idCounter++).toString();
     this.type = type;
     this.position = position;
@@ -10,6 +10,7 @@ class Block {
     this.parameters = parameters;
     this.hidden = false;
     this.fn = fn;
+    this.description = description;
   }
 
   static updateIdCounter(newIdCounter) {

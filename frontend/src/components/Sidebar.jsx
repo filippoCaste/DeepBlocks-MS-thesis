@@ -214,7 +214,7 @@ const Menu = (props) => {
 }
 
 const handleAddBlock = ({block, handleAddNode, category}) => {
-    let b = new Block('customNode', { x: 200, y: 200 }, { label: block.name, category: category }, block.parameters, block.function);
+    let b = new Block('customNode', { x: 200, y: 200 }, { label: block.name, category: category }, block.parameters, block.function, block.description);
     b.position = { x: 200+b.id*7, y: 200+b.id*7 };
     handleAddNode(b)
 }

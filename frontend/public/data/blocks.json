@@ -1,44 +1,47 @@
 {
-    "blocks": {
+  "blocks": {
         "Input": [
             {
                 "name": "Input Dataset (from huggingface.co)",
                 "function": null,
+                "description": "Loads a dataset from Hugging Face’s dataset repository, used for acquiring datasets in text or image format for further processing in PyTorch.",
                 "parameters": [
                     {"name": "input_dataset", "description": "Input dataset from huggingface.co/datasets (e.g. 'dair-ai/emotion')", "value": null},
                     {"name": "dataset_type", "description": "Dataset type from huggingface.co/datasets (currently could be either 'text' or 'image')", "value": null},
-                    {"name": "dataset_config", "description": "Dataset configuration (e.g. 'default'). This is indicated in from huggingface.co/datasets when you click in the 'Use in the Datasets library' button as a second argument of the load_dataset function.", "value": null}
+                    {"name": "dataset_config", "description": "Dataset configuration (e.g. 'default'). This is indicated from huggingface.co/datasets when you click the 'Use in the Datasets library' button as the second argument of the load_dataset function.", "value": null}
                 ]
             }
-
         ],
         "Normalization": [
             {
                 "name": "Batch Normalization 1D",
                 "function": "torch.nn.BatchNorm1d",
+                "description": "Applies Batch Normalization over a 1D input (a mini-batch of 2D inputs like sequences). It normalizes each feature by subtracting the batch mean and dividing by the batch standard deviation.",
                 "parameters": [
                     { "name": "num_features", "description": "Number of features", "value": null },
-                    { "name": "momentum", "description": "Momentum", "value": null },
-                    { "name": "eps", "description": "Epsilon", "value": null },
+                    { "name": "momentum", "description": "Momentum for updating running mean and variance", "value": null },
+                    { "name": "eps", "description": "A small value to prevent division by zero", "value": null },
                     { "name": "affine", "description": "Whether to use learnable affine parameters", "value": null }
                 ]
             },
             {
                 "name": "Batch Normalization 2D",
                 "function": "torch.nn.BatchNorm2d",
+                "description": "Applies Batch Normalization over a 4D input (mini-batch of 2D inputs like images). It normalizes the input across the batch dimension and stabilizes learning.",
                 "parameters": [
-                    { "name": "num_features", "description": "Number of features", "value": null },
-                    { "name": "momentum", "description": "Momentum", "value": null },
-                    { "name": "eps", "description": "Epsilon", "value": null },
+                    { "name": "num_features", "description": "Number of features (channels) in the input", "value": null },
+                    { "name": "momentum", "description": "Momentum for updating running mean and variance", "value": null },
+                    { "name": "eps", "description": "A small value to prevent division by zero", "value": null },
                     { "name": "affine", "description": "Whether to use learnable affine parameters", "value": null }
                 ]
             },
             {
                 "name": "Layer Normalization",
                 "function": "torch.nn.LayerNorm",
+                "description": "Applies Layer Normalization, where normalization is applied to each individual sample in the batch across its features.",
                 "parameters": [
-                    { "name": "normalized_shape", "description": "Shape of the tensor to be normalized", "value": null},
-                    { "name": "eps", "description": "Epsilon", "value": null },
+                    { "name": "normalized_shape", "description": "Shape of the tensor to be normalized", "value": null },
+                    { "name": "eps", "description": "A small value to prevent division by zero", "value": null },
                     { "name": "elementwise_affine", "description": "Whether to apply affine transformation element-wise", "value": null }
                 ]
             }
@@ -47,47 +50,47 @@
             {
                 "name": "Addition",
                 "function": "torch.add",
-                "parameters": [
-                ]
+                "description": "Performs element-wise addition of two tensors.",
+                "parameters": []
             },
             {
                 "name": "Subtraction",
                 "function": "torch.sub",
-                "parameters": [
-                ]
+                "description": "Performs element-wise subtraction of two tensors.",
+                "parameters": []
             },
             {
                 "name": "Multiplication",
                 "function": "torch.mul",
-                "parameters": [
-                ]
+                "description": "Performs element-wise multiplication of two tensors.",
+                "parameters": []
             },
             {
                 "name": "Division",
                 "function": "torch.div",
-                "parameters": [
-                ]
+                "description": "Performs element-wise division of two tensors.",
+                "parameters": []
             }
         ],
         "Operations on blocks": [
             {
                 "name": "Concatenate",
                 "function": "torch.cat",
-                "parameters": [
-                ]
+                "description": "Concatenates two branches into one.",
+                "parameters": []
             },
             {
                 "name": "Split",
                 "function": "split",
-                "description": "Split the flow into two branches",
-                "parameters": [
-                ]
+                "description": "Splits the block into more output branches.",
+                "parameters": []
             }
         ],
         "Reshaping Layers": [
             {
                 "name": "Flatten",
                 "function": "torch.nn.Flatten",
+                "description": "Flattens the input tensor into a 1D tensor from a given start dimension to the end dimension.",
                 "parameters": [
                     { "name": "layer_type", "description": "Type of the layer", "value": null },
                     { "name": "start_dim", "description": "The dimension to start flattening (0-based index)", "value": null },
@@ -97,6 +100,7 @@
             {
                 "name": "Linear",
                 "function": "torch.nn.Linear",
+                "description": "Applies a linear transformation to the input data, i.e., matrix multiplication with learnable weights.",
                 "parameters": [
                     { "name": "layer_type", "description": "Type of the layer", "value": null },
                     { "name": "in_features", "description": "Size of each input sample", "value": null },
@@ -109,8 +113,8 @@
             {
                 "name": "Dropout",
                 "function": "torch.nn.Dropout",
-                "parameters": [
-                    
+                "description": "Applies dropout regularization to the input by randomly zeroing elements with probability 'p' during training to prevent overfitting.",
+                "parameters": [                    
                     { "name": "kernel_size", "description": "Size of the convolving kernel", "value": null},
                     { "name": "p", "description": "Dropout probability", "value": null }
                 ]
@@ -120,6 +124,7 @@
             {
                 "name": "Sigmoid",
                 "function": "torch.nn.Sigmoid",
+                "description": "Applies the sigmoid activation function, squashing input values to the range (0, 1).",
                 "parameters": [
                     
                 ]
@@ -127,28 +132,31 @@
             {
                 "name": "Tanh",
                 "function": "torch.nn.Tanh",
+                "description": "Applies the hyperbolic tangent activation function, squashing input values to the range (-1, 1).",
                 "parameters": [
-                    
 
                 ]
             },
             {
                 "name": "ReLU",
                 "function": "torch.nn.ReLU",
+                "description": "Applies the rectified linear unit function, setting all negative values in the input tensor to zero.",
                 "parameters": [
-                    
+
                 ]
             },
             {
                 "name": "Leaky ReLU",
                 "function": "torch.nn.LeakyReLU",
+                "description": "Applies the Leaky ReLU activation function, allowing a small negative slope for negative inputs instead of setting them to zero.",
                 "parameters": [
-                    { "name": "negative_slope", "description": "Negative slope", "value": null }
+                    { "name": "negative_slope", "description": "Negative slope coefficient", "value": null }
                 ]
             },
             {
                 "name": "Softmax",
                 "function": "torch.nn.Softmax",
+                "description": "Applies the softmax function, converting logits into probabilities along a specified dimension.",
                 "parameters": [
                     { "name": "dim", "description": "Dimension along which softmax will be computed", "value": null }
                 ]
@@ -156,6 +164,7 @@
             {
                 "name": "Multihead Attention",
                 "function": "torch.nn.MultiheadAttention",
+                "description": "Performs multi-head attention over the input sequences, allowing the model to focus on different parts of the input simultaneously.",
                 "parameters": [
                     { "name": "embed_dim", "description": "Total dimension of the model input", "value": null },
                     { "name": "num_heads", "description": "Number of parallel attention heads", "value": null },
@@ -163,14 +172,16 @@
                     { "name": "bias", "description": "Whether to add bias to key and value sequences", "value": null },
                     { "name": "add_bias_kv", "description": "Whether to add bias to the key and value sequences", "value": null },
                     { "name": "add_zero_attn", "description": "Whether to add a new batch of zeros to key and value sequences at each forward call", "value": null },
-                    { "name": "kdim", "description": "Total number of features in key", "value": null },
-                    { "name": "vdim", "description": "Total number of features in value", "value": null }                ]
+                    { "name": "kdim", "description": "Total number of features in the key", "value": null },
+                    { "name": "vdim", "description": "Total number of features in the value", "value": null }
+                ]
             }
         ],
         "Convolutional Layers": [
             {
                 "name": "Conv1d",
                 "function": "torch.nn.Conv1d",
+                "description": "Applies a 1D convolution over an input signal composed of several input planes.",
                 "parameters": [
                 {
                     "name": "in_channels",
@@ -212,6 +223,7 @@
             {
                 "name": "Max Pooling 1d",
                 "function": "torch.nn.MaxPool1d",
+                "description": "Applies a 1D max pooling operation over an input signal.",
                 "parameters": [
                 {
                     "name": "kernel_size",
@@ -238,6 +250,7 @@
             {
                 "name": "Average Pooling 1d",
                 "function": "torch.nn.AvgPool1d",
+                "description": "Applies a 1D average pooling operation over an input signal.",
                 "parameters": [
                     
                     { "name": "kernel_size", "description": "Kernel size", "value": null },
@@ -250,6 +263,7 @@
             {
                 "name": "Conv2d",
                 "function": "torch.nn.Conv2d",
+                "description": "Applies a 2D convolution over an input signal composed of several input planes.",
                 "parameters": [
                     {
                         "name": "in_channels",
@@ -281,6 +295,7 @@
             {
                 "name": "Max Pooling 2d",
                 "function": "torch.nn.MaxPool2d",
+                "description": "Applies a 2D max pooling operation over an input signal.",
                 "parameters": [    
                     {
                         "name": "kernel_size",
@@ -307,6 +322,7 @@
             {
                 "name": "Average Pooling 2d",
                 "function": "torch.nn.AvgPool2d",
+                "description": "Applies a 2D average pooling operation over an input signal.",
                 "parameters": [
                     
                     { "name": "kernel_size", "description": "Kernel size", "value": null },

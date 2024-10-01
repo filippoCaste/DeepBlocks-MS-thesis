@@ -26,7 +26,7 @@ export default function Help() {
 
             <br />
             <h4>Superblock creation</h4>
-            <p>You can also create your own custom superblocks by right-clicking on a block, selecting it, and then pressing <em>Group</em>.</p>
+            <p>You can also create your own custom superblocks by right-clicking and selecting at least two blocks, and then pressing <em>Group</em>.</p>
             <Image src="./src/pages/imgs/help-blocks-selection.png" rounded alt="Select blocks" style={{ height: '700px', width: '800px' }} />
 
             <br />

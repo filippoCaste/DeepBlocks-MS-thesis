@@ -37,7 +37,7 @@ export default function SelectionBox({selectedNodes, createSuperblock, addMessag
             <Container>
                 <div className="selection-box">
                     <p>The number of selected nodes is: {selectedNodes.length} </p>
-                    <Button variant="primary" size="sm" onClick={() => handleCreateSuperblock()}>Group</Button>
+                    <Button variant="primary" disabled={selectedNodes.length < 2} size="sm" onClick={() => handleCreateSuperblock()}>Group</Button>
                     <Button variant="danger" size="sm" onClick={() => setShowConfirmation(true)}>Delete</Button>
                     <Button variant="secondary" size="sm" style={{
                         borderRadius: '50%',
